@@ -1,0 +1,14 @@
+# Creative Mode will give you unlimited blocks to build!
+creative_mode (Creative mode) bool false
+
+# Gives basic items for first survival time.
+give_initial_stuff (Give initial items) bool false
+
+# Makes chest to have opened animation
+chests_animation (Chest opening animation) bool true
+
+# Enables Dynamite
+enable_tnt (Enable TNT) bool true
+
+# Spawns Bonusboxes around the world
+enable_bonusbox (Enable Bonusboxes) bool true
