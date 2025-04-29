@@ -22,14 +22,10 @@ local function set_inventory(player)
 	if minetest.get_modpath("3d_armor") then
 		local player_name = player:get_player_name()
 		form = form ..
-		--"model[1.5,0.225;2,4;player;3d_armor_character.b3d;"..core.formspec_escape(table.concat(player_api.get_textures(player), ","))..";0,0;false;false;0,79;30]"..
 		"list[detached:"..player_name.."_armor;armor;0,0;1,1;]"..
 		"list[detached:"..player_name.."_armor;armor;0,1;1,1;1]"..
 		"list[detached:"..player_name.."_armor;armor;0,2;1,1;2]"..
 		"list[detached:"..player_name.."_armor;armor;0,3;1,1;3]"
-	else
-		--form = form ..
-		--"model[1.5,0;2,4;player;character.b3d;character.png;0,0;false;false;79;1]"
 	end
 	player:set_inventory_formspec(form)
 end

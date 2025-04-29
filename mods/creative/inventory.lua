@@ -321,65 +321,6 @@ function creative.register_tab(name, def)
     })
 end
 
---[[
-local inventory_data = {
-    blocks = {ofs = "-0.28,-0.35", img = "-0.13,-0.15", bg = "default:dirt_with_grass"},
-    stairs = {ofs = "0.88,-0.35", img = "1.03,-0.15", bg = "stairs:stair_default_mossycobble"},
-    bluestone = {ofs = "2.05,-0.35", img = "2.2,-0.15", bg = "mesecons_lightstone:lightstone_on"},
-    rail = {ofs = "3.22,-0.35", img = "3.39,-0.15", bg = "boats:boat"},
-    misc = {ofs = "4.4,-0.35", img = "4.54,-0.15", bg = "bucket:bucket_lava"},
-    food = {ofs = "5.57,-0.35", img = "5.72,-0.15", bg = "default:apple"},
-    tools = {ofs = "6.74,-0.35", img = "6.87,-0.15", bg = "default:pick_diamond"},
-    matr = {ofs = "7.91,-0.35", img = "8.05,-0.15", bg = "default:emerald"},
-    brew = {ofs = "9.07,-0.35", img = "9.22,-0.15", bg = "vessels:glass_bottle"},
-    all = {ofs = "10.18,0.83", img = "10.26,0.98", bg = "default:paper", rotate = "R270"},
-    inv = {ofs = "10.18,6.94", img = "10.26,7.1", bg = "default:chest", rotate = "R270"},
-}
-
-local filters = {
-    all = function(name, def, groups)
-        return true and not def.groups.stairs
-    end,
-    blocks = function(name, def, groups)
-        return minetest.registered_nodes[name] and
-            not def.mesecons and not def.groups.stairs and
-            (def.drawtype == "normal" or def.drawtype:sub(1, 5) == "glass" or def.drawtype:sub(1, 8) == "allfaces") or
-            found_in_list(name, {"cactus", "slimeblock"})
-    end,
-    ["stairs"] = function(name, def, groups)
-        return def.groups.stairs
-    end,
-    ["bluestone"] = function(name)
-        return name:find("mese") or found_in_list(name, {"^bluestone_torch:", "^tnt:", "^doors:"})
-    end,
-    ["rail"] = function(name, _, groups)
-        return found_in_list(name, {"^boats:", "^carts:"}) or groups.rail
-    end,
-    ["food"] = function(name, def, groups)
-        return def.groups.food
-    end,
-    ["tools"] = function(name)
-        return minetest.registered_tools[name] or found_in_list(name, {"arrow"})
-    end,
-    ["matr"] = function(name, def, groups)
-        return minetest.registered_craftitems[name] and
-            not found_in_list(name, {"^boats:", "^carts:", "^vessels:", "^pep:", "^bucket:", "^doors:"}) and
-            not def.on_use
-    end,
-    ["brew"] = function(name)
-        return found_in_list(name, {"^vessels:", "^pep:"})
-    end
-}
-filters["misc"] = function(name, def, groups)
-    for filter, func in pairs(filters) do
-        if filter ~= "misc" and filter ~= "all" and func(name, def, groups) then
-            return
-        end
-    end
-    return true
-end
-]]
-
 creative.register_tab("inv", {
     description = "Survival Inventory",
     icon = "default:chest",
