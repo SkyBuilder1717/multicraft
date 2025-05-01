@@ -55,32 +55,24 @@ minetest.register_tool("throwing:bow", {
 	end,
 })
 
+local function throwarrow(itemstack, user, pointed_thing)
+	local wear = itemstack:get_wear()
+		itemstack:replace("throwing:bow")
+		itemstack:add_wear(wear)
+		
+			if not creative then
+				itemstack:add_wear(65535/385)
+			end
+		
+	return itemstack
+end
+
 minetest.register_tool("throwing:bow_arrow", {
 	description = "Bow with arrow",
 	inventory_image = "throwing_bow_arrow.png",
-	groups = {not_in_creative_inventory=1},
-	on_place = function(itemstack, user, pointed_thing)
-		local wear = itemstack:get_wear()
-		itemstack:replace("throwing:bow")
-		itemstack:add_wear(wear)
-		if throwing_shoot_arrow(itemstack, user, pointed_thing) then
-			if not creative then
-				itemstack:add_wear(65535/385)
-			end
-		end
-	return itemstack
-	end,
-	on_use = function(itemstack, user, pointed_thing)
-		local wear = itemstack:get_wear()
-		itemstack:replace("throwing:bow")
-		itemstack:add_wear(wear)
-		if throwing_shoot_arrow(itemstack, user, pointed_thing) then
-			if not creative then
-				itemstack:add_wear(65535/385)
-			end
-		end
-		return itemstack
-	end,
+        groups = {not_in_creative_inventory=1},
+	on_place = throwarrow,
+	on_use = throwarrow
 })
 
 minetest.register_node("throwing:arrow_box", {
