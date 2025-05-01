@@ -1,3 +1,9 @@
+if not minetest["objects_inside_radius"] then
+    error("\n\nYour version of engine is too old for this game,"
+        .."\nand doesn't support newer functions of API!"
+        .."\n\nDownload newer version of engine to continue!\n")
+end
+
 local modpath = minetest.get_modpath(minetest.get_current_modname())
 dofile(modpath.."/flowlib.lua")
 
@@ -561,10 +567,7 @@ minetest.register_entity(":__builtin:item", {
 
 		local count = stack:get_count()
 		local max_count = stack:get_stack_max()
-		if count > max_count then
-			stack:set_count(max_count)
-		end
-
+	
 		local def = stack:get_definition()
 		local props_overrides = {}
 		if def._on_set_item_entity then
@@ -577,6 +580,7 @@ minetest.register_entity(":__builtin:item", {
 		self._on_entity_step = stack:get_definition()._on_entity_step
 		self.itemstring = stack:to_string()
 		local s = 0.2 + 0.1 * (count / max_count)
+		if s > 0.3 then s = 0.3 end
 		local wield_scale = (def and type(def.wield_scale) == "table" and tonumber(def.wield_scale.x)) or 1
 		local c = s
 		s = s / wield_scale
