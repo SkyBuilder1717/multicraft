@@ -396,6 +396,334 @@ function default.register_ores()
 end
 
 
+function default.register_no_limit_ores()
+
+	-- Blob ore
+	-- These first to avoid other ores in blobs
+
+	-- Clay
+	-- This first to avoid clay in sand blobs
+
+	core.register_ore({
+		ore_type        = "blob",
+		ore             = "default:clay",
+		wherein         = {"default:sand"},
+		clust_scarcity  = 16 * 16 * 16,
+		clust_size      = 5,
+		y_max           = 0,
+		y_min           = -15,
+		noise_threshold = 0.0,
+		noise_params    = {
+			offset = 0.5,
+			scale = 0.2,
+			spread = {x = 5, y = 5, z = 5},
+			seed = -316,
+			octaves = 1,
+			persist = 0.0
+		},
+	})
+
+	-- Sand
+
+	core.register_ore({
+		ore_type        = "blob",
+		ore             = "default:sand",
+		wherein         = {"default:stone", "default:sandstone"},
+		clust_scarcity  = 16 * 16 * 16,
+		clust_size      = 5,
+		y_max           = 4,
+		y_min           = -31,
+		noise_threshold = 0.0,
+		noise_params    = {
+			offset = 0.5,
+			scale = 0.2,
+			spread = {x = 5, y = 5, z = 5},
+			seed = 2316,
+			octaves = 1,
+			persist = 0.0
+		},
+	})
+
+	-- Red Sand
+
+	core.register_ore({
+		ore_type        = "blob",
+		ore             = "default:redsand",
+		wherein         = {"default:stone", "default:redsandstone"},
+		clust_scarcity  = 16 * 16 * 16,
+		clust_size      = 5,
+		y_max           = 6,
+		y_min           = -24,
+		noise_threshold = 0.0,
+		noise_params    = {
+			offset = 0.5,
+			scale = 0.2,
+			spread = {x = 5, y = 5, z = 5},
+			seed = 2316,
+			octaves = 1,
+			persist = 0.0
+		},
+	})
+
+	-- Dirt
+
+	core.register_ore({
+		ore_type        = "blob",
+		ore             = "default:dirt",
+		wherein         = {"default:stone", "default:sandstone"},
+		clust_scarcity  = 16 * 16 * 16,
+		clust_size      = 5,
+		y_max           = 31000,
+		y_min           = -31,
+		noise_threshold = 0.0,
+		noise_params    = {
+			offset = 0.5,
+			scale = 0.2,
+			spread = {x = 5, y = 5, z = 5},
+			seed = 17676,
+			octaves = 1,
+			persist = 0.0
+		},
+	})
+
+	-- Gravel
+
+	core.register_ore({
+		ore_type        = "blob",
+		ore             = "default:gravel",
+		wherein         = {"default:stone"},
+		clust_scarcity  = 16 * 16 * 16,
+		clust_size      = 5,
+		y_max           = 31000,
+		y_min           = -60,
+		noise_threshold = 0.0,
+		noise_params    = {
+			offset = 0.5,
+			scale = 0.2,
+			spread = {x = 5, y = 5, z = 5},
+			seed = 766,
+			octaves = 1,
+			persist = 0.0
+		},
+	})
+
+	-- Scatter ores
+
+	-- Coal
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_coal",
+		wherein        = "default:stone",
+		clust_scarcity = 8 * 8 * 8,
+		clust_num_ores = 9,
+		clust_size     = 3,
+		y_max          = 31000,
+		y_min          = 0,
+	})
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_coal",
+		wherein        = "default:stone",
+		clust_scarcity = 8 * 8 * 8,
+		clust_num_ores = 8,
+		clust_size     = 3,
+		y_min          = 8,
+		y_max          = -24,
+	})
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_coal",
+		wherein        = "default:stone",
+		clust_scarcity = 24 * 24 * 24,
+		clust_num_ores = 27,
+		clust_size     = 6,
+		y_max          = 0,
+		y_min          = -31000,
+	})
+
+	-- Iron
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_iron",
+		wherein        = "default:stone",
+		clust_scarcity = 830,
+		clust_num_ores = 5,
+		clust_size     = 3,
+		y_min          = -31000,
+		y_max          = -10,
+	})
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_iron",
+		wherein        = "default:stone",
+		clust_scarcity = 1660,
+		clust_num_ores = 3,
+		clust_size     = 2,
+		y_min          = -9,
+		y_max          = 0,
+	})
+
+	-- Gold
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_gold",
+		wherein        = "default:stone",
+		clust_scarcity = 13 * 13 * 13,
+		clust_num_ores = 5,
+		clust_size     = 3,
+		y_max          = -18,
+		y_min          = -24,
+	})
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_gold",
+		wherein        = "default:stone",
+		clust_scarcity = 15 * 15 * 15,
+		clust_num_ores = 3,
+		clust_size     = 2,
+		y_max          = -24,
+		y_min          = -31000,
+	})
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_gold",
+		wherein        = "default:stone",
+		clust_scarcity = 13 * 13 * 13,
+		clust_num_ores = 5,
+		clust_size     = 3,
+		y_max          = -48,
+		y_min          = -31000,
+	})
+
+	-- Diamond
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_diamond",
+		wherein        = "default:stone",
+		clust_scarcity = 10000,
+		clust_num_ores = 4,
+		clust_size     = 3,
+		y_max          = -48,
+		y_min          = -31000,
+	})
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_diamond",
+		wherein        = "default:stone",
+		clust_scarcity = 5000,
+		clust_num_ores = 2,
+		clust_size     = 2,
+		y_max          = -48,
+		y_min          = -31000,
+	})
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_diamond",
+		wherein        = "default:stone",
+		clust_scarcity = 10000,
+		clust_num_ores = 8,
+		clust_size     = 3,
+		y_max          = -52,
+		y_min          = -55,
+	})
+
+	-- Bluestone
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_bluestone",
+		wherein        = "default:stone",
+		clust_scarcity = 10000,
+		clust_num_ores = 5,
+		clust_size     = 3,
+		y_min          = -31000,
+		y_max          = -48,
+	})
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_bluestone",
+		wherein        = "default:stone",
+		clust_scarcity = 10000,
+		clust_num_ores = 10,
+		clust_size     = 4,
+		y_min          = -31000,
+		y_max          = -48,
+	})
+
+	-- Emerald
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_emerald",
+		wherein        = "default:stone",
+		clust_scarcity = 10000,
+		clust_num_ores = 1,
+		clust_size     = 2,
+		y_min     = -31000,
+		y_max     = -35,
+	})
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_emerald",
+		wherein        = "default:stone",
+		clust_scarcity = 50000,
+		clust_num_ores = 3,
+		clust_size     = 2,
+		y_min          = -31000,
+		y_max          = -35,
+	})
+
+	-- Lapis Lazuli
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_lapis",
+		wherein        = "default:stone",
+		clust_scarcity = 10000,
+		clust_num_ores = 7,
+		clust_size     = 4,
+		y_min          = -50,
+		y_max          = -46,
+	})
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:stone_with_lapis",
+		wherein        = "default:stone",
+		clust_scarcity = 10000,
+		clust_num_ores = 5,
+		clust_size     = 4,
+		y_min          = -31000,
+		y_max          = -50,
+	})
+
+	-- Glowstone
+
+	core.register_ore({
+		ore_type       = "scatter",
+		ore            = "default:glowstone",
+		wherein        = "default:stone",
+		clust_scarcity = 50000,
+		clust_num_ores = 10,
+		clust_size     = 5,
+		y_min          = -31000,
+		y_max          = -0,
+	})
+end
+
 --
 -- Register biomes
 --
@@ -1419,10 +1747,10 @@ elseif mg_name == "v7" and
 	default.register_biomes(default.mgv7_shadow_limit - 1)
 	default.register_floatland_biomes(
 		default.mgv7_floatland_level, default.mgv7_shadow_limit)
-	default.register_ores()
+	default.register_no_limit_ores()
 	default.register_decorations()
 else
 	default.register_biomes()
-	default.register_ores()
+	default.register_no_limit_ores()
 	default.register_decorations()
 end

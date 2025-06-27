@@ -217,6 +217,7 @@ function default.chest.register_chest(prefixed_name, d)
     end
     def.on_blast = function() end
     def.on_dig = function(pos, node, digger)
+        if string.find(node.name, "_open") then return false end
         local meta = core.get_meta(pos)
         local inv = meta:get_inventory()
         local list = inv:get_list("main")
