@@ -43,7 +43,10 @@ function craftpreview.show_formspec(player_name, itemname)
                 table.insert(formspec, "label["..(x0 + 3.5)..","..(y0 + 1.4)..";=]")
                 table.insert(formspec, "item_image["..(x0 + 4)..","..(y0 + 1)..";1,1;"..recipe.output.."]")
             else
-                local width = recipe.width or 1
+                local width = 1
+                if recipe.method ~= "cooking" then
+                    width = recipe.width or 1
+                end
                 local x0 = 1
                 local y0 = 6.5
                 

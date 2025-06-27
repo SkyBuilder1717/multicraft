@@ -138,7 +138,7 @@ mobs.add_eatable("mobs:chicken", 7)
 core.register_craft({
 	type = "cooking",
 	output = "mobs:chicken_cooked",
-	recipe = "mobs:chicken",
+	recipe = "mobs:chicken_raw",
 	cooktime = 5
 })
 

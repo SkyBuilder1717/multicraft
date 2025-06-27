@@ -567,12 +567,6 @@ core.register_craft({
 
 core.register_craft({
 	type = "cooking",
-	output = "default:chicken_cooked",
-	recipe = "default:chicken_raw",
-})
-
-core.register_craft({
-	type = "cooking",
 	output = "default:coal_lump",
 	recipe = "default:stone_with_coal",
 })
