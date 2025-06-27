@@ -157,7 +157,7 @@ core.register_chatcommand("rename_area", {
 			newName = chat_anticurse.replace_curse(newName)
 		end
 
-		newName = sub8(newName, 1, areas.config.max_area_name_length)
+		newName = sub8(newName, 2, areas.config.max_area_name_length)
 
 		areas.areas[id].name = newName
 		areas.areas[id].prev_owner = nil

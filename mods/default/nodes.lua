@@ -1453,7 +1453,10 @@ core.register_node("default:tallgrass", {
             {
                 rarity = 10,
                 items = {"farming:seed_wheat"},
-            }
+            },
+			{
+				items = {"default:tallgrass"}
+			}
         }
 	},
 	on_place = grass_place
