@@ -725,3 +725,12 @@ core.register_craft({
 	recipe = "default:sword_wood",
 	burntime = 5,
 })
+
+core.register_craft({
+	output = "default:stonebrickcarved",
+	recipe = {
+		{"default:stone", "default:stone", "default:stone"},
+		{"default:stone", "default:stone", "default:stone"},
+		{"default:stone", "default:stone", "default:stone"},
+	}
+})

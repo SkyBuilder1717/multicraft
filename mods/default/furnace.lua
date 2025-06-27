@@ -48,7 +48,7 @@ local function can_dig(pos, player)
 		stack:clear()
 		inv:set_stack(name, 1, stack)
 	end
-	return inv:is_empty("fuel") and inv:is_empty("dst") and inv:is_empty("src")
+	return true
 end
 
 local function allow_metadata_inventory_put(pos, listname, index, stack, player)
