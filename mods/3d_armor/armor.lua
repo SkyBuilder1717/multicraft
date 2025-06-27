@@ -152,7 +152,7 @@ local craft_ingreds = {
     steel = "default:steel_ingot",
     gold = "default:gold_ingot",
     diamond = "default:diamond",
-    chain = "fire:fire",
+    chain = "farming:string",
 }
 
 for k, v in pairs(craft_ingreds) do
