@@ -20,7 +20,7 @@ core.register_chatcommand("protect", {
 			param = chat_anticurse.replace_curse(param)
 		end
 
-		param = sub8(param, 1, areas.config.max_area_name_length)
+		param = sub8(param, 2, areas.config.max_area_name_length)
 
 		core.log("action", "/protect invoked, owner="..name..
 				" AreaName="..param..

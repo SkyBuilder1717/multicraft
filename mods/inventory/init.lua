@@ -15,9 +15,11 @@ local function set_inventory(player)
 	"list[detached:split;main;8,3.14;1,1;]"..
 	"image[1.5,0;2,4;default_player2d.png]"..
 	"image_button_exit[9.21,2.5;1,1;creative_home_set.png;sethome_set;;true;false]"..
-	"tooltip[sethome_set;Set Home;#000;#FFF]"..
+	"tooltip[sethome_set;Set Home]"..
 	"image_button_exit[9.21,3.5;1,1;creative_home_go.png;sethome_go;;true;false]"..
-	"tooltip[sethome_go;Go Home;#000;#FFF]"
+	"tooltip[sethome_go;Go Home]"..
+	"image_button_exit[9.21,4.5;1,1;creative_awards.png;awards;;true;false]"..
+	"tooltip[awards;Awards]"
 	-- Armor
 	if core.get_modpath("3d_armor") then
 		local player_name = player:get_player_name()
@@ -32,6 +34,16 @@ end
 
 -- Drop craft items on closing
 core.register_on_player_receive_fields(function(player, formname, fields)
+	if fields.awards then
+		local name = player:get_player_name()
+		awards.show_to(name, name, nil, false)
+		local inv = player:get_inventory()
+		for i, stack in ipairs(inv:get_list("craft")) do
+			core.item_drop(stack, player, player:get_pos())
+			stack:clear()
+			inv:set_stack("craft", i, stack)
+		end
+	end
 	if fields.quit then
 		local inv = player:get_inventory()
 		for i, stack in ipairs(inv:get_list("craft")) do
