@@ -28,13 +28,13 @@ for _, row in ipairs(dye.dyes) do
 	local groups = {dye = 1}
 	groups["color_" .. name] = 1
 
-	minetest.register_craftitem("dye:" .. name, {
+	core.register_craftitem("dye:" .. name, {
 		inventory_image = "dye_" .. name .. ".png",
 		description = description .. " Dye",
 		groups = groups
 	})
 
-	minetest.register_craft({
+	core.register_craft({
 		output = "dye:" .. name .. " 4",
 		recipe = {
 			{"group:flower,color_" .. name}
@@ -44,7 +44,7 @@ end
 
 -- Manually add coal -> black dye
 
-minetest.register_craft({
+core.register_craft({
 	output = "dye:black 4",
 	recipe = {
 		{"group:coal"}
@@ -83,28 +83,28 @@ local dye_recipes = {
 }
 
 for _, mix in pairs(dye_recipes) do
-	minetest.register_craft({
+	core.register_craft({
 		type = "shapeless",
 		output = 'dye:' .. mix[3] .. ' 2',
 		recipe = {'dye:' .. mix[1], 'dye:' .. mix[2]},
 	})
 end
 
-minetest.register_craft({
+core.register_craft({
 	output = "dye:white 3",
 	recipe = {
 		{"default:bone"},
 	}
 })
 
-minetest.register_craft({
+core.register_craft({
 	output = "dye:blue 9",
 	recipe = {
 		{"default:lapisblock"},
 	}
 })
 
-minetest.register_craft({
+core.register_craft({
 	output = "default:lapisblock",
 	recipe = {
 		{"dye:blue", "dye:blue", "dye:blue"},

@@ -1,25 +1,25 @@
-local c_dirt_with_grass				= minetest.get_content_id("default:dirt_with_grass")
-local c_dirt_with_snow				= minetest.get_content_id("default:dirt_with_snow")
-local c_dirt_with_dry_grass			= minetest.get_content_id("default:dirt_with_dry_grass")
---local c_dirt_with_coniferous_litter	= minetest.get_content_id("default:dirt_with_coniferous_litter")
-local c_sand						= minetest.get_content_id("default:sand")
-local c_desert_sand					= minetest.get_content_id("default:desert_sand")
-local c_silver_sand					= minetest.get_content_id("default:silver_sand")
+local c_dirt_with_grass				= core.get_content_id("default:dirt_with_grass")
+local c_dirt_with_snow				= core.get_content_id("default:dirt_with_snow")
+local c_dirt_with_dry_grass			= core.get_content_id("default:dirt_with_dry_grass")
+--local c_dirt_with_coniferous_litter	= core.get_content_id("default:dirt_with_coniferous_litter")
+local c_sand						= core.get_content_id("default:sand")
+local c_desert_sand					= core.get_content_id("default:desert_sand")
+local c_silver_sand					= core.get_content_id("default:silver_sand")
 --
-local c_air							= minetest.get_content_id("air")
-local c_snow						= minetest.get_content_id("default:snow")
--- local c_rose						= minetest.get_content_id("flowers:rose")
--- local c_viola						= minetest.get_content_id("flowers:viola")
--- local c_geranium					= minetest.get_content_id("flowers:geranium")
--- local c_tulip						= minetest.get_content_id("flowers:tulip")
--- local c_dandelion_y					= minetest.get_content_id("flowers:dandelion_yellow")
--- local c_dandelion_w					= minetest.get_content_id("flowers:dandelion_white")
--- local c_bush_leaves					= minetest.get_content_id("default:bush_leaves")
--- local c_bush_stem					= minetest.get_content_id("default:bush_stem")
--- local c_a_bush_leaves				= minetest.get_content_id("default:acacia_bush_leaves")
--- local c_a_bush_stem					= minetest.get_content_id("default:acacia_bush_stem")
--- local c_water_source				= minetest.get_content_id("default:water_source")
--- local c_water_flowing				= minetest.get_content_id("default:water_flowing")
+local c_air							= core.get_content_id("air")
+local c_snow						= core.get_content_id("default:snow")
+-- local c_rose						= core.get_content_id("flowers:rose")
+-- local c_viola						= core.get_content_id("flowers:viola")
+-- local c_geranium					= core.get_content_id("flowers:geranium")
+-- local c_tulip						= core.get_content_id("flowers:tulip")
+-- local c_dandelion_y					= core.get_content_id("flowers:dandelion_yellow")
+-- local c_dandelion_w					= core.get_content_id("flowers:dandelion_white")
+-- local c_bush_leaves					= core.get_content_id("default:bush_leaves")
+-- local c_bush_stem					= core.get_content_id("default:bush_stem")
+-- local c_a_bush_leaves				= core.get_content_id("default:acacia_bush_leaves")
+-- local c_a_bush_stem					= core.get_content_id("default:acacia_bush_stem")
+-- local c_water_source				= core.get_content_id("default:water_source")
+-- local c_water_flowing				= core.get_content_id("default:water_flowing")
 -------------------------------------------------------------------------------
 -- function to copy tables
 -------------------------------------------------------------------------------
@@ -49,18 +49,18 @@ function villages.find_surface_heightmap(pos, minp)
 		c_silver_sand
 	}
 	local p6 = villages.shallowCopy(pos)
-	local heightmap = minetest.get_mapgen_object("heightmap")
+	local heightmap = core.get_mapgen_object("heightmap")
 	-- get height of current pos p6
 	local hm_i = (p6.x - minp.x + 1) + (((p6.z - minp.z)) * 80)
 	p6.y = heightmap[hm_i]
 	local vi = va:index(p6.x, p6.y, p6.z)
-	local viname = minetest.get_name_from_content_id(data[vi])
+	local viname = core.get_name_from_content_id(data[vi])
 
 	for i, mats in ipairs(surface_mat) do
 		local node_check = va:index(p6.x, p6.y + 1, p6.z)
 		if node_check and vi and data[vi] == mats and
 			(data[node_check] ~= c_water_source) then
-			--	local tmp = minetest.get_name_from_content_id(data[node_check])
+			--	local tmp = core.get_name_from_content_id(data[node_check])
 			return p6, mats
 		end
 	end
@@ -86,7 +86,7 @@ function villages.find_surface(pos)
 	local itter -- count up or down
 	local cnt_max = 200
 	-- check, in which direction to look for surface
-	local s = minetest.get_node_or_nil(p6)
+	local s = core.get_node_or_nil(p6)
 	if s and string.find(s.name, "air") then
 		itter = -1
 	else
@@ -94,10 +94,10 @@ function villages.find_surface(pos)
 	end
 	while cnt < cnt_max do
 		cnt = cnt + 1
-		s = minetest.get_node_or_nil(p6)
+		s = core.get_node_or_nil(p6)
 		if s == nil or s.name == "ignore" then return nil end
 		for i, mats in ipairs(surface_mat) do
-			local node_check = minetest.get_node_or_nil({x = p6.x, y = p6.y + 1, z = p6.z})
+			local node_check = core.get_node_or_nil({x = p6.x, y = p6.y + 1, z = p6.z})
 			if node_check and s and s.name == mats and
 				(string.find(node_check.name, "air") or
 				 string.find(node_check.name, "snow") or
@@ -130,18 +130,18 @@ function villages.check_distance(building_pos, building_size)
 	return true
 end
 
-local mod_storage = minetest.get_mod_storage()
+local mod_storage = core.get_mod_storage()
 -------------------------------------------------------------------------------
 -- save list of generated villages
 -------------------------------------------------------------------------------
 function villages.save()
-	mod_storage:set_string("villages_in_world", minetest.serialize(villages_in_world))
+	mod_storage:set_string("villages_in_world", core.serialize(villages_in_world))
 end
 -------------------------------------------------------------------------------
 -- load list of generated villages
 -------------------------------------------------------------------------------
 function villages.load()
-	return minetest.deserialize(mod_storage:get_string("villages_in_world")) or {}
+	return core.deserialize(mod_storage:get_string("villages_in_world")) or {}
 end
 -------------------------------------------------------------------------------
 -- check distance to other villages
@@ -150,7 +150,7 @@ function villages.check_distance_other_villages(center_new_chunk)
 	for i, pos in ipairs(villages_in_world) do
 		local distance = vector.distance(center_new_chunk, pos)
 		if villages.debug then
-			minetest.chat_send_all("Dist: " .. distance)
+			core.chat_send_all("Dist: " .. distance)
 		end
 		if distance < villages.min_dist_villages then
 			return false
@@ -191,15 +191,15 @@ end
 -------------------------------------------------------------------------------
 function villages.fill_chest(pos)
 	-- find chests within radius
-	--local chestpos = minetest.find_node_near(pos, 6, {"default:chest"})
+	--local chestpos = core.find_node_near(pos, 6, {"default:chest"})
 	local chestpos = pos
 	-- initialize chest (mts chests don't have meta)
-	local meta = minetest.get_meta(chestpos)
+	local meta = core.get_meta(chestpos)
 	if meta:get_string("infotext") ~= "Chest" then
-		minetest.registered_nodes["default:chest"].on_construct(chestpos)
+		core.registered_nodes["default:chest"].on_construct(chestpos)
 	end
 	-- fill chest
-	local inv = minetest.get_inventory({type="node", pos=chestpos})
+	local inv = core.get_inventory({type="node", pos=chestpos})
 	if inv then
 		-- always
 		inv:add_item("main", "default:apple " .. math.random(1, 3))
@@ -224,13 +224,13 @@ end
 -------------------------------------------------------------------------------
 function villages.initialize_furnace(pos)
 	-- find chests within radius
-	local furnacepos = minetest.find_node_near(pos, 7, --radius
+	local furnacepos = core.find_node_near(pos, 7, --radius
 		{"default:furnace"})
 	-- initialize furnacepos (mts furnacepos don't have meta)
 	if furnacepos then
-		local meta = minetest.get_meta(furnacepos)
+		local meta = core.get_meta(furnacepos)
 		if meta:get_string("infotext") ~= "furnace" then
-			minetest.registered_nodes["default:furnace"].on_construct(furnacepos)
+			core.registered_nodes["default:furnace"].on_construct(furnacepos)
 		end
 	end
 end
@@ -255,15 +255,15 @@ function villages.initialize_nodes()
 			for xi = 0, width do
 				for zi = 0, depth do
 					local ptemp = {x = p.x + xi, y = p.y + yi, z = p.z + zi}
-					local node = minetest.get_node(ptemp)
+					local node = core.get_node(ptemp)
 					if node.name == "default:furnace" or
 						node.name == "default:chest" or
 						node.name == "default:bookshelf" then
-						minetest.registered_nodes[node.name].on_construct(ptemp)
+						core.registered_nodes[node.name].on_construct(ptemp)
 					end
 					-- when chest is found -> fill with stuff
 					if node.name == "default:chest" then
-						minetest.after(3, villages.fill_chest, ptemp)
+						core.after(3, villages.fill_chest, ptemp)
 					end
 				end
 			end
@@ -343,7 +343,7 @@ function villages.evaluate_heightmap()
 	end
 	-- debug info
 	if villages.debug then
-		minetest.chat_send_all("Heightdiff: " .. height_diff)
+		core.chat_send_all("Heightdiff: " .. height_diff)
 	end
 	return height_diff
 end

@@ -1,13 +1,13 @@
 local S = areas.S
-local radius = minetest.settings:get("areasprotector_radius") or 8
+local radius = core.settings:get("areasprotector_radius") or 8
 local function cyan(str)
-	return minetest.colorize("#7CFC00", str)
+	return core.colorize("#7CFC00", str)
 end
 local function red(str)
-	return minetest.colorize("#FF0000", str)
+	return core.colorize("#FF0000", str)
 end
 local vadd, vnew = vector.add, vector.new
-minetest.register_node("areas:protector", {
+core.register_node("areas:protector", {
 	description = S("Protector Block"),
 	tiles = {
 		"default_stonebrick_carved.png",
@@ -22,8 +22,8 @@ minetest.register_node("areas:protector", {
 		local name = player and player:get_player_name()
 		if not name or not minetest.is_protected(pos, name) then
 			-- Don't replace nodes that aren't buildable to
-			local old_node = minetest.get_node(pos)
-			local def = minetest.registered_nodes[old_node.name]
+			local old_node = core.get_node(pos)
+			local def = core.registered_nodes[old_node.name]
 			if not def or not def.buildable_to then
 				return itemstack
 			end
@@ -31,22 +31,22 @@ minetest.register_node("areas:protector", {
 			local pos2 = vadd(pos, vnew(-radius, -radius, -radius))
 			local perm, err = areas:canPlayerAddArea(pos1, pos2, name)
 			if not perm then
-				minetest.chat_send_player(name,
+				core.chat_send_player(name,
 					red(S("You are not allowed to protect that area: @1", err)))
 				return itemstack
 			end
-			if minetest.find_node_near(pos, radius / 2, {"areas:protector"}) then
-				minetest.chat_send_player(name, red(S("You have already protected this area.")))
+			if core.find_node_near(pos, radius / 2, {"areas:protector"}) then
+				core.chat_send_player(name, red(S("You have already protected this area.")))
 				return itemstack
 			end
 			local id = areas:add(name, S("Protector Block"), pos1, pos2)
 			areas:save()
-			minetest.chat_send_player(name,
+			core.chat_send_player(name,
 				S("The area from @1 to @2 has been protected as ID @3",
-				cyan(minetest.pos_to_string(pos1)), cyan(minetest.pos_to_string(pos2)), cyan(id))
+				cyan(core.pos_to_string(pos1)), cyan(core.pos_to_string(pos2)), cyan(id))
 			)
-			minetest.set_node(pos, {name = "areas:protector"})
-			local meta = minetest.get_meta(pos)
+			core.set_node(pos, {name = "areas:protector"})
+			local meta = core.get_meta(pos)
 			meta:set_string("infotext", S("Protected area @1, Owned by @2", id, name))
 			meta:set_int("area_id", id)
 			itemstack:take_item()
@@ -60,24 +60,24 @@ minetest.register_node("areas:protector", {
 			if areas.areas[id] and areas:isAreaOwner(id, name) then
 				areas:remove(id)
 				areas:save()
-				minetest.chat_send_player(name, S("Removed area @1", cyan(id)))
+				core.chat_send_player(name, S("Removed area @1", cyan(id)))
 			end
 		end
 	end,
 	on_punch = function(pos)
 		-- a radius of 0.5 since the entity serialization seems to be not that precise
-		local objs = minetest.get_objects_inside_radius(pos, 0.5)
+		local objs = core.get_objects_inside_radius(pos, 0.5)
 		for _, obj in pairs(objs) do
 			if not obj:is_player() and obj:get_luaentity().name == "areas:display" then
 				obj:remove()
 				return
 			end
 		end
-		minetest.add_entity(pos, "areas:display")
+		core.add_entity(pos, "areas:display")
 	end
 })
 -- entities code below (and above) mostly copied-pasted from Zeg9's protector mod
-minetest.register_entity("areas:display", {
+core.register_entity("areas:display", {
 	physical = false,
 	collisionbox = {0},
 	visual = "wielditem",
@@ -88,13 +88,13 @@ minetest.register_entity("areas:display", {
 	on_step = function(self, dtime)
 		self.timer = self.timer + dtime
 		if self.timer > 4 or
-				minetest.get_node(self.object:get_pos()).name ~= "areas:protector" then
+				core.get_node(self.object:get_pos()).name ~= "areas:protector" then
 			self.object:remove()
 		end
 	end
 })
 local nb_radius = radius + 0.55
-minetest.register_node("areas:display_node", {
+core.register_node("areas:display_node", {
 	tiles = {"areas_protector_display.png"},
 	use_texture_alpha = "clip",
 	walkable = false,
@@ -120,7 +120,7 @@ minetest.register_node("areas:display_node", {
 	groups = {dig_immediate = 3, not_in_creative_inventory = 1},
 	drop = ""
 })
-minetest.register_craft({
+core.register_craft({
 	output = "areas:protector",
 	type = "shapeless",
 	recipe = {
@@ -134,5 +134,5 @@ if mesecon and mesecon.register_mvps_stopper then
 	mesecon.register_mvps_stopper("areas:protector")
 end
 -- Aliases
-minetest.register_alias("areasprotector:protector", "areas:protector")
-minetest.register_alias("areasprotector:display_node", "areas:display_node")
+core.register_alias("areasprotector:protector", "areas:protector")
+core.register_alias("areasprotector:display_node", "areas:display_node")

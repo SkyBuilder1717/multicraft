@@ -4,20 +4,20 @@ function areas:player_exists(name)
 	if type(name) ~= "string" then
 		return false
 	end
-	return minetest.get_auth_handler().get_auth(name) ~= nil
+	return core.get_auth_handler().get_auth(name) ~= nil
 end
 
 -- Save the areas table to a file
 function areas:save()
 	-- HACK: Add the version code at the end so that areas can be downgraded
-	-- without issue, minetest.parse_json ignores extra data at the end of the
+	-- without issue, core.parse_json ignores extra data at the end of the
 	-- string.
-	local datastr = minetest.write_json(self.areas, true) .. "\nv2"
+	local datastr = core.write_json(self.areas, true) .. "\nv2"
 	if not datastr then
-		minetest.log("error", "[areas] Failed to serialize area data!")
+		core.log("error", "[areas] Failed to serialize area data!")
 		return
 	end
-	return minetest.safe_file_write(self.config.filename, datastr)
+	return core.safe_file_write(self.config.filename, datastr)
 end
 
 local function migrate_by_strings(self)
@@ -45,7 +45,7 @@ local function migrate_by_strings(self)
 	end
 
 	if migrated > 0 then
-		minetest.log("action", "[areas] Migrated " .. migrated ..
+		core.log("action", "[areas] Migrated " .. migrated ..
 			" \"(by <player>)\" strings in area names")
 
 		self:save()
@@ -66,15 +66,15 @@ function areas:load()
 			data = data:sub(1, -4)
 			need_migration = false
 		end
-		self.areas, err = minetest.parse_json(data)
+		self.areas, err = core.parse_json(data)
 	else
-		self.areas, err = minetest.deserialize(data)
+		self.areas, err = core.deserialize(data)
 	end
 	if type(self.areas) ~= "table" then
 		self.areas = {}
 	end
 	if err and #data > 10 then
-		minetest.log("error", "[areas] Failed to load area data: " ..
+		core.log("error", "[areas] Failed to load area data: " ..
 			tostring(err))
 	end
 	file:close()
@@ -90,7 +90,7 @@ end
 -- @return Whether the ID was valid.
 function areas:checkAreaStoreId(sid)
 	if not sid then
-		minetest.log("error", "AreaStore failed to find an ID for an "
+		core.log("error", "AreaStore failed to find an ID for an "
 			.. "area! Falling back to iterative area checking.")
 		self.store = nil
 		self.store_ids = nil
@@ -258,7 +258,7 @@ end
 -- Also checks the size of the area and if the user already
 -- has more than max_areas.
 function areas:canPlayerAddArea(pos1, pos2, name)
-	local privs = minetest.get_player_privs(name)
+	local privs = core.get_player_privs(name)
 	if privs.areas then
 		return true
 	end
@@ -308,7 +308,7 @@ function areas:canPlayerAddArea(pos1, pos2, name)
 end
 
 function areas:canPlayerAddOwner(pos1, pos2, name)
-	local privs = minetest.get_player_privs(name)
+	local privs = core.get_player_privs(name)
 	if privs.areas then
 		return true
 	end
@@ -347,8 +347,8 @@ function areas:toString(id)
 	local area = self.areas[id]
 	local message = ("%s [%d]: %s %s %s"):format(
 		area.name, id, area.owner,
-		minetest.pos_to_string(area.pos1),
-		minetest.pos_to_string(area.pos2))
+		core.pos_to_string(area.pos1),
+		core.pos_to_string(area.pos2))
 
 	local children = areas:getChildren(id)
 	if #children > 0 then
@@ -378,7 +378,7 @@ end
 -- Checks if a player owns an area or a parent of it
 function areas:isAreaOwner(id, name)
 	local cur = self.areas[id]
-	if cur and minetest.check_player_privs(name, self.adminPrivs) then
+	if cur and core.check_player_privs(name, self.adminPrivs) then
 		return true
 	end
 	while cur do

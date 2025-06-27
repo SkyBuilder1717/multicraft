@@ -92,8 +92,7 @@ function craftpreview.show_formspec(player_name, itemname)
             i = i + 1
         end
     end
-
-    -- Прокрутка
+    
     table.insert(formspec, "scrollbaroptions[min=0;max="..(rows * 10).."]")
     table.insert(formspec, "scrollbar[11,1;0.6,4.5;vertical;craft_scroll;0]")
     table.insert(formspec, "scroll_container[0.75,1;10,4.5;craft_scroll;vertical]")

@@ -12,7 +12,7 @@ function villages.ground(pos) -- role model: Wendelsteinkircherl, Brannenburg
 		if cnt > math.random(2, 4) then
 			mat = "default:stone"
 		end
-		minetest.swap_node(p2, {name = mat})
+		core.swap_node(p2, {name = mat})
 		p2.y = p2.y - 1
 	end
 end
@@ -52,11 +52,11 @@ function villages.terraform()
 					else
 						-- write ground
 						local p = {x = pos.x + xi, y = pos.y + yi, z = pos.z + zi}
-						minetest.forceload_block(p)
-						local node = minetest.get_node_or_nil(p)
+						core.forceload_block(p)
+						local node = core.get_node_or_nil(p)
 						if node then
 							if node.name ~= "air" then
-								minetest.swap_node(p, {name="air"})
+								core.swap_node(p, {name="air"})
 							end
 						end
 					end

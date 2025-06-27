@@ -4,12 +4,12 @@ local MAXLISTSIZE = 100
 
 local strfind, format = string.find, string.format
 
-local ESC = minetest.formspec_escape
+local ESC = core.formspec_escape
 
 local function make_list(filter)
 	filter = filter or ""
 	local list, n, dropped = { }, 0, false
-	for k in minetest.get_auth_handler().iterate() do
+	for k in core.get_auth_handler().iterate() do
 		if strfind(k, filter, 1, true) then
 			if n >= MAXLISTSIZE then
 				dropped = true
@@ -98,28 +98,28 @@ local function make_fs(name)
 	return table.concat(fs)
 end
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
 	if formname ~= FORMNAME then return end
 	local name = player:get_player_name()
-	if not minetest.check_player_privs(name, { ban=true }) then
-		minetest.log("warning",
+	if not core.check_player_privs(name, { ban=true }) then
+		core.log("warning",
 				"[xban2] Received fields from unauthorized user: "..name)
 		return
 	end
 	local state = get_state(name)
 	if fields.player then
-		local t = minetest.explode_textlist_event(fields.player)
+		local t = core.explode_textlist_event(fields.player)
 		if (t.type == "CHG") or (t.type == "DCL") then
 			state.player_index = t.index
-			minetest.show_formspec(name, FORMNAME, make_fs(name))
+			core.show_formspec(name, FORMNAME, make_fs(name))
 		end
 		return
 	end
 	if fields.entry then
-		local t = minetest.explode_textlist_event(fields.entry)
+		local t = core.explode_textlist_event(fields.entry)
 		if (t.type == "CHG") or (t.type == "DCL") then
 			state.entry_index = t.index
-			minetest.show_formspec(name, FORMNAME, make_fs(name))
+			core.show_formspec(name, FORMNAME, make_fs(name))
 		end
 		return
 	end
@@ -127,15 +127,15 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		local filter = fields.filter or ""
 		state.filter = filter
 		state.list = make_list(filter)
-		minetest.show_formspec(name, FORMNAME, make_fs(name))
+		core.show_formspec(name, FORMNAME, make_fs(name))
 	end
 end)
 
-minetest.register_chatcommand("xban_gui", {
+core.register_chatcommand("xban_gui", {
 	description = "Show XBan GUI",
 	params = "",
 	privs = { ban=true, },
 	func = function(name, params)
-		minetest.show_formspec(name, FORMNAME, make_fs(name))
+		core.show_formspec(name, FORMNAME, make_fs(name))
 	end,
 })

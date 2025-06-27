@@ -1,8 +1,8 @@
-local mod_start_time = minetest.get_us_time()
+local mod_start_time = core.get_us_time()
 local bow_charged_timer = 0
 
 bows = {
-	pvp = minetest.settings:get_bool('enable_pvp') or false,
+	pvp = core.settings:get_bool('enable_pvp') or false,
 	registered_arrows = {},
 	registered_bows = {},
 	player_bow_sneak = {}
@@ -21,7 +21,7 @@ function bows.register_bow(name, def)
 	bows.registered_bows[def.name_charged] = def
 
 	-- not charged bow
-	minetest.register_tool(def.name, {
+	core.register_tool(def.name, {
 		description = def.description,
 		inventory_image = def.inventory_image or 'bows_bow.png',
 		-- on_use = function(itemstack, user, pointed_thing)
@@ -33,7 +33,7 @@ function bows.register_bow(name, def)
 	})
 
 	-- charged bow
-	minetest.register_tool(def.name_charged, {
+	core.register_tool(def.name_charged, {
 		description = def.description,
 		inventory_image = def.inventory_image_charged or 'bows_bow_charged.png',
 		on_use = bows.shoot,
@@ -42,7 +42,7 @@ function bows.register_bow(name, def)
 
 	-- recipes
 	if def.recipe then
-		minetest.register_craft({
+		core.register_craft({
 			output = def.name,
 			recipe = def.recipe
 		})
@@ -59,7 +59,7 @@ function bows.register_arrow(name, def)
 
 	bows.registered_arrows[def.name] = def
 
-	minetest.register_craftitem('bows:' .. name, {
+	core.register_craftitem('bows:' .. name, {
 		description = def.description,
 		inventory_image = def.inventory_image,
 		groups = {arrow = 1, flammable = 1}
@@ -67,7 +67,7 @@ function bows.register_arrow(name, def)
 
 	-- recipes
 	if def.craft then
-		minetest.register_craft({
+		core.register_craft({
 			output = def.name ..' ' .. (def.craft_count or 4),
 			recipe = def.craft
 		})
@@ -75,22 +75,22 @@ function bows.register_arrow(name, def)
 end
 
 function bows.load(itemstack, user, pointed_thing)
-	local time_load = minetest.get_us_time()
+	local time_load = core.get_us_time()
 	local inv = user:get_inventory()
 	local bow_name = itemstack:get_name()
 	local bow_def = bows.registered_bows[bow_name .. '_charged']
     local player_name = user:get_player_name()
     
 	if pointed_thing.under then
-		local node = minetest.get_node(pointed_thing.under)
-		local node_def = minetest.registered_nodes[node.name]
+		local node = core.get_node(pointed_thing.under)
+		local node_def = core.registered_nodes[node.name]
 
 		if node_def and node_def.on_rightclick then
 			return node_def.on_rightclick(pointed_thing.under, node, user, itemstack, pointed_thing)
 		end
 	end
 
-minetest.after(0, function(v_user, v_bow_name, v_time_load)
+core.after(0, function(v_user, v_bow_name, v_time_load)
 			local wielded_item = v_user:get_wielded_item()
 			local wielded_item_name = wielded_item:get_name()
 
@@ -118,7 +118,7 @@ minetest.after(0, function(v_user, v_bow_name, v_time_load)
 end
 
 function bows.shoot(itemstack, user, pointed_thing)
-	local time_shoot = minetest.get_us_time();
+	local time_shoot = core.get_us_time();
 	local meta = itemstack:get_meta()
 	local meta_arrow = meta:get_string('arrow')
 	local time_load = tonumber(meta:get_string('time_load'))
@@ -154,7 +154,7 @@ function bows.shoot(itemstack, user, pointed_thing)
 
 	local pos = user:get_pos()
 	local dir = user:get_look_dir()
-	local obj = minetest.add_entity({x = pos.x, y = pos.y + 1.5, z = pos.z}, 'bows:arrow_entity', minetest.serialize(staticdata))
+	local obj = core.add_entity({x = pos.x, y = pos.y + 1.5, z = pos.z}, 'bows:arrow_entity', core.serialize(staticdata))
 
 	if not obj then
 		return itemstack
@@ -171,13 +171,13 @@ function bows.shoot(itemstack, user, pointed_thing)
 
 	obj:set_velocity(vector.multiply(dir, strength))
 	obj:set_acceleration({x = dir.x * -3, y = -10, z = dir.z * -3})
-	obj:set_yaw(minetest.dir_to_yaw(dir))
+	obj:set_yaw(core.dir_to_yaw(dir))
 
 	if not player_api.is_enabled_for(user:get_player_name()) then
 		itemstack:add_wear(65535 / uses)
 	end
 
-	minetest.sound_play('bows_sound', {
+	core.sound_play('bows_sound', {
 		gain = 0.3,
 		pos = user:get_pos(),
 		max_hear_distance = 10
@@ -188,7 +188,7 @@ end
 
 function bows.particle_effect(pos, type)
 	if type == 'arrow' then
-		return minetest.add_particlespawner({
+		return core.add_particlespawner({
 			amount = 1,
 			time = 0.1,
 			minpos = pos,
@@ -207,7 +207,7 @@ function bows.particle_effect(pos, type)
 			glow = 1
 		})
 	elseif type == 'arrow_crit' then
-		return minetest.add_particlespawner({
+		return core.add_particlespawner({
 			amount = 3,
 			time = 0.1,
 			minpos = pos,
@@ -226,7 +226,7 @@ function bows.particle_effect(pos, type)
 			glow = 1
 		})
 	elseif type == 'bubble' then
-		return minetest.add_particlespawner({
+		return core.add_particlespawner({
 			amount = 1,
 			time = 1,
 			minpos = pos,
@@ -242,7 +242,7 @@ function bows.particle_effect(pos, type)
 			texture = 'bubble.png'
 		})
 	elseif type == 'arrow_tipped' then
-		return minetest.add_particlespawner({
+		return core.add_particlespawner({
 			amount = 5,
 			time = 1,
 			minpos = vector.subtract(pos, 0.5),
@@ -268,11 +268,11 @@ function bows.particle_effect(pos, type)
 end
 
 -- sneak, fov adjustments when bow is charged
-minetest.register_globalstep(function(dtime)
+core.register_globalstep(function(dtime)
 	bow_charged_timer = bow_charged_timer + dtime
 
 	if bow_charged_timer > 0.5 then
-		for _, player in ipairs(minetest.get_connected_players()) do
+		for _, player in ipairs(core.get_connected_players()) do
 			local name = player:get_player_name()
 			local stack = player:get_wielded_item()
 			local item = stack:get_name()
@@ -286,11 +286,11 @@ minetest.register_globalstep(function(dtime)
 			end
 
 			if item == 'bows:bow_charged' and not bows.player_bow_sneak[name].sneak then
-				if minetest.get_modpath('playerphysics') then
+				if core.get_modpath('playerphysics') then
 					playerphysics.add_physics_factor(player, 'speed', 'bows:bow_charged', 0.25)
-				elseif minetest.get_modpath('player_monoids') then
+				elseif core.get_modpath('player_monoids') then
 					player_monoids.speed:add_change(player, 0.25, 'bows:bow_charged')
-				elseif minetest.get_modpath('pova') then
+				elseif core.get_modpath('pova') then
 					pova.add_override(player:get_player_name(),
 						'bows:bow_charged', {speed = -0.75})
 					pova.do_override(player)
@@ -299,11 +299,11 @@ minetest.register_globalstep(function(dtime)
 				bows.player_bow_sneak[name].sneak = true
 				player:set_fov(0.9, true, 0.4)
 			elseif item ~= 'bows:bow_charged' and bows.player_bow_sneak[name].sneak then
-				if minetest.get_modpath('playerphysics') then
+				if core.get_modpath('playerphysics') then
 					playerphysics.remove_physics_factor(player, 'speed', 'bows:bow_charged')
-				elseif minetest.get_modpath('player_monoids') then
+				elseif core.get_modpath('player_monoids') then
 					player_monoids.speed:del_change(player, 'bows:bow_charged')
-				elseif minetest.get_modpath('pova') then
+				elseif core.get_modpath('pova') then
 					pova.del_override(player:get_player_name(),
 						'bows:bow_charged')
 					pova.do_override(player)
@@ -318,10 +318,10 @@ minetest.register_globalstep(function(dtime)
 	end
 end)
 
-local path = minetest.get_modpath('bows')
+local path = core.get_modpath('bows')
 
 dofile(path .. '/arrow.lua')
 dofile(path .. '/items.lua')
 dofile(path .. '/nodes.lua')
 
-local mod_end_time = (minetest.get_us_time() - mod_start_time) / 1000000
+local mod_end_time = (core.get_us_time() - mod_start_time) / 1000000

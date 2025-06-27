@@ -45,22 +45,22 @@ function signs.generate_sign_texture(string)
 	return texture
 end
 
-minetest.register_entity("signs:sign_text", {
+core.register_entity("signs:sign_text", {
 	initial_properties = {
 		visual = "upright_sprite",
 		textures = {"blank.png", "blank.png"},
 		visual_size = {x = 0.7, y = 0.6},
 		collisionbox = {0, 0, 0, 0, 0, 0},
 		selectionbox = {0, 0, 0, 0, 0, 0},
+		pointable = false	
 	},
-	pointable = false,
 	on_activate = function(self, staticdata)
 		self.object:set_properties({
 			textures = {signs.generate_sign_texture(staticdata), "blank.png"}
 		})
 	end,
 	get_staticdata = function(self)
-		local meta = minetest.get_meta(self.object:get_pos())
+		local meta = core.get_meta(self.object:get_pos())
 		local text = meta:get_string("sign_text")
 		if text and text ~= "" then
 			return text
@@ -70,11 +70,11 @@ minetest.register_entity("signs:sign_text", {
 })
 
 local function check_text(pos, wall)
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	local text = meta:get_string("sign_text")
 	if text and text ~= "" then
 		local found = false
-		for _, obj in pairs(minetest.get_objects_inside_radius(pos, 0.5)) do
+		for _, obj in pairs(core.get_objects_inside_radius(pos, 0.5)) do
 						local ent = obj:get_luaentity()
 						if ent and ent.name == "signs:sign_text" then
 								found = true
@@ -82,17 +82,17 @@ local function check_text(pos, wall)
 						end
 				end
 		if not found then
-			local p2 = minetest.get_node(pos).param2
+			local p2 = core.get_node(pos).param2
 			if not p2 or p2 > 3 or p2 < 0 then return end
 			if wall then
-				local obj = minetest.add_entity(vector.add(pos,
+				local obj = core.add_entity(vector.add(pos,
 					signs.wall_sign_positions[p2][1]), "signs:sign_text")
 				obj:set_properties({
 					textures = {signs.generate_sign_texture(text), "blank.png"}
 				})
 				obj:set_yaw(signs.wall_sign_positions[p2][2])
 			else
-				local obj = minetest.add_entity(vector.add(pos,
+				local obj = core.add_entity(vector.add(pos,
 					signs.sign_positions[p2][1]), "signs:sign_text")
 				obj:set_properties({
 					textures = {signs.generate_sign_texture(text), "blank.png"}
@@ -103,7 +103,7 @@ local function check_text(pos, wall)
 	end
 end
 
-minetest.register_lbm({
+core.register_lbm({
 	label = "Check for sign text",
 	name = "signs:sign_text",
 	nodenames = {"signs:sign"},
@@ -113,7 +113,7 @@ minetest.register_lbm({
 	end,
 })
 
-minetest.register_lbm({
+core.register_lbm({
 	label = "Check for sign text (Wall)",
 	name = "signs:wall_sign_text",
 	nodenames = {"signs:wall_sign"},
@@ -123,7 +123,7 @@ minetest.register_lbm({
 	end,
 })
 
-minetest.register_node("signs:sign", {
+core.register_node("signs:sign", {
 	description = "Sign",
 	tiles = {"default_wood.png"},
 	drawtype = "nodebox",
@@ -144,22 +144,22 @@ minetest.register_node("signs:sign", {
 			if undery > posy then -- Trying to place on celling, not allowed
 				return itemstack
 			elseif undery == posy then -- Wall sign
-				local count, success = minetest.item_place(
+				local count, success = core.item_place(
 					ItemStack("signs:wall_sign"), placer, pointed_thing)
 				if success then
 					return itemstack:take_item(1)
 				end
 			else -- Normal sign
-				return minetest.item_place(itemstack, placer, pointed_thing)
+				return core.item_place(itemstack, placer, pointed_thing)
 			end
 		end
 	end,
 	on_construct = function(pos)
-		local meta = minetest.get_meta(pos)
+		local meta = core.get_meta(pos)
 		meta:set_string("formspec", "field[Dtext;Enter your text:;${sign_text}]")
 	end,
 	on_destruct = function(pos)
-		for _, obj in pairs(minetest.get_objects_inside_radius(pos, 0.5)) do
+		for _, obj in pairs(core.get_objects_inside_radius(pos, 0.5)) do
 			local ent = obj:get_luaentity()
 			if ent and ent.name == "signs:sign_text" then
 				obj:remove()
@@ -174,12 +174,12 @@ minetest.register_node("signs:sign", {
 		if not fields.Dtext then
 			return
 		end
-		local p2 = minetest.get_node(pos).param2
+		local p2 = core.get_node(pos).param2
 		if p2 > 3 then
 			return
 		end
 		local found = false
-		for _, obj in pairs(minetest.get_objects_inside_radius(pos, 0.5)) do
+		for _, obj in pairs(core.get_objects_inside_radius(pos, 0.5)) do
 			local ent = obj:get_luaentity()
 			if ent and ent.name == "signs:sign_text" then
 				obj:set_properties(
@@ -191,20 +191,20 @@ minetest.register_node("signs:sign", {
 			end
 		end
 		if not found then
-			local obj = minetest.add_entity(vector.add(pos,
+			local obj = core.add_entity(vector.add(pos,
 				signs.sign_positions[p2][1]), "signs:sign_text")
 			obj:set_properties({
 				textures = {signs.generate_sign_texture(fields.Dtext), "blank.png"}
 			})
 			obj:set_yaw(signs.sign_positions[p2][2])
 		end
-		local meta = minetest.get_meta(pos)
+		local meta = core.get_meta(pos)
 		meta:set_string("sign_text", fields.Dtext)
 	end,
 	groups = {oddly_breakable_by_hand = 1, choppy = 3, attached_node = 1},
 })
 
-minetest.register_node("signs:wall_sign", {
+core.register_node("signs:wall_sign", {
 	description = "Sign",
 	tiles = {"default_wood.png"},
 	drawtype = "nodebox",
@@ -218,11 +218,11 @@ minetest.register_node("signs:wall_sign", {
 	},
 	drop = "signs:sign",
 	on_construct = function(pos)
-		local meta = minetest.get_meta(pos)
+		local meta = core.get_meta(pos)
 		meta:set_string("formspec", "field[Dtext;Enter your text:;${sign_text}]")
 	end,
 	on_destruct = function(pos)
-		for _, obj in pairs(minetest.get_objects_inside_radius(pos, 0.5)) do
+		for _, obj in pairs(core.get_objects_inside_radius(pos, 0.5)) do
 			local ent = obj:get_luaentity()
 			if ent and ent.name == "signs:sign_text" then
 				obj:remove()
@@ -237,12 +237,12 @@ minetest.register_node("signs:wall_sign", {
 		if not fields.Dtext then
 			return
 		end
-		local p2 = minetest.get_node(pos).param2 - 2
+		local p2 = core.get_node(pos).param2 - 2
 		if p2 > 3 and p2 < 0 then
 			return
 		end
 		local found = false
-		for _, obj in pairs(minetest.get_objects_inside_radius(pos, 0.5)) do
+		for _, obj in pairs(core.get_objects_inside_radius(pos, 0.5)) do
 			local ent = obj:get_luaentity()
 			if ent and ent.name == "signs:sign_text" then
 				obj:set_properties({
@@ -254,21 +254,21 @@ minetest.register_node("signs:wall_sign", {
 			end
 		end
 		if not found and signs.wall_sign_positions[p2] then
-			local obj = minetest.add_entity(vector.add(pos,
+			local obj = core.add_entity(vector.add(pos,
 				signs.wall_sign_positions[p2][1]), "signs:sign_text")
 			obj:set_properties({
 				textures = {signs.generate_sign_texture(fields.Dtext), "blank.png"}
 			})
 			obj:set_yaw(signs.wall_sign_positions[p2][2])
 		end
-		local meta = minetest.get_meta(pos)
+		local meta = core.get_meta(pos)
 		meta:set_string("sign_text", fields.Dtext)
 	end,
 	groups = {oddly_breakable_by_hand = 1, choppy = 3,
 		not_in_creative_inventory = 1, attached_node = 1},
 })
 
-minetest.register_craft({
+core.register_craft({
 	output = "signs:sign 3",
 	recipe = {
 		{"group:wood", "group:wood", "group:wood"},

@@ -2,11 +2,11 @@ function round(num)
 	return math.floor(num + 0.5)
 end
 
-minetest.register_playerstep(function(dtime, playernames)
-	local now = round((minetest.get_timeofday() * 24) % 12)
+core.register_playerstep(function(dtime, playernames)
+	local now = round((core.get_timeofday() * 24) % 12)
 	if now == 12 then now = 0 end
 	for i, name in ipairs(playernames) do
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if player and player:is_player() then
 			local item = player:get_wielded_item()
 			if item and string.sub(item:get_name(), 0, 6) == "watch:" then
@@ -20,7 +20,7 @@ minetest.register_playerstep(function(dtime, playernames)
 			end
 		end
 	end
-end, minetest.is_singleplayer()) -- Force step in singlplayer mode only
+end, core.is_singleplayer()) -- Force step in singlplayer mode only
 
 local images = {
 	"watch_0.png",
@@ -43,14 +43,14 @@ for i, img in ipairs(images) do
 	if i == 1 then
 		inv = 0
 	end
-	minetest.register_tool("watch:"..(i-1), {
+	core.register_tool("watch:"..(i-1), {
 		description = "Watch",
 		inventory_image = img,
 		groups = {not_in_creative_inventory=inv}
 	})
 end
 
-minetest.register_craft({
+core.register_craft({
 	output = "watch:0",
 	recipe = {
 		{"", "default:gold_ingot", ""},

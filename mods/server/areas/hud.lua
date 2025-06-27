@@ -7,7 +7,7 @@ areas.hud = {}
 local vround = vector.round
 local tconcat, tinsert = table.concat, table.insert
 local sub8 = utf8.sub
-local creative_mode = minetest.settings:get_bool("creative_mode")
+local creative_mode = core.settings:get_bool("creative_mode")
 
 local function trim_area_name(name)
 	return sub8(name, 1, areas.config.max_area_name_length)
@@ -83,18 +83,18 @@ local function updateHud(player, name, pos)
 	end
 end
 
-minetest.register_playerstep(function(_, playernames)
+core.register_playerstep(function(_, playernames)
 	for _, name in ipairs(playernames) do
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if player and player:is_player() then
 			local pos = vround(player:get_pos())
-			if minetest.is_valid_pos(pos) then
+			if core.is_valid_pos(pos) then
 				updateHud(player, name, pos)
 			end
 		end
 	end
 end, true) -- Force this callback to run every step to display actual information
 
-minetest.register_on_leaveplayer(function(player)
+core.register_on_leaveplayer(function(player)
 	areas.hud[player:get_player_name()] = nil
 end)

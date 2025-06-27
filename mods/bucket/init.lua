@@ -1,8 +1,8 @@
-minetest.register_alias("bucket", "bucket:bucket_empty")
-minetest.register_alias("bucket_water", "bucket:bucket_water")
-minetest.register_alias("bucket_lava", "bucket:bucket_lava")
+core.register_alias("bucket", "bucket:bucket_empty")
+core.register_alias("bucket_water", "bucket:bucket_water")
+core.register_alias("bucket_lava", "bucket:bucket_lava")
 
-minetest.register_craft({
+core.register_craft({
 	output = 'bucket:bucket_empty 1',
 	recipe = {
 		{'default:steel_ingot', '', 'default:steel_ingot'},
@@ -15,12 +15,12 @@ bucket.liquids = {}
 
 local function check_protection(pos, name, text)
 	if minetest.is_protected(pos, name) then
-		minetest.log("action", (name ~= "" and name or "A mod")
+		core.log("action", (name ~= "" and name or "A mod")
 			.. " tried to " .. text
 			.. " at protected position "
-			.. minetest.pos_to_string(pos)
+			.. core.pos_to_string(pos)
 			.. " with a bucket")
-		minetest.record_protection_violation(pos, name)
+		core.record_protection_violation(pos, name)
 		return true
 	end
 	return false
@@ -48,7 +48,7 @@ function bucket.register_liquid(source, flowing, itemname, inventory_image, name
 	bucket.liquids[flowing] = bucket.liquids[source]
 
 	if itemname ~= nil then
-		minetest.register_craftitem(itemname, {
+		core.register_craftitem(itemname, {
 			description = name,
 			inventory_image = inventory_image,
 			stack_max = 1,
@@ -61,8 +61,8 @@ function bucket.register_liquid(source, flowing, itemname, inventory_image, name
 					return
 				end
 
-				local node = minetest.get_node_or_nil(pointed_thing.under)
-				local ndef = node and minetest.registered_nodes[node.name]
+				local node = core.get_node_or_nil(pointed_thing.under)
+				local ndef = node and core.registered_nodes[node.name]
 
 				-- Call on_rightclick if the pointed node defines it
 				if ndef and ndef.on_rightclick and
@@ -85,8 +85,8 @@ function bucket.register_liquid(source, flowing, itemname, inventory_image, name
 					-- check if the node above can be replaced
 
 					lpos = pointed_thing.above
-					node = minetest.get_node_or_nil(lpos)
-					local above_ndef = node and minetest.registered_nodes[node.name]
+					node = core.get_node_or_nil(lpos)
+					local above_ndef = node and core.registered_nodes[node.name]
 
 					if not above_ndef or not above_ndef.buildable_to then
 						-- do not remove the bucket with the liquid
@@ -96,9 +96,9 @@ function bucket.register_liquid(source, flowing, itemname, inventory_image, name
 
 				local player_name = user:get_player_name()
 
-				if minetest.is_singleplayer() ~= true then
+				if core.is_singleplayer() ~= true then
 					if pointed_thing.under.y > 8 then
-						minetest.chat_send_player(player_name, "Too much liquid is bad, right?", true)
+						core.chat_send_player(player_name, "Too much liquid is bad, right?", true)
 					return itemstack
 					end
 				end
@@ -109,10 +109,10 @@ function bucket.register_liquid(source, flowing, itemname, inventory_image, name
 					return
 				end
 
-				minetest.set_node(lpos, {name = source})
+				core.set_node(lpos, {name = source})
 				if not (creative and creative.is_enabled_for
 						and creative.is_enabled_for(player_name)) or
-						not minetest.is_singleplayer() then
+						not core.is_singleplayer() then
 					return ItemStack("bucket:bucket_empty")
 				else
 					return itemstack
@@ -122,7 +122,7 @@ function bucket.register_liquid(source, flowing, itemname, inventory_image, name
 	end
 end
 
-minetest.register_craftitem("bucket:bucket_empty", {
+core.register_craftitem("bucket:bucket_empty", {
 	description = "Empty Bucket",
 	inventory_image = "bucket.png",
 	liquids_pointable = true,
@@ -135,7 +135,7 @@ minetest.register_craftitem("bucket:bucket_empty", {
 			return
 		end
 		-- Check if pointing to a liquid source
-		local node = minetest.get_node(pointed_thing.under)
+		local node = core.get_node(pointed_thing.under)
 		local liquiddef = bucket.liquids[node.name]
 		local item_count = user:get_wielded_item():get_count()
 
@@ -161,7 +161,7 @@ minetest.register_craftitem("bucket:bucket_empty", {
 				else
 					local pos = user:get_pos()
 					pos.y = math.floor(pos.y + 0.5)
-					minetest.add_item(pos, liquiddef.itemname)
+					core.add_item(pos, liquiddef.itemname)
 				end
 
 				-- set to return empty buckets minus 1
@@ -173,16 +173,16 @@ minetest.register_craftitem("bucket:bucket_empty", {
 			local source_neighbor = false
 			if liquiddef.force_renew then
 				source_neighbor =
-					minetest.find_node_near(pointed_thing.under, 1, liquiddef.source)
+					core.find_node_near(pointed_thing.under, 1, liquiddef.source)
 			end
 			if not (source_neighbor and liquiddef.force_renew) then
-			minetest.add_node(pointed_thing.under, {name="air"})
+			core.add_node(pointed_thing.under, {name="air"})
 			end
 
 			return ItemStack(giving_back)
 		else
 			-- non-liquid nodes will have their on_punch triggered
-			local node_def = minetest.registered_nodes[node.name]
+			local node_def = core.registered_nodes[node.name]
 			if node_def then
 				node_def.on_punch(pointed_thing.under, node, user, pointed_thing)
 			end
@@ -225,17 +225,17 @@ bucket.register_liquid(
 )
 
 -- Milk Bucket
-minetest.register_craftitem("bucket:bucket_milk", {
+core.register_craftitem("bucket:bucket_milk", {
 	description = "Milk Bucket",
 	inventory_image = "bucket_milk.png",
 	stack_max = 1,
-	on_use = minetest.item_eat(8, "bucket:bucket_empty"),
+	on_use = core.item_eat(8, "bucket:bucket_empty"),
 	groups = {food_milk = 1, flammable = 3, food = 1}
 })
 
-minetest.register_alias("mobs:bucket_milk", "bucket:bucket_milk")
+core.register_alias("mobs:bucket_milk", "bucket:bucket_milk")
 
-minetest.register_craft({
+core.register_craft({
 	type = "fuel",
 	recipe = "bucket:bucket_lava",
 	burntime = 60,

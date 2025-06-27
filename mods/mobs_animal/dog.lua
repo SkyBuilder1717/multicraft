@@ -34,12 +34,12 @@ mobs:register_mob("mobs_animal:wolf", {
 	on_rightclick = function(self, clicker)
 		if mobs:feed_tame(self, clicker, 2, false, true) then
 			if self.food == 0 then
-			local mob = minetest.add_entity(self.object:getpos(), "mobs_animal:dog")
-			local ent = mob:get_luaentity()
-			ent.owner = clicker:get_player_name()
-			ent.following = clicker
-			ent.order = "follow"
-			self.object:remove()
+				local mob = minetest.add_entity(self.object:getpos(), "mobs_animal:dog")
+				local ent = mob:get_luaentity()
+				ent.owner = clicker:get_player_name()
+				ent.following = clicker
+				ent.order = "follow"
+				self.object:remove()
 			end
 			return
 		end
@@ -99,27 +99,27 @@ mobs:register_mob("mobs_animal:dog", {
 		end
 		if clicker:get_wielded_item():is_empty() and clicker:get_player_name() == self.owner then
 			if clicker:get_player_control().sneak then
-			self.order = ""
-			self.state = "walk"
-			self.walk_velocity = 2
-			self.stepheight = 0.6
-			else
-			if self.order == "follow" then
-				self.order = "stand"
-				self.state = "stand"
+				self.order = ""
+				self.state = "walk"
 				self.walk_velocity = 2
 				self.stepheight = 0.6
 			else
-				self.order = "follow"
-				self.state = "walk"
-				self.walk_velocity = 3
-				self.stepheight = 1.1
+				if self.order == "follow" then
+					self.order = "stand"
+					self.state = "stand"
+					self.walk_velocity = 2
+					self.stepheight = 0.6
+				else
+					self.order = "follow"
+					self.state = "walk"
+					self.walk_velocity = 3
+					self.stepheight = 1.1
+				end
 			end
-		end
 			return
 		end
 		--mobs:capture_mob(self, clicker, 0, 0, 80, false, nil)
-		end
+	end
 })
 
 mobs:register_egg("mobs_animal:dog", "Dog Egg", "wool_brown.png", 1)

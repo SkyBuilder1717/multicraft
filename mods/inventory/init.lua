@@ -19,7 +19,7 @@ local function set_inventory(player)
 	"image_button_exit[9.21,3.5;1,1;creative_home_go.png;sethome_go;;true;false]"..
 	"tooltip[sethome_go;Go Home;#000;#FFF]"
 	-- Armor
-	if minetest.get_modpath("3d_armor") then
+	if core.get_modpath("3d_armor") then
 		local player_name = player:get_player_name()
 		form = form ..
 		"list[detached:"..player_name.."_armor;armor;0,0;1,1;]"..
@@ -31,31 +31,31 @@ local function set_inventory(player)
 end
 
 -- Drop craft items on closing
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
 	if fields.quit then
 		local inv = player:get_inventory()
 		for i, stack in ipairs(inv:get_list("craft")) do
-			minetest.item_drop(stack, player, player:get_pos())
+			core.item_drop(stack, player, player:get_pos())
 			stack:clear()
 			inv:set_stack("craft", i, stack)
 		end
 	end
 end)
 
-minetest.register_playerstep(function(dtime, playernames)
+core.register_playerstep(function(dtime, playernames)
 	for _, playername in pairs(playernames) do
 		if not creative.is_enabled_for(playername) then
-			set_inventory(minetest.get_player_by_name(playername))
+			set_inventory(core.get_player_by_name(playername))
 		end
 	end
 end)
 
-minetest.register_craftitem("inventory:cell", {
+core.register_craftitem("inventory:cell", {
 	inventory_image = "formspec_cell.png",
 	groups = {not_in_creative_inventory = 1},
 })
 
-minetest.register_craftitem("inventory:remove_cell", {
+core.register_craftitem("inventory:remove_cell", {
 	inventory_image = "formspec_cell.png^inventory_remove_cell_overlay.png",
 	groups = {not_in_creative_inventory = 1},
 })

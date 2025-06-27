@@ -16,7 +16,7 @@ function worldedit.set(pos1, pos2, node_names)
 	local data = mh.get_empty_data(area)
 
 	if type(node_names) == "string" then -- Only one type of node
-		local id = minetest.get_content_id(node_names)
+		local id = core.get_content_id(node_names)
 		-- Fill area with node
 		for i in area:iterp(pos1, pos2) do
 			data[i] = id
@@ -24,7 +24,7 @@ function worldedit.set(pos1, pos2, node_names)
 	else -- Several types of nodes specified
 		local node_ids = {}
 		for i, v in ipairs(node_names) do
-			node_ids[i] = minetest.get_content_id(v)
+			node_ids[i] = core.get_content_id(v)
 		end
 		-- Fill area randomly with nodes
 		local id_count, rand = #node_ids, math.random
@@ -70,8 +70,8 @@ function worldedit.replace(pos1, pos2, search_node, replace_node, inverse)
 	local manip, area = mh.init(pos1, pos2)
 	local data = manip:get_data()
 
-	local search_id = minetest.get_content_id(search_node)
-	local replace_id = minetest.get_content_id(replace_node)
+	local search_id = core.get_content_id(search_node)
+	local replace_id = core.get_content_id(replace_node)
 
 	local count = 0
 
@@ -100,9 +100,9 @@ end
 local function deferred_execution(next_one, finished)
 	-- Allocate 100% of server step for execution (might lag a little)
 	local allocated_usecs =
-		tonumber(minetest.settings:get("dedicated_server_step"):split(" ")[1]) * 1000000
+		tonumber(core.settings:get("dedicated_server_step"):split(" ")[1]) * 1000000
 	local function f()
-		local deadline = minetest.get_us_time() + allocated_usecs
+		local deadline = core.get_us_time() + allocated_usecs
 		repeat
 			local is_done = next_one()
 			if is_done then
@@ -111,8 +111,8 @@ local function deferred_execution(next_one, finished)
 				end
 				return
 			end
-		until minetest.get_us_time() >= deadline
-		minetest.after(0, f)
+		until core.get_us_time() >= deadline
+		core.after(0, f)
 	end
 	f()
 end
@@ -218,7 +218,7 @@ function worldedit.copy2(pos1, pos2, off, meta_backwards)
 	mh.finish(dst_manip)
 
 	-- Copy metadata
-	local get_meta = minetest.get_meta
+	local get_meta = core.get_meta
 	if meta_backwards then
 	for z = dim.z-1, 0, -1 do
 		for y = dim.y-1, 0, -1 do
@@ -253,8 +253,8 @@ end
 function worldedit.delete_meta(pos1, pos2)
 	local pos1, pos2 = worldedit.sort_pos(pos1, pos2)
 
-	local meta_positions = minetest.find_nodes_with_meta(pos1, pos2)
-	local get_meta = minetest.get_meta
+	local meta_positions = core.find_nodes_with_meta(pos1, pos2)
+	local get_meta = core.get_meta
 	for _, pos in ipairs(meta_positions) do
 		get_meta(pos):from_table(nil)
 	end
@@ -348,8 +348,8 @@ function worldedit.stretch(pos1, pos2, stretch_x, stretch_y, stretch_z)
 	local pos1, pos2 = worldedit.sort_pos(pos1, pos2)
 
 	-- Prepare schematic of large node
-	local get_node, get_meta, place_schematic = minetest.get_node,
-			minetest.get_meta, minetest.place_schematic
+	local get_node, get_meta, place_schematic = core.get_node,
+			core.get_meta, core.place_schematic
 	local placeholder_node = {name="", param1=255, param2=0}
 	local nodes = {}
 	for i = 1, stretch_x * stretch_y * stretch_z do
@@ -443,8 +443,8 @@ function worldedit.transpose(pos1, pos2, axis1, axis2)
 	worldedit.keep_loaded(pos1, upper_bound)
 
 	local pos = vector.new(pos1.x, 0, 0)
-	local get_node, get_meta, set_node = minetest.get_node,
-			minetest.get_meta, minetest.set_node
+	local get_node, get_meta, set_node = core.get_node,
+			core.get_meta, core.set_node
 	while pos.x <= pos2.x do
 		pos.y = pos1.y
 		while pos.y <= pos2.y do
@@ -485,8 +485,8 @@ function worldedit.flip(pos1, pos2, axis)
 	local pos = vector.new(pos1.x, 0, 0)
 	local start = pos1[axis] + pos2[axis]
 	pos2[axis] = pos1[axis] + math.floor((pos2[axis] - pos1[axis]) / 2)
-	local get_node, get_meta, set_node = minetest.get_node,
-			minetest.get_meta, minetest.set_node
+	local get_node, get_meta, set_node = core.get_node,
+			core.get_meta, core.set_node
 	while pos.x <= pos2.x do
 		pos.y = pos1.y
 		while pos.y <= pos2.y do
@@ -551,7 +551,7 @@ end
 -- @return The number of nodes oriented.
 function worldedit.orient(pos1, pos2, angle)
 	local pos1, pos2 = worldedit.sort_pos(pos1, pos2)
-	local registered_nodes = minetest.registered_nodes
+	local registered_nodes = core.registered_nodes
 
 	local wallmounted = {
 		[90]  = {0, 1, 5, 4, 2, 3, 0, 0},
@@ -580,7 +580,7 @@ function worldedit.orient(pos1, pos2, angle)
 	worldedit.keep_loaded(pos1, pos2)
 
 	local count = 0
-	local get_node, swap_node = minetest.get_node, minetest.swap_node
+	local get_node, swap_node = core.get_node, core.swap_node
 	local pos = vector.new(pos1.x, 0, 0)
 	while pos.x <= pos2.x do
 		pos.y = pos1.y
@@ -622,7 +622,7 @@ end
 function worldedit.fixlight(pos1, pos2)
 	local pos1, pos2 = worldedit.sort_pos(pos1, pos2)
 
-	local vmanip = minetest.get_voxel_manip(pos1, pos2)
+	local vmanip = core.get_voxel_manip(pos1, pos2)
 	vmanip:calc_lighting()
 	vmanip:write_to_map()
 
@@ -635,7 +635,7 @@ end
 function worldedit.fixliquid(pos1, pos2)
 	local pos1, pos2 = worldedit.sort_pos(pos1, pos2)
 
-	local vmanip = minetest.get_voxel_manip(pos1, pos2)
+	local vmanip = core.get_voxel_manip(pos1, pos2)
 	vmanip:update_liquids()
 	vmanip:write_to_map()
 
@@ -663,8 +663,8 @@ function worldedit.clear_objects(pos1, pos2)
 	pos2 = vector.add(pos2, 0.5)
 
 	local count = 0
-	if minetest.get_objects_in_area then
-		local objects = minetest.get_objects_in_area(pos1, pos2)
+	if core.get_objects_in_area then
+		local objects = core.get_objects_in_area(pos1, pos2)
 
 		for _, obj in pairs(objects) do
 			if should_delete(obj) then
@@ -687,7 +687,7 @@ function worldedit.clear_objects(pos1, pos2)
 			(center.x - pos1.x) ^ 2 +
 			(center.y - pos1.y) ^ 2 +
 			(center.z - pos1.z) ^ 2)
-	local objects = minetest.get_objects_inside_radius(center, radius)
+	local objects = core.get_objects_inside_radius(center, radius)
 	for _, obj in pairs(objects) do
 		if should_delete(obj) then
 			local pos = obj:get_pos()

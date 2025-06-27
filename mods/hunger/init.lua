@@ -1,20 +1,20 @@
-if not minetest.settings:get_bool("enable_damage") then
-	minetest.log("warning", "[stamina] Stamina will not load if damage is disabled (enable_damage=false)")
+if not core.settings:get_bool("enable_damage") then
+	core.log("warning", "[stamina] Stamina will not load if damage is disabled (enable_damage=false)")
 	return
 end
 
 stamina = {}
-local modname = minetest.get_current_modname()
-local armor_mod = minetest.get_modpath("3d_armor") and minetest.global_exists("armor") and armor.def
-local player_monoids_mod = minetest.get_modpath("player_monoids") and minetest.global_exists("player_monoids")
-local pova_mod = minetest.get_modpath("pova") and minetest.global_exists("pova")
+local modname = core.get_current_modname()
+local armor_mod = core.get_modpath("3d_armor") and core.global_exists("armor") and armor.def
+local player_monoids_mod = core.get_modpath("player_monoids") and core.global_exists("player_monoids")
+local pova_mod = core.get_modpath("pova") and core.global_exists("pova")
 
 function stamina.log(level, message, ...)
-	return minetest.log(level, ("[%s] %s"):format(modname, message:format(...)))
+	return core.log(level, ("[%s] %s"):format(modname, message:format(...)))
 end
 
 local function get_setting(key, default)
-	local value = minetest.settings:get("stamina." .. key)
+	local value = core.settings:get("stamina." .. key)
 	local num_value = tonumber(value)
 	if value and not num_value then
 		stamina.log("warning", "Invalid value for setting %s: %q. Using default %q.", key, value, default)
@@ -24,13 +24,13 @@ end
 
 stamina.settings = {
 	-- see settingtypes.txt for descriptions
-	eat_particles = minetest.settings:get_bool("stamina.eat_particles", true),
-	sprint = minetest.settings:get_bool("stamina.sprint", true),
-	sprint_particles = minetest.settings:get_bool("stamina.sprint_particles", true),
+	eat_particles = core.settings:get_bool("stamina.eat_particles", true),
+	sprint = core.settings:get_bool("stamina.sprint", true),
+	sprint_particles = core.settings:get_bool("stamina.sprint_particles", true),
 	sprint_lvl = get_setting("sprint_lvl", 6),
 	sprint_speed = get_setting("sprint_speed", 0.8),
 	sprint_jump = get_setting("sprint_jump", 0.1),
-	sprint_with_fast = minetest.settings:get_bool("stamina.sprint_with_fast", false),
+	sprint_with_fast = core.settings:get_bool("stamina.sprint_with_fast", false),
 	tick = get_setting("tick", 800),
 	tick_min = get_setting("tick_min", 4),
 	health_tick = get_setting("health_tick", 4),
@@ -60,7 +60,7 @@ local attribute = {
 
 local function is_player(player)
 	return (
-		minetest.is_player(player) and
+		core.is_player(player) and
 		not player.is_fake_player
 	)
 end
@@ -123,7 +123,7 @@ function stamina.update_saturation(player, level)
 	end
 
 	-- players without interact priv cannot eat
-	if old < settings.heal_lvl and not minetest.check_player_privs(player, {interact=true}) then
+	if old < settings.heal_lvl and not core.check_player_privs(player, {interact=true}) then
 		return
 	end
 
@@ -160,7 +160,7 @@ function stamina.set_poisoned(player, poisoned)
 end
 
 local function poison_tick(player_name, hp, ticks, interval, elapsed)
-	local player = minetest.get_player_by_name(player_name)
+	local player = core.get_player_by_name(player_name)
 	if not player or not stamina.is_poisoned(player) then
 		return
 	elseif elapsed > ticks then
@@ -174,7 +174,7 @@ local function poison_tick(player_name, hp, ticks, interval, elapsed)
 	end
 	local saturation = stamina.get_saturation(player)
 	stamina.update_saturation(player, saturation - 1)
-	minetest.after(interval, poison_tick, player_name, hp, ticks, interval, elapsed + 1)
+	core.after(interval, poison_tick, player_name, hp, ticks, interval, elapsed + 1)
 end
 
 stamina.registered_on_poisons = {}
@@ -305,11 +305,11 @@ function stamina.set_sprinting(player, sprinting)
 
 	if settings.sprint_particles and sprinting then
 		local pos = player:get_pos()
-		local node = minetest.get_node({x = pos.x, y = pos.y - 1, z = pos.z})
-		local def = minetest.registered_nodes[node.name] or {}
+		local node = core.get_node({x = pos.x, y = pos.y - 1, z = pos.z})
+		local def = core.registered_nodes[node.name] or {}
 		local drawtype = def.drawtype
 		if drawtype ~= "airlike" and drawtype ~= "liquid" and drawtype ~= "flowingliquid" then
-			minetest.add_particlespawner({
+			core.add_particlespawner({
 				amount = 5,
 				time = 0.01,
 				minpos = {x = pos.x - 0.25, y = pos.y + 0.1, z = pos.z - 0.25},
@@ -333,7 +333,7 @@ end
 
 -- Time based stamina functions
 local function move_tick()
-	for _,player in ipairs(minetest.get_connected_players()) do
+	for _,player in ipairs(core.get_connected_players()) do
 		local controls = player:get_player_control()
 		local is_moving = controls.up or controls.down or controls.left or controls.right
 		local velocity = player:get_velocity()
@@ -351,7 +351,7 @@ local function move_tick()
 			local can_sprint = (
 				controls.aux1 and
 				not player:get_attach() and
-				(settings.sprint_with_fast or not minetest.check_player_privs(player, {fast = true})) and
+				(settings.sprint_with_fast or not core.check_player_privs(player, {fast = true})) and
 				stamina.get_saturation(player) > settings.sprint_lvl
 			)
 
@@ -369,7 +369,7 @@ end
 
 local function stamina_tick()
 	-- lower saturation by 1 point after settings.tick second(s)
-	for _,player in ipairs(minetest.get_connected_players()) do
+	for _,player in ipairs(core.get_connected_players()) do
 		local saturation = stamina.get_saturation(player)
 		if saturation > settings.tick_min then
 			stamina.update_saturation(player, saturation - 1)
@@ -379,7 +379,7 @@ end
 
 local function health_tick()
 	-- heal or damage player, depending on saturation
-	for _,player in ipairs(minetest.get_connected_players()) do
+	for _,player in ipairs(core.get_connected_players()) do
 		local air = player:get_breath() or 0
 		local hp = player:get_hp()
 		local hp_max = player:get_properties().hp_max
@@ -439,7 +439,7 @@ local function show_eat_particles(player, itemname)
 	pos.y = pos.y + (player:get_properties().eye_height * .923) -- assume mouth is slightly below eye_height
 	local dir = player:get_look_dir()
 
-	local def = minetest.registered_items[itemname]
+	local def = core.registered_items[itemname]
 	local texture = def.inventory_image or def.wield_image
 
 	local particle_texture = "blank.png"
@@ -452,7 +452,7 @@ local function show_eat_particles(player, itemname)
 
 	local v = player:get_velocity() or player:get_player_velocity()
 	for i = 0, 4 do
-		minetest.add_particle({
+		core.add_particle({
 			pos = { x = pos.x, y = pos.y, z = pos.z },
 			velocity = vector.add(v, { x = math.random(-1, 1), y = math.random(1, 2), z = math.random(-1, 1) }),
 			acceleration = { x = 0, y = math.random(-9, -5), z = 0 },
@@ -465,10 +465,10 @@ local function show_eat_particles(player, itemname)
 	end
 end
 
--- override minetest.do_item_eat() so we can redirect hp_change to stamina
-stamina.core_item_eat = minetest.do_item_eat
-function minetest.do_item_eat(hp_change, replace_with_item, itemstack, player, pointed_thing, poison_time)
-	for _, callback in ipairs(minetest.registered_on_item_eats) do
+-- override core.do_item_eat() so we can redirect hp_change to stamina
+stamina.core_item_eat = core.do_item_eat
+function core.do_item_eat(hp_change, replace_with_item, itemstack, player, pointed_thing, poison_time)
+	for _, callback in ipairs(core.registered_on_item_eats) do
 		local result = callback(hp_change, replace_with_item, itemstack, player, pointed_thing, poison_time)
 		if result then
 			return result
@@ -493,7 +493,7 @@ function minetest.do_item_eat(hp_change, replace_with_item, itemstack, player, p
 		stamina.log("action", "%s eats %s for %s stamina",
 			player:get_player_name(), itemname, hp_change)
 	end
-	minetest.sound_play("player_eat", {to_player = player:get_player_name(), gain = 0.7}, true)
+	core.sound_play("player_eat", {to_player = player:get_player_name(), gain = 0.7}, true)
 
 	if hp_change > 0 then
 		stamina.change_saturation(player, hp_change)
@@ -515,14 +515,14 @@ function minetest.do_item_eat(hp_change, replace_with_item, itemstack, player, p
 		if not replace_with_item:is_empty() then
 			local pos = player:get_pos()
 			pos.y = math.floor(pos.y - 1.0)
-			minetest.add_item(pos, replace_with_item)
+			core.add_item(pos, replace_with_item)
 		end
 	end
 
 	return nil -- don't overwrite wield item a second time
 end
 
-minetest.register_on_joinplayer(function(player)
+core.register_on_joinplayer(function(player)
 	local level = stamina.get_saturation(player) or settings.visual_max
 	local id = player:hud_add({
 		name = "stamina",
@@ -556,41 +556,41 @@ minetest.register_on_joinplayer(function(player)
 	})
 end)
 
-minetest.register_on_leaveplayer(function(player)
+core.register_on_leaveplayer(function(player)
 	set_hud_id(player, nil)
 end)
 
-minetest.register_globalstep(stamina_globaltimer)
+core.register_globalstep(stamina_globaltimer)
 
-minetest.register_on_placenode(function(pos, oldnode, player, ext)
+core.register_on_placenode(function(pos, oldnode, player, ext)
 	stamina.exhaust_player(player, settings.exhaust_place, stamina.exhaustion_reasons.place)
 end)
-minetest.register_on_dignode(function(pos, oldnode, player, ext)
+core.register_on_dignode(function(pos, oldnode, player, ext)
 	stamina.exhaust_player(player, settings.exhaust_dig, stamina.exhaustion_reasons.dig)
 end)
-minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)
+core.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)
 	stamina.exhaust_player(player, settings.exhaust_craft, stamina.exhaustion_reasons.craft)
 end)
-minetest.register_on_punchplayer(function(player, hitter, time_from_last_punch, tool_capabilities, dir, damage)
+core.register_on_punchplayer(function(player, hitter, time_from_last_punch, tool_capabilities, dir, damage)
 	stamina.exhaust_player(hitter, settings.exhaust_punch, stamina.exhaustion_reasons.punch)
 end)
-minetest.register_on_respawnplayer(function(player)
+core.register_on_respawnplayer(function(player)
 	stamina.update_saturation(player, settings.visual_max)
 end)
 
 
 local function register_food(name, hp_change, replace_with_item, poison_time)
-	minetest.override_item(name, {on_use = function(itemstack, player, pointed_thing)
-		minetest.do_item_eat(hp_change, replace_with_item, itemstack, player, pointed_thing, poison_time)
+	core.override_item(name, {on_use = function(itemstack, player, pointed_thing)
+		core.do_item_eat(hp_change, replace_with_item, itemstack, player, pointed_thing, poison_time)
 	end}, {})
 end
 
-minetest.register_on_mods_loaded(function()
-	if minetest.get_modpath("flowers") then
+core.register_on_mods_loaded(function()
+	if core.get_modpath("flowers") then
 		register_food("flowers:mushroom_red", -1, "", 3)
 	end
 
-	if minetest.get_modpath("mobs") then
+	if core.get_modpath("mobs") then
 		register_food("mobs:meat_raw", -2, "", 3)
 		mobs.add_eatable("mobs:meat_raw", 2)
 		register_food("mobs:pork_raw", -3, "", 3)

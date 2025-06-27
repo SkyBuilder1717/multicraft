@@ -49,11 +49,11 @@ mobs:register_mob("mobs_monster:spider", {
 		if self.mesh == "mobs_spider.x" then
 			local pos = self.object:get_pos()
 			if pos then
-				minetest.add_entity(pos, self.name)
+				core.add_entity(pos, self.name)
 				self.object:remove()
 			end
 		end
-	end,
+	end
 })
 
 mobs:spawn({
@@ -119,7 +119,7 @@ mobs:register_mob("mobs_monster:small_spider", {
 		if self.mesh == "mobs_spider.x" then
 			local pos = self.object:get_pos()
 			if pos then
-				minetest.add_entity(pos, self.name)
+				core.add_entity(pos, self.name)
 				self.object:remove()
 			end
 		end
@@ -133,7 +133,7 @@ mobs:spawn({
 	min_height = -64,
 })
 
-minetest.register_craft({
+core.register_craft({
 	output = "mobs:cobweb",
 	recipe = {
 		{"farming:string", "farming:string", "farming:string"},

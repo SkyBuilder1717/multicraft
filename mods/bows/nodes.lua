@@ -1,4 +1,4 @@
-minetest.register_node('bows:arrow_node', {
+core.register_node('bows:arrow_node', {
 	drawtype = 'nodebox',
 	node_box = {
 		type = 'fixed',

@@ -2,8 +2,8 @@ local dyes = dye.dyes
 
 for i = 1, #dyes do
 	local name, desc = unpack(dyes[i])
-
-	minetest.register_node("wool:" .. name, {
+	
+	core.register_node("wool:" .. name, {
 		description = desc .. " Wool",
 		tiles = {"wool_" .. name .. ".png"},
 		is_ground_content = false,
@@ -12,7 +12,7 @@ for i = 1, #dyes do
 		sounds = default.node_sound_wool_defaults(),
 	})
 
-	minetest.register_craft({
+	core.register_craft({
 		type = "shapeless",
 		output = "wool:" .. name,
 		recipe = {"group:dye,color_" .. name, "group:wool"},

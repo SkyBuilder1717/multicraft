@@ -22,7 +22,7 @@ local function posLimit(pos)
 	}
 end
 
-minetest.register_chatcommand("select_area", {
+core.register_chatcommand("select_area", {
 	params = "<ID>",
 	description = S("Select an area by ID."),
 	func = function(name, param)
@@ -40,7 +40,7 @@ minetest.register_chatcommand("select_area", {
 	end,
 })
 
-minetest.register_chatcommand("area_pos1", {
+core.register_chatcommand("area_pos1", {
 	params = "[X Y Z|X,Y,Z]",
 	description = S("Set area protection region position @1 to your"
 		.." location or the one specified", "1"),
@@ -52,7 +52,7 @@ minetest.register_chatcommand("area_pos1", {
 		if found then
 			pos = {x=tonumber(x), y=tonumber(y), z=tonumber(z)}
 		elseif param == "" then
-			local player = minetest.get_player_by_name(name)
+			local player = core.get_player_by_name(name)
 			if player then
 				pos = player:get_pos()
 			else
@@ -64,11 +64,11 @@ minetest.register_chatcommand("area_pos1", {
 		pos = posLimit(vector.round(pos))
 		areas:setPos1(name, pos)
 		return true, S("Area position @1 set to @2", "1",
-				minetest.pos_to_string(pos))
+				core.pos_to_string(pos))
 	end,
 })
 
-minetest.register_chatcommand("area_pos2", {
+core.register_chatcommand("area_pos2", {
 	params = "[X Y Z|X,Y,Z]",
 	description = S("Set area protection region position @1 to your"
 		.." location or the one specified", "2"),
@@ -79,7 +79,7 @@ minetest.register_chatcommand("area_pos2", {
 		if found then
 			pos = {x=tonumber(x), y=tonumber(y), z=tonumber(z)}
 		elseif param == "" then
-			local player = minetest.get_player_by_name(name)
+			local player = core.get_player_by_name(name)
 			if player then
 				pos = player:get_pos()
 			else
@@ -91,12 +91,12 @@ minetest.register_chatcommand("area_pos2", {
 		pos = posLimit(vector.round(pos))
 		areas:setPos2(name, pos)
 		return true, S("Area position @1 set to @2", "2",
-			minetest.pos_to_string(pos))
+			core.pos_to_string(pos))
 	end,
 })
 
 
-minetest.register_chatcommand("area_pos", {
+core.register_chatcommand("area_pos", {
 	params = "set/set1/set2/get",
 	description = S("Set area protection region, position 1, or position 2"
 		.." by punching nodes, or display the region"),
@@ -113,12 +113,12 @@ minetest.register_chatcommand("area_pos", {
 		elseif param == "get" then -- Display current area positions
 			local pos1str, pos2str = S("Position @1:", "1") .. " ", S("Position @1:", "2") .. " "
 			if areas.pos1[name] then
-				pos1str = pos1str..minetest.pos_to_string(areas.pos1[name])
+				pos1str = pos1str..core.pos_to_string(areas.pos1[name])
 			else
 				pos1str = pos1str..S("<not set>")
 			end
 			if areas.pos2[name] then
-				pos2str = pos2str..minetest.pos_to_string(areas.pos2[name])
+				pos2str = pos2str..core.pos_to_string(areas.pos2[name])
 			else
 				pos2str = pos2str..S("<not set>")
 			end
@@ -151,7 +151,7 @@ function areas:setPos2(playerName, pos)
 end
 
 
-minetest.register_on_punchnode(function(pos, _, puncher)
+core.register_on_punchnode(function(pos, _, puncher)
 	local name = puncher:get_player_name()
 	-- Currently setting position
 	if name ~= "" and areas.set_pos[name] then
@@ -159,23 +159,23 @@ minetest.register_on_punchnode(function(pos, _, puncher)
 			areas.pos1[name] = pos
 			areas.markPos1(name)
 			areas.set_pos[name] = "pos2"
-			minetest.chat_send_player(name,
+			core.chat_send_player(name,
 					S("Position @1 set to @2", "1",
-					minetest.pos_to_string(pos)))
+					core.pos_to_string(pos)))
 		elseif areas.set_pos[name] == "pos1only" then
 			areas.pos1[name] = pos
 			areas.markPos1(name)
 			areas.set_pos[name] = nil
-			minetest.chat_send_player(name,
+			core.chat_send_player(name,
 					S("Position @1 set to @2", "1",
-					minetest.pos_to_string(pos)))
+					core.pos_to_string(pos)))
 		elseif areas.set_pos[name] == "pos2" then
 			areas.pos2[name] = pos
 			areas.markPos2(name)
 			areas.set_pos[name] = nil
-			minetest.chat_send_player(name,
+			core.chat_send_player(name,
 					S("Position @1 set to @2", "2",
-					minetest.pos_to_string(pos)))
+					core.pos_to_string(pos)))
 		end
 	end
 end)
@@ -204,7 +204,7 @@ areas.markPos1 = function(name)
 		areas.marker1[name] = nil
 	end
 	if pos ~= nil then -- Add marker
-		areas.marker1[name] = minetest.add_entity(pos, "areas:pos1")
+		areas.marker1[name] = core.add_entity(pos, "areas:pos1")
 		areas.marker1[name]:get_luaentity().active = true
 	end
 end
@@ -217,12 +217,12 @@ areas.markPos2 = function(name)
 		areas.marker2[name] = nil
 	end
 	if pos ~= nil then -- Add marker
-		areas.marker2[name] = minetest.add_entity(pos, "areas:pos2")
+		areas.marker2[name] = core.add_entity(pos, "areas:pos2")
 		areas.marker2[name]:get_luaentity().active = true
 	end
 end
 
-minetest.register_entity("areas:pos1", {
+core.register_entity("areas:pos1", {
 	initial_properties = {
 		visual = "cube",
 		visual_size = {x=1.1, y=1.1},
@@ -243,7 +243,7 @@ minetest.register_entity("areas:pos1", {
 	end,
 })
 
-minetest.register_entity("areas:pos2", {
+core.register_entity("areas:pos2", {
 	initial_properties = {
 		visual = "cube",
 		visual_size = {x=1.1, y=1.1},

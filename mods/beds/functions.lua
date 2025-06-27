@@ -1,12 +1,12 @@
 local pi = math.pi
-local is_sp = minetest.is_singleplayer()
-local enable_respawn = minetest.settings:get_bool("enable_bed_respawn", true)
-local enable_night_skip = minetest.settings:get_bool("enable_bed_night_skip", true)
+local is_sp = core.is_singleplayer()
+local enable_respawn = core.settings:get_bool("enable_bed_respawn", true)
+local enable_night_skip = core.settings:get_bool("enable_bed_night_skip", true)
 
 -- Helper functions
 
 local function get_look_yaw(pos)
-	local rotation = minetest.get_node(pos).param2
+	local rotation = core.get_node(pos).param2
 	if rotation > 3 then
 		rotation = rotation % 4 -- Mask colorfacedir values
 	end
@@ -24,7 +24,7 @@ end
 local function check_in_beds(players)
 	local in_bed = beds.player
 	if not players then
-		players = minetest.get_connected_players()
+		players = core.get_connected_players()
 	end
 
 	for n, player in ipairs(players) do
@@ -58,8 +58,7 @@ local function lay_down(player, pos, bed_pos, state, skip)
 			player:set_pos(p)
 		end
 
-		-- physics, eye_offset, etc
-		player:set_eye_offset({x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
+		-- physics, etc
 		player:set_look_horizontal(math.random(1, 180) / 100)
 		player_api.player_attached[name] = false
 		player:set_physics_override({
@@ -87,14 +86,14 @@ local function lay_down(player, pos, bed_pos, state, skip)
 	else
 		for _, other_pos in pairs(beds.bed_position) do
 			if vector.distance(bed_pos, other_pos) < 0.1 then
-				minetest.chat_send_player(name, "This bed is already occupied!")
+				core.chat_send_player(name, "This bed is already occupied!")
 				return false
 			end
 		end
 
 		-- check if player is moving
 		if vector.length(player:get_velocity()) > 0.05 then
-			minetest.chat_send_player(name, "You have to stop moving before going to bed!")
+			core.chat_send_player(name, "You have to stop moving before going to bed!")
 			return false
 		end
 		
@@ -102,11 +101,10 @@ local function lay_down(player, pos, bed_pos, state, skip)
 		beds.bed_position[name] = bed_pos
 		beds.player[name] = 1
 
-		-- physics, eye_offset, etc
-		player:set_eye_offset({x = 0, y = -13, z = 0}, {x = 0, y = 0, z = 0})
+		-- physics, etc
 		local yaw, param2 = get_look_yaw(bed_pos)
 		player:set_look_horizontal(yaw)
-		local dir = minetest.facedir_to_dir(param2)
+		local dir = core.facedir_to_dir(param2)
 		local p = {x = bed_pos.x + dir.x / 2, y = bed_pos.y, z = bed_pos.z + dir.z / 2}
 		player:set_physics_override({
 			speed = 0,
@@ -145,15 +143,16 @@ local function get_player_in_bed_count()
 end
 
 local function update_formspecs(finished)
-	local ges = #minetest.get_connected_players()
+	local ges = #core.get_connected_players()
 	local form_n
 	local player_in_bed = get_player_in_bed_count()
 	local is_majority = (ges / 2) < player_in_bed
+	local fs = table.concat(beds.formspec)
 
 	if finished then
-		form_n = beds.formspec .. "label[2.7,9; Good morning.]"
+		form_n = fs .. "label[2.7,9; Good morning.]"
 	else
-		form_n = beds.formspec .. "label[2.2,9;" .. tostring(player_in_bed) ..
+		form_n = fs .. "label[2.2,9;" .. tostring(player_in_bed) ..
 			" of " .. tostring(ges) .. " players are in bed]"
 		if is_majority and enable_night_skip then
 			form_n = form_n .. "button_exit[2,6;4,0.75;force;Force night skip]"
@@ -161,7 +160,7 @@ local function update_formspecs(finished)
 	end
 
 	for name,_ in pairs(beds.player) do
-		minetest.show_formspec(name, "beds_form", form_n)
+		core.show_formspec(name, "beds_form", form_n)
 	end
 end
 
@@ -170,25 +169,25 @@ end
 
 function beds.kick_players()
 	for name, _ in pairs(beds.player) do
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		lay_down(player, nil, nil, false)
 	end
 end
 
 function beds.skip_night()
-	minetest.set_timeofday(0.23)
+	core.set_timeofday(0.23)
 end
 
 function beds.on_rightclick(pos, player)
 	local name = player:get_player_name()
 	local ppos = player:get_pos()
-	local tod = minetest.get_timeofday()
+	local tod = core.get_timeofday()
 
 	if tod > 0.2 and tod < 0.805 then
 		if beds.player[name] then
 			lay_down(player, nil, nil, false)
 		end
-		minetest.chat_send_player(name, "You can only sleep at night.")
+		core.chat_send_player(name, "You can only sleep at night.")
 		return
 	end
 
@@ -206,7 +205,7 @@ function beds.on_rightclick(pos, player)
 
 	-- skip the night and let all players stand up
 	if check_in_beds() then
-		minetest.after(2, function()
+		core.after(2, function()
 			if not is_sp then
 				update_formspecs(enable_night_skip)
 			end
@@ -232,7 +231,7 @@ end
 -- Only register respawn callback if respawn enabled
 if enable_respawn then
 	-- respawn player at bed if enabled and valid position is found
-	minetest.register_on_respawnplayer(function(player)
+	core.register_on_respawnplayer(function(player)
 		local name = player:get_player_name()
 		local pos = beds.spawn[name]
 		if pos then
@@ -242,12 +241,12 @@ if enable_respawn then
 	end)
 end
 
-minetest.register_on_leaveplayer(function(player)
+core.register_on_leaveplayer(function(player)
 	local name = player:get_player_name()
 	lay_down(player, nil, nil, false, true)
 	beds.player[name] = nil
 	if check_in_beds() then
-		minetest.after(2, function()
+		core.after(2, function()
 			update_formspecs(enable_night_skip)
 			if enable_night_skip then
 				beds.skip_night()
@@ -257,7 +256,7 @@ minetest.register_on_leaveplayer(function(player)
 	end
 end)
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
 	if formname ~= "beds_form" then
 		return
 	end
@@ -273,7 +272,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	end
 
 	if fields.force then
-		local is_majority = (#minetest.get_connected_players() / 2) < last_player_in_bed
+		local is_majority = (#core.get_connected_players() / 2) < last_player_in_bed
 		if is_majority and enable_night_skip then
 			update_formspecs(true)
 			beds.skip_night()

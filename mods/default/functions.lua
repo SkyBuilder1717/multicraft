@@ -148,16 +148,16 @@ end
 
 default.cool_lava = function(pos, node)
 	if node.name == "default:lava_source" then
-		minetest.set_node(pos, {name = "default:obsidian"})
+		core.set_node(pos, {name = "default:obsidian"})
 	else -- Lava flowing
-		minetest.set_node(pos, {name = "default:stone"})
+		core.set_node(pos, {name = "default:stone"})
 	end
-	minetest.sound_play("default_cool_lava",
+	core.sound_play("default_cool_lava",
 		{pos = pos, max_hear_distance = 16, gain = 0.25})
 end
 
-if minetest.settings:get_bool("enable_lavacooling") ~= false then
-	minetest.register_abm({
+if core.settings:get_bool("enable_lavacooling") ~= false then
+	core.register_abm({
 		label = "Lava cooling",
 		nodenames = {"default:lava_source", "default:lava_flowing"},
 		neighbors = {"group:cools_lava", "group:water"},
@@ -176,7 +176,7 @@ end
 --
 
 function default.get_inventory_drops(pos, inventory, drops)
-	local inv = minetest.get_meta(pos):get_inventory()
+	local inv = core.get_meta(pos):get_inventory()
 	local n = #drops
 	for i = 1, inv:get_size(inventory) do
 		local stack = inv:get_stack(inventory, i)
@@ -199,7 +199,7 @@ function default.grow_cactus(pos, node)
 		return
 	end
 	pos.y = pos.y - 1
-	if minetest.get_item_group(minetest.get_node(pos).name, "sand") == 0 then
+	if core.get_item_group(core.get_node(pos).name, "sand") == 0 then
 		return
 	end
 	pos.y = pos.y + 1
@@ -207,25 +207,25 @@ function default.grow_cactus(pos, node)
 	while node.name == "default:cactus" and height < 4 do
 		height = height + 1
 		pos.y = pos.y + 1
-		node = minetest.get_node(pos)
+		node = core.get_node(pos)
 	end
 	if height == 4 or node.name ~= "air" then
 		return
 	end
-	if minetest.get_node_light(pos) < 13 then
+	if core.get_node_light(pos) < 13 then
 		return
 	end
-	minetest.set_node(pos, {name = "default:cactus"})
+	core.set_node(pos, {name = "default:cactus"})
 	return true
 end
 
 function default.grow_papyrus(pos, node)
 	pos.y = pos.y - 1
-	local name = minetest.get_node(pos).name
+	local name = core.get_node(pos).name
 	if name ~= "default:dirt_with_grass" and name ~= "default:dirt" then
 		return
 	end
-	if not minetest.find_node_near(pos, 3, {"group:water"}) then
+	if not core.find_node_near(pos, 3, {"group:water"}) then
 		return
 	end
 	pos.y = pos.y + 1
@@ -233,19 +233,19 @@ function default.grow_papyrus(pos, node)
 	while node.name == "default:sugarcane" and height < 4 do
 		height = height + 1
 		pos.y = pos.y + 1
-		node = minetest.get_node(pos)
+		node = core.get_node(pos)
 	end
 	if height == 4 or node.name ~= "air" then
 		return
 	end
-	if minetest.get_node_light(pos) < 13 then
+	if core.get_node_light(pos) < 13 then
 		return
 	end
-	minetest.set_node(pos, {name = "default:sugarcane"})
+	core.set_node(pos, {name = "default:sugarcane"})
 	return true
 end
 
-minetest.register_abm({
+core.register_abm({
 	label = "Grow cactus",
 	nodenames = {"default:cactus"},
 	neighbors = {"group:sand"},
@@ -256,7 +256,7 @@ minetest.register_abm({
 	end
 })
 
-minetest.register_abm({
+core.register_abm({
 	label = "Grow sugarcane",
 	nodenames = {"default:sugarcane"},
 	neighbors = {"default:dirt", "default:dirt_with_grass", "default:sand"},
@@ -275,9 +275,9 @@ minetest.register_abm({
 function default.dig_up(pos, node, digger)
 	if digger == nil then return end
 	local np = {x = pos.x, y = pos.y + 1, z = pos.z}
-	local nn = minetest.get_node(np)
+	local nn = core.get_node(np)
 	if nn.name == node.name then
-		minetest.node_dig(np, nn, digger)
+		core.node_dig(np, nn, digger)
 	end
 end
 
@@ -287,7 +287,7 @@ end
 --
 
 function default.register_fence(name, def)
-	minetest.register_craft({
+	core.register_craft({
 		output = name .. " 4",
 		recipe = {
 			{ def.material, 'group:stick', def.material },
@@ -333,7 +333,7 @@ function default.register_fence(name, def)
 	def.texture = nil
 	def.material = nil
 
-	minetest.register_node(name, def)
+	core.register_node(name, def)
 end
 
 
@@ -345,18 +345,18 @@ end
 
 default.after_place_leaves = function(pos, placer, itemstack, pointed_thing)
 	if placer and placer:is_player() and not placer:get_player_control().sneak then
-		local node = minetest.get_node(pos)
+		local node = core.get_node(pos)
 		node.param2 = 1
-		minetest.set_node(pos, node)
+		core.set_node(pos, node)
 	end
 end
 
 -- Leafdecay
 local function leafdecay_after_destruct(pos, oldnode, def)
-	for _, v in pairs(minetest.find_nodes_in_area(vector.subtract(pos, def.radius),
+	for _, v in pairs(core.find_nodes_in_area(vector.subtract(pos, def.radius),
 			vector.add(pos, def.radius), def.leaves)) do
-		local node = minetest.get_node(v)
-		local timer = minetest.get_node_timer(v)
+		local node = core.get_node(v)
+		local timer = core.get_node_timer(v)
 		if node.param2 == 0 and not timer:is_started() then
 			timer:start(math.random(40, 160) / 10)
 		end
@@ -364,12 +364,12 @@ local function leafdecay_after_destruct(pos, oldnode, def)
 end
 
 local function leafdecay_on_timer(pos, def)
-	if minetest.find_node_near(pos, def.radius, def.trunks) then
+	if core.find_node_near(pos, def.radius, def.trunks) then
 		return false
 	end
 
-	local node = minetest.get_node(pos)
-	local drops = minetest.get_node_drops(node.name)
+	local node = core.get_node(pos)
+	local drops = core.get_node_drops(node.name)
 	for _, item in ipairs(drops) do
 		local is_leaf
 		for _, v in pairs(def.leaves) do
@@ -377,9 +377,9 @@ local function leafdecay_on_timer(pos, def)
 				is_leaf = true
 			end
 		end
-		if minetest.get_item_group(item, "leafdecay_drop") ~= 0 or
+		if core.get_item_group(item, "leafdecay_drop") ~= 0 or
 				not is_leaf then
-			minetest.add_item({
+			core.add_item({
 				x = pos.x - 0.5 + math.random(),
 				y = pos.y - 0.5 + math.random(),
 				z = pos.z - 0.5 + math.random(),
@@ -387,8 +387,8 @@ local function leafdecay_on_timer(pos, def)
 		end
 	end
 
-	minetest.remove_node(pos)
-	minetest.check_for_falling(pos)
+	core.remove_node(pos)
+	core.check_for_falling(pos)
 end
 
 function default.register_leafdecay(def)
@@ -396,14 +396,14 @@ function default.register_leafdecay(def)
 	assert(def.trunks)
 	assert(def.radius)
 	for _, v in pairs(def.trunks) do
-		minetest.override_item(v, {
+		core.override_item(v, {
 			after_destruct = function(pos, oldnode)
 				leafdecay_after_destruct(pos, oldnode, def)
 			end,
 		})
 	end
 	for _, v in pairs(def.leaves) do
-		minetest.override_item(v, {
+		core.override_item(v, {
 			on_timer = function(pos)
 				leafdecay_on_timer(pos, def)
 			end,
@@ -416,7 +416,7 @@ end
 -- Convert dirt to something that fits the environment
 --
 
-minetest.register_abm({
+core.register_abm({
 	label = "Grass spread",
 	nodenames = {
 		"default:dirt",
@@ -435,28 +435,28 @@ minetest.register_abm({
 		-- Check for darkness: night, shadow or under a light-blocking node
 		-- Returns if ignore above
 		local above = {x = pos.x, y = pos.y + 1, z = pos.z}
-		if (minetest.get_node_light(above) or 0) < 13 then
+		if (core.get_node_light(above) or 0) < 13 then
 			return
 		end
 
 		-- Look for spreading dirt-type neighbours
-		local p2 = minetest.find_node_near(pos, 1, "group:spreading_dirt_type")
+		local p2 = core.find_node_near(pos, 1, "group:spreading_dirt_type")
 		if p2 then
-			local n3 = minetest.get_node(p2)
-			minetest.set_node(pos, {name = n3.name})
+			local n3 = core.get_node(p2)
+			core.set_node(pos, {name = n3.name})
 			return
 		end
 
 		-- Else, any seeding nodes on top?
-		local name = minetest.get_node(above).name
+		local name = core.get_node(above).name
 		-- Snow check is cheapest, so comes first
 		if name == "default:snow" then
-			minetest.set_node(pos, {name = "default:dirt_with_snow"})
+			core.set_node(pos, {name = "default:dirt_with_snow"})
 		-- Most likely case first
-		elseif minetest.get_item_group(name, "grass") ~= 0 then
-			minetest.set_node(pos, {name = "default:dirt_with_grass"})
-		elseif minetest.get_item_group(name, "dry_grass") ~= 0 then
-			minetest.set_node(pos, {name = "default:dirt_with_dry_grass"})
+		elseif core.get_item_group(name, "grass") ~= 0 then
+			core.set_node(pos, {name = "default:dirt_with_grass"})
+		elseif core.get_item_group(name, "dry_grass") ~= 0 then
+			core.set_node(pos, {name = "default:dirt_with_dry_grass"})
 		end
 	end
 })
@@ -466,7 +466,7 @@ minetest.register_abm({
 -- Grass and dry grass removed in darkness
 --
 
-minetest.register_abm({
+core.register_abm({
 	label = "Grass covered",
 	nodenames = {"group:spreading_dirt_type"},
 	interval = 10,
@@ -474,12 +474,12 @@ minetest.register_abm({
 	catch_up = false,
 	action = function(pos, node)
 		local above = {x = pos.x, y = pos.y + 1, z = pos.z}
-		local name = minetest.get_node(above).name
-		local nodedef = minetest.registered_nodes[name]
+		local name = core.get_node(above).name
+		local nodedef = core.registered_nodes[name]
 		if name ~= "ignore" and nodedef and not ((nodedef.sunlight_propagates or
 				nodedef.paramtype == "light") and
 				nodedef.liquidtype == "none") then
-			minetest.set_node(pos, {name = "default:dirt"})
+			core.set_node(pos, {name = "default:dirt"})
 		end
 	end
 })
@@ -497,7 +497,7 @@ local moss_correspondences = {
 	["stairs:stair_outerstair_cobble"] = "stairs:stair_outerstair_mossycobble",
 	["walls:cobble"] = "walls:mossycobble"
 }
-minetest.register_abm({
+core.register_abm({
 	label = "Moss growth",
 	nodenames = {"default:cobble", "stairs:slab_default_cobble", "stairs:stair_default_cobble",
 		"stairs:stair_innerstair_cobble", "stairs:stair_outerstair_cobble",
@@ -510,21 +510,21 @@ minetest.register_abm({
 	action = function(pos, node)
 		node.name = moss_correspondences[node.name]
 		if node.name then
-			minetest.set_node(pos, node)
+			core.set_node(pos, node)
 		end
 	end
 })
 
 function default.can_interact_with_node(player, pos)
 	if player then
-		if minetest.check_player_privs(player, "protection_bypass") then
+		if core.check_player_privs(player, "protection_bypass") then
 			return true
 		end
 	else
 		return false
 	end
 
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	local owner = meta:get_string("owner")
 
 	if not owner or owner == "" or owner == player:get_player_name() then
@@ -548,36 +548,36 @@ local function snowball_impact(thrower, pos, dir, hit_object)
 		hit_object:punch(thrower, 1.0, punch_damage, dir)
 	end
 	local node_pos = nil
-	local node = minetest.get_node(pos)
+	local node = core.get_node(pos)
 	if node.name == "air" then
 		local pos_under = vector.subtract(pos, {x=0, y=1, z=0})
-		node = minetest.get_node(pos_under)
+		node = core.get_node(pos_under)
 		if node.name then
-			local def = minetest.registered_items[node.name] or {}
+			local def = core.registered_items[node.name] or {}
 			if def.buildable_to == true then
 				node_pos = pos_under
 			elseif def.walkable == true then
 				node_pos = pos
 			end
 		elseif node.name then
-			local def = minetest.registered_items[node.name]
+			local def = core.registered_items[node.name]
 			if def and def.buildable_to == true then
 				node_pos = pos
 			end
 		end
 		if node_pos then
-			minetest.add_node(pos, {name="default:snow"})
-			minetest.spawn_falling_node(pos)
+			core.add_node(pos, {name="default:snow"})
+			core.spawn_falling_node(pos)
 		end
 	end
 end
 
 function default.snow_shoot_snowball(itemstack, thrower, pointed_thing)
 	local playerpos = thrower:get_pos()
-	if not minetest.is_valid_pos(playerpos) then
+	if not core.is_valid_pos(playerpos) then
 		return
 	end
-	local obj = minetest.item_throw("default:snowball", thrower, 19, -3,
+	local obj = core.item_throw("default:snowball", thrower, 19, -3,
 		snowball_impact)
 	if obj then
 		obj:set_properties({
@@ -585,14 +585,14 @@ function default.snow_shoot_snowball(itemstack, thrower, pointed_thing)
 			visual_size = {x=1, y=1},
 			textures = {"default_snowball.png"},
 		})
-		minetest.sound_play("throwing_sound", {
+		core.sound_play("throwing_sound", {
 			pos = playerpos,
 			gain = 0.7,
 			max_hear_distance = 10,
 		})
 		if not (creative and creative.is_enabled_for and
 				creative.is_enabled_for(thrower)) or
-				not minetest.is_singleplayer() then
+				not core.is_singleplayer() then
 			itemstack:take_item()
 		end
 	end
@@ -603,7 +603,7 @@ end
 -- Crafting functions 
 --
 
-split_inv = minetest.create_detached_inventory("split", {
+split_inv = core.create_detached_inventory("split", {
 	allow_move = function(_, _, _, _, _, count, _)
 		return count
 	end,
@@ -615,7 +615,7 @@ split_inv = minetest.create_detached_inventory("split", {
 	end,
 })
 
-minetest.register_on_joinplayer(function(player)
+core.register_on_joinplayer(function(player)
 	if split_inv then
 		split_inv:set_size("main", 1)
 	end
@@ -626,13 +626,13 @@ end)
 --
 
 function default.register_craft_metadata_copy(ingredient, result)
-	minetest.register_craft({
+	core.register_craft({
 		type = "shapeless",
 		output = result,
 		recipe = {ingredient, result}
 	})
 
-	minetest.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)
+	core.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv)
 		if itemstack:get_name() ~= result then
 			return
 		end
@@ -659,7 +659,7 @@ end
 -- Log API / helpers
 --
 
-local log_non_player_actions = minetest.settings:get_bool("log_non_player_actions", false)
+local log_non_player_actions = core.settings:get_bool("log_non_player_actions", false)
 
 local is_pos = function(v)
 	return type(v) == "table" and
@@ -677,11 +677,11 @@ function default.log_player_action(player, ...)
 	end
 	for _, v in ipairs({...}) do
 		-- translate pos
-		local part = is_pos(v) and minetest.pos_to_string(v) or v
+		local part = is_pos(v) and core.pos_to_string(v) or v
 		-- no leading spaces before punctuation marks
 		msg = msg .. (string.match(part, "^[;,.]") and "" or " ") .. part
 	end
-	minetest.log("action",  msg)
+	core.log("action",  msg)
 end
 
 local nop = function() end
@@ -711,14 +711,14 @@ end
 
 function default.can_interact_with_node(player, pos)
 	if player and player:is_player() then
-		if minetest.check_player_privs(player, "protection_bypass") then
+		if core.check_player_privs(player, "protection_bypass") then
 			return true
 		end
 	else
 		return false
 	end
 
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	local owner = meta:get_string("owner")
 
 	if not owner or owner == "" or owner == player:get_player_name() then
@@ -727,16 +727,16 @@ function default.can_interact_with_node(player, pos)
 
 	-- Is player wielding the right key?
 	local item = player:get_wielded_item()
-	if minetest.get_item_group(item:get_name(), "key") == 1 then
+	if core.get_item_group(item:get_name(), "key") == 1 then
 		local key_meta = item:get_meta()
 
 		if key_meta:get_string("secret") == "" then
 			local key_oldmeta = item:get_meta():get_string("")
-			if key_oldmeta == "" or not minetest.parse_json(key_oldmeta) then
+			if key_oldmeta == "" or not core.parse_json(key_oldmeta) then
 				return false
 			end
 
-			key_meta:set_string("secret", minetest.parse_json(key_oldmeta).secret)
+			key_meta:set_string("secret", core.parse_json(key_oldmeta).secret)
 			item:set_metadata("")
 		end
 

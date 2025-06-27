@@ -1,17 +1,13 @@
 local f = string.format
 
-local node_tiles = minetest.settings:get_bool("wieldview_node_tiles")
+local node_tiles = core.settings:get_bool("wieldview_node_tiles")
 if not node_tiles then
 	node_tiles = false
-	minetest.settings:set("wieldview_node_tiles", "false")
+	core.settings:set("wieldview_node_tiles", "false")
 end
 
 -- https://github.com/minetest/minetest/blob/9fc018ded10225589d2559d24a5db739e891fb31/doc/lua_api.txt#L453-L462
-local function escape_texture(texturestring)
-	-- store in a variable so we don't return both rvs of gsub
-	local v = texturestring:gsub("%^", "\\^"):gsub(":", "\\:")
-	return v
-end
+local function escape_texture(str) return str:gsub("%^", "\\^"):gsub(":", "\\:") end
 
 local function memoize(func)
 	local memo = {}
@@ -97,42 +93,42 @@ end)
 
 local function get_image_cube(tiles)
 	if #tiles >= 6 then
-		return minetest.inventorycube(
+		return core.inventorycube(
 			get_image_from_tile(tiles[1] or "no_texture.png"),
 			get_image_from_tile(tiles[6] or "no_texture.png"),
 			get_image_from_tile(tiles[3] or "no_texture.png")
 		)
 
 	elseif #tiles == 5 then
-		return minetest.inventorycube(
+		return core.inventorycube(
 			get_image_from_tile(tiles[1] or "no_texture.png"),
 			get_image_from_tile(tiles[5] or "no_texture.png"),
 			get_image_from_tile(tiles[3] or "no_texture.png")
 		)
 
 	elseif #tiles == 4 then
-		return minetest.inventorycube(
+		return core.inventorycube(
 			get_image_from_tile(tiles[1] or "no_texture.png"),
 			get_image_from_tile(tiles[4] or "no_texture.png"),
 			get_image_from_tile(tiles[3] or "no_texture.png")
 		)
 
 	elseif #tiles == 3 then
-		return minetest.inventorycube(
+		return core.inventorycube(
 			get_image_from_tile(tiles[1] or "no_texture.png"),
 			get_image_from_tile(tiles[3] or "no_texture.png"),
 			get_image_from_tile(tiles[3] or "no_texture.png")
 		)
 
 	elseif #tiles == 2 then
-		return minetest.inventorycube(
+		return core.inventorycube(
 			get_image_from_tile(tiles[1] or "no_texture.png"),
 			get_image_from_tile(tiles[2] or "no_texture.png"),
 			get_image_from_tile(tiles[2] or "no_texture.png")
 		)
 
 	elseif #tiles == 1 then
-		return minetest.inventorycube(
+		return core.inventorycube(
 			get_image_from_tile(tiles[1] or "no_texture.png"),
 			get_image_from_tile(tiles[1] or "no_texture.png"),
 			get_image_from_tile(tiles[1] or "no_texture.png")

@@ -24,11 +24,11 @@ local function get_chest_neighborpos(pos, param2, side)
 end
 
 default.chest = {}
-default.chest.enabled_animation = minetest.settings:get_bool("chests_animation", true)
+default.chest.enabled_animation = core.settings:get_bool("chests_animation", true)
 local S = default.S
 
 function default.chest.get_chest_formspec(pos, side)
-	local param2 = minetest.get_node(pos).param2
+	local param2 = core.get_node(pos).param2
     local formspec
     if not side then
         local spos = pos.x .. "," .. pos.y .. "," .. pos.z
@@ -73,7 +73,7 @@ end
 
 function default.chest.chest_lid_obstructed(pos)
     local above = {x = pos.x, y = pos.y + 1, z = pos.z}
-    local def = minetest.registered_nodes[minetest.get_node(above).name]
+    local def = core.registered_nodes[core.get_node(above).name]
     -- allow ladders, signs, wallmounted things and torches to not obstruct
     if def and
             (def.drawtype == "airlike" or
@@ -100,9 +100,9 @@ function default.chest.chest_lid_close(pn)
         end
     end
 
-    local node = minetest.get_node(pos)
-    minetest.after(0.2, function()
-        local current_node = minetest.get_node(pos)
+    local node = core.get_node(pos)
+    core.after(0.2, function()
+        local current_node = core.get_node(pos)
         if current_node.name ~= swap .. "_open" then
             -- the chest has already been replaced, don't try to replace what's there.
             return
@@ -110,19 +110,19 @@ function default.chest.chest_lid_close(pn)
         local param2 = node.param2
 		local right_neighbor = get_chest_neighborpos(pos, param2, "right")
 		local left_neighbor = get_chest_neighborpos(pos, param2, "left")
-		if minetest.get_node(left_neighbor).name == "default:chest_right_open" then
-			minetest.swap_node(left_neighbor, {name = "default:chest_right", param2 = param2})
-		elseif minetest.get_node(right_neighbor).name == "default:chest_left_open" then
-			minetest.swap_node(right_neighbor, {name = "default:chest_left", param2 = param2})
+		if core.get_node(left_neighbor).name == "default:chest_right_open" then
+			core.swap_node(left_neighbor, {name = "default:chest_right", param2 = param2})
+		elseif core.get_node(right_neighbor).name == "default:chest_left_open" then
+			core.swap_node(right_neighbor, {name = "default:chest_left", param2 = param2})
 		end
-        minetest.swap_node(pos, {name = swap, param2 = param2})
-        minetest.sound_play(sound, {gain = 0.3, pos = pos, max_hear_distance = 10}, true)
+        core.swap_node(pos, {name = swap, param2 = param2})
+        core.sound_play(sound, {gain = 0.3, pos = pos, max_hear_distance = 10}, true)
     end)
 end
 
 default.chest.open_chests = {}
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
     local pn = player:get_player_name()
     if formname ~= "default:chest" or formname ~= "default:chest_left" or formname ~= "default:chest_right" then
         if default.chest.open_chests[pn] then
@@ -139,7 +139,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
     return true
 end)
 
-minetest.register_on_leaveplayer(function(player)
+core.register_on_leaveplayer(function(player)
     local pn = player:get_player_name()
     if default.chest.open_chests[pn] then
         default.chest.chest_lid_close(pn)
@@ -158,25 +158,25 @@ function default.chest.register_chest(prefixed_name, d)
     def.is_ground_content = false
 
     def.on_construct = function(pos)
-        local meta = minetest.get_meta(pos)
-        local param2 = minetest.get_node(pos).param2
+        local meta = core.get_meta(pos)
+        local param2 = core.get_node(pos).param2
         local right_neighbor = get_chest_neighborpos(pos, param2, "right")
         local left_neighbor = get_chest_neighborpos(pos, param2, "left")
 
-        if minetest.get_node(right_neighbor).name == prefixed_name then
-            minetest.swap_node(pos, {name = "default:chest_right", param2 = param2})
+        if core.get_node(right_neighbor).name == prefixed_name then
+            core.swap_node(pos, {name = "default:chest_right", param2 = param2})
             meta:set_string("infotext", "Large Chest")
-            local right_meta = minetest.get_meta(right_neighbor)
+            local right_meta = core.get_meta(right_neighbor)
             if right_meta then
-                minetest.swap_node(right_neighbor, {name = "default:chest_left", param2 = param2})
+                core.swap_node(right_neighbor, {name = "default:chest_left", param2 = param2})
                 right_meta:set_string("infotext", "Large Chest")
             end
-        elseif minetest.get_node(left_neighbor).name == prefixed_name then
-            minetest.swap_node(pos, {name = "default:chest_left", param2 = param2})
+        elseif core.get_node(left_neighbor).name == prefixed_name then
+            core.swap_node(pos, {name = "default:chest_left", param2 = param2})
             meta:set_string("infotext", "Large Chest")
-            local right_meta = minetest.get_meta(left_neighbor)
+            local right_meta = core.get_meta(left_neighbor)
             if right_meta then
-                minetest.swap_node(left_neighbor, {name = "default:chest_right", param2 = param2})
+                core.swap_node(left_neighbor, {name = "default:chest_right", param2 = param2})
                 right_meta:set_string("infotext", "Large Chest")
             end
         else
@@ -187,32 +187,32 @@ function default.chest.register_chest(prefixed_name, d)
         inv:set_size("main", 9*3)
     end
     def.on_destruct = function(pos)
-        local node = minetest.get_node(pos)
+        local node = core.get_node(pos)
         local param2 = node.param2
         local right_neighbor = get_chest_neighborpos(pos, param2, "right")
         local left_neighbor = get_chest_neighborpos(pos, param2, "left")
 
         if node.name ~= prefixed_name then
-            if minetest.get_node(left_neighbor).name == "default:chest_right" then
-                minetest.swap_node(left_neighbor, {name = "default:chest", param2 = param2})
-                local meta = minetest.get_meta(left_neighbor)
+            if core.get_node(left_neighbor).name == "default:chest_right" then
+                core.swap_node(left_neighbor, {name = "default:chest", param2 = param2})
+                local meta = core.get_meta(left_neighbor)
                 meta:set_string("infotext", "Chest")
-            elseif minetest.get_node(right_neighbor).name == "default:chest_left" then
-                minetest.swap_node(right_neighbor, {name = "default:chest", param2 = param2})
-                local meta = minetest.get_meta(right_neighbor)
+            elseif core.get_node(right_neighbor).name == "default:chest_left" then
+                core.swap_node(right_neighbor, {name = "default:chest", param2 = param2})
+                local meta = core.get_meta(right_neighbor)
                 meta:set_string("infotext", "Chest")
             end
         end
     end
     def.on_blast = function() end
     def.on_dig = function(pos, node, digger)
-        local meta = minetest.get_meta(pos)
+        local meta = core.get_meta(pos)
         local inv = meta:get_inventory()
         local list = inv:get_list("main")
         for _, stack in pairs(list) do
-            minetest.add_item(pos, stack:to_string())
+            core.add_item(pos, stack:to_string())
         end
-        return minetest.node_dig(pos, node, digger)
+        return core.node_dig(pos, node, digger)
     end
     def.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
         local player_name = clicker:get_player_name()
@@ -223,27 +223,27 @@ function default.chest.register_chest(prefixed_name, d)
         end
 
         default.chest.open_chests[player_name] = {pos = pos, sound = d.sound_close, swap = node.name}
-        minetest.sound_play(d.sound_open, {gain = 0.3, pos = pos, max_hear_distance = 10}, true)
+        core.sound_play(d.sound_open, {gain = 0.3, pos = pos, max_hear_distance = 10}, true)
 
         local new_name = node.name .. "_open"
         local param2 = node.param2
         local left_neighbor = get_chest_neighborpos(pos, param2, "left")
         local right_neighbor = get_chest_neighborpos(pos, param2, "right")
-        if not default.chest.chest_lid_obstructed(pos) and minetest.registered_nodes[new_name] then
+        if not default.chest.chest_lid_obstructed(pos) and core.registered_nodes[new_name] then
             if node.name ~= prefixed_name then
-                if minetest.get_node(left_neighbor).name == "default:chest_right" then
-                    minetest.swap_node(left_neighbor, {name = "default:chest_right_open", param2 = param2})
-                elseif minetest.get_node(right_neighbor).name == "default:chest_left" then
-                    minetest.swap_node(right_neighbor, {name = "default:chest_left_open", param2 = param2})
+                if core.get_node(left_neighbor).name == "default:chest_right" then
+                    core.swap_node(left_neighbor, {name = "default:chest_right_open", param2 = param2})
+                elseif core.get_node(right_neighbor).name == "default:chest_left" then
+                    core.swap_node(right_neighbor, {name = "default:chest_left_open", param2 = param2})
                 end
             end
-            minetest.swap_node(pos, {name = new_name, param2 = param2})
+            core.swap_node(pos, {name = new_name, param2 = param2})
             if node.name == prefixed_name .. "_left" then
-                minetest.after(0.2, minetest.show_formspec, player_name, "default:chest_left", default.chest.get_chest_formspec(pos, "left"))
+                core.after(0.2, core.show_formspec, player_name, "default:chest_left", default.chest.get_chest_formspec(pos, "left"))
             elseif node.name == prefixed_name .. "_right" then
-                minetest.after(0.2, minetest.show_formspec, player_name, "default:chest_right", default.chest.get_chest_formspec(pos, "right"))
+                core.after(0.2, core.show_formspec, player_name, "default:chest_right", default.chest.get_chest_formspec(pos, "right"))
             else
-                minetest.after(0.2, minetest.show_formspec, player_name, "default:chest", default.chest.get_chest_formspec(pos))
+                core.after(0.2, core.show_formspec, player_name, "default:chest", default.chest.get_chest_formspec(pos))
             end
         end
     end
@@ -372,23 +372,23 @@ function default.chest.register_chest(prefixed_name, d)
 	end
 
     -- Register the left and right chests
-    minetest.register_node(prefixed_name, def_closed)
-    minetest.register_node(prefixed_name .. "_left", def_left_closed)
-    minetest.register_node(prefixed_name .. "_right", def_right_closed)
-    minetest.register_node(prefixed_name .. "_open", def_opened)
-    minetest.register_node(prefixed_name .. "_left_open", def_left_opened)
-    minetest.register_node(prefixed_name .. "_right_open", def_right_opened)
+    core.register_node(prefixed_name, def_closed)
+    core.register_node(prefixed_name .. "_left", def_left_closed)
+    core.register_node(prefixed_name .. "_right", def_right_closed)
+    core.register_node(prefixed_name .. "_open", def_opened)
+    core.register_node(prefixed_name .. "_left_open", def_left_opened)
+    core.register_node(prefixed_name .. "_right_open", def_right_opened)
 
     -- close opened chests on load
     local modname, chestname = prefixed_name:match("^(:?.-):(.*)$")
-    minetest.register_lbm({
+    core.register_lbm({
         label = "close opened chests on load",
         name = modname .. ":close_" .. chestname .. "_open",
         nodenames = {prefixed_name .. "_open"},
         run_at_every_load = true,
         action = function(pos, node)
             node.name = prefixed_name
-            minetest.swap_node(pos, node)
+            core.swap_node(pos, node)
         end
     })
 end
@@ -409,7 +409,7 @@ default.chest.register_chest("default:chest", {
     groups = {choppy = 2, oddly_breakable_by_hand = 2},
 })
 
-minetest.register_craft({
+core.register_craft({
     output = "default:chest",
     recipe = {
         {"group:wood", "group:wood", "group:wood"},
@@ -418,7 +418,7 @@ minetest.register_craft({
     }
 })
 
-minetest.register_craft({
+core.register_craft({
     type = "fuel",
     recipe = "default:chest",
     burntime = 30,

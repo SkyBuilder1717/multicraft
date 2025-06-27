@@ -1,22 +1,22 @@
 ----------------- Settings -----------------------------------------------------
 
 local remember_innocuous =
-	minetest.settings:get_bool"we_undo.remember_innocuous" ~= false
+	core.settings:get_bool"we_undo.remember_innocuous" ~= false
 local max_commands = tonumber(
-	minetest.settings:get"we_undo.max_commands") or 256
-local min_commands = tonumber(minetest.settings:get"we_undo.min_commands") or 3
+	core.settings:get"we_undo.max_commands") or 256
+local min_commands = tonumber(core.settings:get"we_undo.min_commands") or 3
 local max_memory_usage = tonumber(
-	minetest.settings:get"we_undo.max_memory_usage") or 2^25
+	core.settings:get"we_undo.max_memory_usage") or 2^25
 
 ----------------- Journal and we_undo chatcommands -----------------------------
 
 local command_invoker
 
 local function override_chatcommand(cname, func_before, func_after)
-	local command = minetest.registered_chatcommands[cname]
+	local command = core.registered_chatcommands[cname]
 	if not command then
 		local cmds = {}
-		for name in pairs(minetest.registered_chatcommands) do
+		for name in pairs(core.registered_chatcommands) do
 			cmds[#cmds+1] = name
 		end
 		error("Chatcommand " .. cname .. " is not registered.\n" ..
@@ -163,9 +163,9 @@ local function apply_redo(name)
 	end
 end
 
-if minetest.is_singleplayer() then return end
+if core.is_singleplayer() then return end
 
-minetest.register_chatcommand("/undo", {
+core.register_chatcommand("/undo", {
 	params = "",
 	description = "Worldedit undo",
 	privs = {worldedit=true},
@@ -179,7 +179,7 @@ minetest.register_chatcommand("/undo", {
 	end,
 })
 
-minetest.register_chatcommand("/redo", {
+core.register_chatcommand("/redo", {
 	params = "",
 	description = "Worldedit redo",
 	privs = {worldedit=true},
@@ -194,7 +194,7 @@ minetest.register_chatcommand("/redo", {
 })
 
 local undo_info_funcs = {}
-minetest.register_chatcommand("/show_journal", {
+core.register_chatcommand("/show_journal", {
 	params = "",
 	description = "List Worldedit undos and redos, the last one is the newest",
 	privs = {worldedit=true},
@@ -210,11 +210,11 @@ minetest.register_chatcommand("/show_journal", {
 			if i <= j.off_start then
 				-- undo entry
 				info = info ..
-					minetest.get_color_escape_sequence"#A47DFF" .. " "
+					core.get_color_escape_sequence"#A47DFF" .. " "
 			else
 				-- redo entry
 				info = info ..
-					minetest.get_color_escape_sequence"#8ABDA9" .. "* "
+					core.get_color_escape_sequence"#8ABDA9" .. "* "
 			end
 			local data = j.ring[(j.start + i) % max_commands]
 			if undo_info_funcs[data.type] then
@@ -224,7 +224,7 @@ minetest.register_chatcommand("/show_journal", {
 			end
 			if i < j.entry_count-1 then
 				info = info .. "\n" ..
-				minetest.get_color_escape_sequence"#ffffff"
+				core.get_color_escape_sequence"#ffffff"
 			end
 		end
 		return true, info
@@ -258,7 +258,7 @@ if remember_innocuous then
 	)
 
 	-- Punch before the /p command's punch
-	table.insert(minetest.registered_on_punchnodes, 1, function(_,_, player)
+	table.insert(core.registered_on_punchnodes, 1, function(_,_, player)
 		local name = player:get_player_name()
 		local typ = worldedit.set_pos[name]
 		if typ == "pos1"
@@ -285,7 +285,7 @@ if remember_innocuous then
 		worldedit["mark_pos" .. data.id](name)
 		if pos then
 			worldedit.player_notify(name, "position " .. data.id ..
-				" set to " .. minetest.pos_to_string(pos))
+				" set to " .. core.pos_to_string(pos))
 		else
 			worldedit.player_notify(name, "position " .. data.id .. " reset")
 		end
@@ -296,7 +296,7 @@ if remember_innocuous then
 			return "Set pos" .. data.id
 		end
 		return "Changed pos" .. data.id .. ", previous value: " ..
-			minetest.pos_to_string(data.pos)
+			core.pos_to_string(data.pos)
 	end
 
 end
@@ -399,15 +399,15 @@ local function compress_nodedata(nodedata)
 	-- meta…
 	if nodedata.indices_m then
 		n = n+1
-		data[n] = minetest.serialize(nodedata.metastrings)
+		data[n] = core.serialize(nodedata.metastrings)
 	end
-	return minetest.compress(table.concat(data))
+	return core.compress(table.concat(data))
 end
 
 local cnt_names = {"nodeids_cnt", "param1s_cnt", "param2s_cnt", "metaens_cnt"}
 local function decompress_nodedata(ccontent)
 	local result = {}
-	local data = minetest.decompress(ccontent.compressed_data)
+	local data = core.decompress(ccontent.compressed_data)
 	local p = 1
 	-- get indices
 	for i = 1,#cnt_names do
@@ -450,7 +450,7 @@ local function decompress_nodedata(ccontent)
 	end
 	-- get metaens strings
 	if ccontent.metaens_cnt then
-		result.metastrings = minetest.deserialize(data:sub(p))
+		result.metastrings = core.deserialize(data:sub(p))
 	end
 	return result
 end
@@ -477,14 +477,14 @@ end
 -- Gets information about meta if it is set, otherwise returns nil
 -- the format of the information is the same as in WorldEdit
 local function get_meta_serializable(pos)
-	if not minetest.find_nodes_with_meta(pos, pos)[1] then
+	if not core.find_nodes_with_meta(pos, pos)[1] then
 		return
 	end
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	local metat = meta:to_table()
 	if is_meta_empty(metat) then
-		-- minetest.find_nodes_with_meta often finds empty metadata
-		--~ minetest.log("error", "metadata should be inexistent")
+		-- core.find_nodes_with_meta often finds empty metadata
+		--~ core.log("error", "metadata should be inexistent")
 		return
 	end
 	for _, inventory in pairs(metat.inventory) do
@@ -501,13 +501,13 @@ end
 -- Collects all metadata in a serialized format inside the given area
 -- This may be a slow function, thus should only be used when needed
 local function get_metadatas_in_area(pos1, pos2)
-	local meta_ps = minetest.find_nodes_with_meta(pos1, pos2)
+	local meta_ps = core.find_nodes_with_meta(pos1, pos2)
 	local meta_tables_list = {}
 	local ystride = pos2.x - pos1.x + 1
 	local zstride = (pos2.y - pos1.y + 1) * ystride
 	for i = 1, #meta_ps do
 		local pos = meta_ps[i]
-		local meta = minetest.get_meta(pos)
+		local meta = core.get_meta(pos)
 		local metat = meta:to_table()
 		if not is_meta_empty(metat) then
 			-- Make metat serializable
@@ -525,8 +525,8 @@ local function get_metadatas_in_area(pos1, pos2)
 				metat
 			}
 		--~ else
-			-- minetest.find_nodes_with_meta often finds empty metadata
-			--~ minetest.log("error", "metadata should be inexistent")
+			-- core.find_nodes_with_meta often finds empty metadata
+			--~ core.log("error", "metadata should be inexistent")
 		end
 	end
 	table.sort(meta_tables_list, function(a, b)
@@ -536,7 +536,7 @@ local function get_metadatas_in_area(pos1, pos2)
 	local metastrings = {}
 	for i = 1, #meta_tables_list do
 		indices_m[i] = meta_tables_list[i][1]
-		metastrings[i] = minetest.serialize(meta_tables_list[i][2])
+		metastrings[i] = core.serialize(meta_tables_list[i][2])
 	end
 	return indices_m, metastrings
 end
@@ -546,7 +546,7 @@ end
 local function run_and_capture_changes(func, pos1, pos2, collect_meta)
 
 	-- Get the node ids, param1s and param2s (before)
-	local manip = minetest.get_voxel_manip()
+	local manip = core.get_voxel_manip()
 	local e1, e2 = manip:read_from_map(pos1, pos2)
 	local area = VoxelArea:new{MinEdge=e1, MaxEdge=e2}
 	local nodeids_before = manip:get_data()
@@ -562,7 +562,7 @@ local function run_and_capture_changes(func, pos1, pos2, collect_meta)
 	func()
 
 	-- Get the node ids, param1s and param2s (after)
-	manip = minetest.get_voxel_manip()
+	manip = core.get_voxel_manip()
 	manip:read_from_map(pos1, pos2)
 	local nodeids_after = manip:get_data()
 	local param1s_after = manip:get_light_data()
@@ -688,7 +688,7 @@ undo_funcs.nodes = function(name, data)
 	local param2s = decompressed_data.param2s
 
 	-- swap the nodes, param1s and param2s in the world and history data
-	local manip = minetest.get_voxel_manip()
+	local manip = core.get_voxel_manip()
 	local e1, e2 = manip:read_from_map(pos1, pos2)
 	local area = VoxelArea:new{MinEdge=e1, MaxEdge=e2}
 	local m_nodes = manip:get_data()
@@ -728,9 +728,9 @@ undo_funcs.nodes = function(name, data)
 			z = math.floor(i / (ystride * ylen))
 		})
 		local metat, meta = get_meta_serializable(pos)
-		meta = meta or minetest.get_meta(pos)
-		meta:from_table(minetest.deserialize(metastrings[k]))
-		metastrings[k] = minetest.serialize(metat)
+		meta = meta or core.get_meta(pos)
+		meta:from_table(core.deserialize(metastrings[k]))
+		metastrings[k] = core.serialize(metat)
 	end
 
 	-- update history entry
@@ -781,8 +781,8 @@ undo_info_funcs.nodes = function(data)
 	end
 	return string.format('Command: "%s", minp: %s, maxp: %s%s',
 		data.command,
-		minetest.pos_to_string(data.pos1),
-		minetest.pos_to_string(data.pos2),
+		core.pos_to_string(data.pos1),
+		core.pos_to_string(data.pos2),
 		changed_info)
 end
 
@@ -794,7 +794,7 @@ local function we_nodeset_wrapper(pos1, pos2, command, func, ...)
 	pos1, pos2 = worldedit.sort_pos(pos1, pos2)
 	-- FIXME: Protection support isn't needed
 
-	local manip = minetest.get_voxel_manip()
+	local manip = core.get_voxel_manip()
 	local e1, e2 = manip:read_from_map(pos1, pos2)
 	local area = VoxelArea:new{MinEdge=e1, MaxEdge=e2}
 	local data_before = manip:get_data()
@@ -860,7 +860,7 @@ undo_funcs.nodeids = function(name, data)
 	local indices = decompressed_data.indices_n
 	local nodeids = decompressed_data.nodeids
 
-	local manip = minetest.get_voxel_manip()
+	local manip = core.get_voxel_manip()
 	local e1, e2 = manip:read_from_map(pos1, pos2)
 	local area = VoxelArea:new{MinEdge=e1, MaxEdge=e2}
 	local mdata = manip:get_data()
@@ -893,8 +893,8 @@ undo_info_funcs.nodeids = function(data)
 	return string.format(
 		'Command: "%s", minp: %s, maxp: %s, %d nodes changed',
 		data.command,
-		minetest.pos_to_string(data.pos1),
-		minetest.pos_to_string(data.pos2),
+		core.pos_to_string(data.pos1),
+		core.pos_to_string(data.pos2),
 		data.count)
 end
 
@@ -1017,17 +1017,17 @@ local we_deserialize = worldedit.deserialize
 local my_we_deserialize_currrent_command
 local function my_we_deserialize(pos_base, ...)
 	-- remember the previous nodes and meta
-	-- Collect the changes by overriding minetest.add_node since this is
+	-- Collect the changes by overriding core.add_node since this is
 	-- probably faster than loading the whole area including metadata before
 	-- and after worldedit's operation
 	local nodes = {}
 	local metaens = {}
-	local add_node = minetest.add_node
+	local add_node = core.add_node
 	local function my_add_node(entry)
-		local current_node = minetest.get_node(entry)
+		local current_node = core.get_node(entry)
 		local have_changes = 3
-		local def_ent = minetest.registered_nodes[entry.name]
-		local def_cur = minetest.registered_nodes[current_node.name]
+		local def_ent = core.registered_nodes[entry.name]
+		local def_cur = core.registered_nodes[current_node.name]
 		if current_node.name == entry.name then
 			current_node.name = nil
 			have_changes = 2
@@ -1055,7 +1055,7 @@ local function my_we_deserialize(pos_base, ...)
 		end
 		local meta_changed = (metat or new_metat)
 			and (not metat or not new_metat
-				or minetest.serialize(metat) ~= minetest.serialize(new_metat)
+				or core.serialize(metat) ~= core.serialize(new_metat)
 			)
 		if meta_changed then
 			metaens[#metaens+1] = {pos, metat}
@@ -1069,18 +1069,18 @@ local function my_we_deserialize(pos_base, ...)
 		end
 
 		-- set the original functions due to on_construct and on_destruct
-		minetest.add_node = add_node
+		core.add_node = add_node
 
-		minetest.add_node(pos, entry)
+		core.add_node(pos, entry)
 
-		minetest.add_node = my_add_node
+		core.add_node = my_add_node
 	end
 
-	minetest.add_node = my_add_node
+	core.add_node = my_add_node
 
 	local count = we_deserialize(pos_base, ...)
 
-	minetest.add_node = add_node
+	core.add_node = add_node
 
 	if #nodes == 0
 	and #metaens == 0 then
@@ -1131,7 +1131,7 @@ local function my_we_deserialize(pos_base, ...)
 	local param2s = {}
 	for i = 1,#nodes do
 		local v = nodes[i][2]
-		local id = v.name and minetest.get_content_id(v.name)
+		local id = v.name and core.get_content_id(v.name)
 		if id then
 			indices_n[#indices_n+1] = nodes[i][1]
 			nodeids[#nodeids+1] = id
@@ -1157,7 +1157,7 @@ local function my_we_deserialize(pos_base, ...)
 	local metastrings = {}
 	for i = 1,#metaens do
 		indices_m[i] = metaens[i][1]
-		metastrings[i] = minetest.serialize(metaens[i][2])
+		metastrings[i] = core.serialize(metaens[i][2])
 	end
 
 	-- compress the data and add it to history
@@ -1238,32 +1238,32 @@ local function get_overridden_changer(command, changer_original, func_get_bounda
 	end
 end
 
---[[local original_place_schematic = minetest.place_schematic
+--[[local original_place_schematic = core.place_schematic
 override_cc_with_confirm("/mtschemplace",
 	function(params)
-		minetest.place_schematic = get_overridden_changer(
+		core.place_schematic = get_overridden_changer(
 			"/mtschemplace " .. params,
 			original_place_schematic,
 			function(pos, schematic_path, rotation, _, _, flags)
 				-- Get the area which is changed by the schematic
 				if rotation then
-					minetest.log("error",
+					core.log("error",
 						"Received a rotation from worldedit's schematic " ..
 						"placement; not yet implemented in we_undo")
 				end
 				if flags then
-					minetest.log("error",
+					core.log("error",
 						"Received flags from worldedit's schematic " ..
 						"placement; not yet implemented in we_undo")
 				end
-				local schem = minetest.read_schematic(schematic_path, {})
+				local schem = core.read_schematic(schematic_path, {})
 				local pos1 = pos
 				local pos2 = vector.subtract(vector.add(pos1, schem.size), 1)
 				return pos1, pos2
 			end, false)
 	end,
 	function()
-		minetest.place_schematic = original_place_schematic
+		core.place_schematic = original_place_schematic
 	end
 )
 
@@ -1342,7 +1342,7 @@ override_we_changer("/rotate", "rotate", true, function(pos1, pos2, axis, angle)
 override_we_changer("/stretch", "stretch", true, function(pos1, pos2,
 			stretch_x, stretch_y, stretch_z)
 		if stretch_x % 1 ~= 0 or stretch_y % 1 ~= 0 or stretch_z % 1 ~= 0 then
-			minetest.log("error", "expected integer values for stretch")
+			core.log("error", "expected integer values for stretch")
 		end
 		-- Copied from Worldedit
 		local size_x, size_y, size_z = stretch_x - 1, stretch_y - 1,

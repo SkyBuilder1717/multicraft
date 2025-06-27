@@ -1,13 +1,13 @@
 -- creative/init.lua
 
-local S = minetest.get_translator("creative")
+local S = core.get_translator("creative")
 
 creative = {}
 creative.get_translator = S
 
 local function update_sfinv(name)
-	minetest.after(0, function()
-		local player = minetest.get_player_by_name(name)
+	core.after(0, function()
+		local player = core.get_player_by_name(name)
 		if player and sfinv["get_page"] then
 			if sfinv.get_page(player):sub(1, 9) == "creative:" then
 				sfinv.set_page(player, sfinv.get_homepage_name(player))
@@ -18,12 +18,12 @@ local function update_sfinv(name)
 	end)
 end
 
-minetest.register_privilege("creative", {
+core.register_privilege("creative", {
 	description = S("Allow player to use creative inventory"),
 	give_to_singleplayer = false,
 	give_to_admin = false,
 	on_grant = function(name)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if creative.is_enabled_for(name) then
 			sfinv.set_player_inventory_formspec(player)
 		end
@@ -31,25 +31,25 @@ minetest.register_privilege("creative", {
 })
 
 -- Override the engine's creative mode function
--- local old_is_creative_enabled = minetest.is_creative_enabled
+-- local old_is_creative_enabled = core.is_creative_enabled
 
--- function minetest.is_creative_enabled(name)
+-- function core.is_creative_enabled(name)
 -- 	if name == "" then
 -- 		return old_is_creative_enabled(name)
 -- 	end
--- 	return minetest.check_player_privs(name, {creative = true}) or
+-- 	return core.check_player_privs(name, {creative = true}) or
 -- 		old_is_creative_enabled(name)
 -- end
 
 -- For backwards compatibility:
 function creative.is_enabled_for(name)
-	return minetest.check_player_privs(name, {creative = true}) or minetest.is_creative_enabled(name)
+	return core.check_player_privs(name, {creative = true}) or core.is_creative_enabled(name)
 end
 
-dofile(minetest.get_modpath("creative") .. "/inventory.lua")
+dofile(core.get_modpath("creative") .. "/inventory.lua")
 
--- if minetest.is_creative_enabled("") then
--- 	minetest.register_on_mods_loaded(function()
+-- if core.is_creative_enabled("") then
+-- 	core.register_on_mods_loaded(function()
 -- 		-- Dig time is modified according to difference (leveldiff) between tool
 -- 		-- 'maxlevel' and node 'level'. Digtime is divided by the larger of
 -- 		-- leveldiff and 1.
@@ -60,7 +60,7 @@ dofile(minetest.get_modpath("creative") .. "/inventory.lua")
 -- 		local caps = {times = {digtime, digtime, digtime}, uses = 0, maxlevel = 256}
 
 -- 		-- Override the hand tool
--- 		minetest.override_item("", {
+-- 		core.override_item("", {
 -- 			range = 10,
 -- 			tool_capabilities = {
 -- 				full_punch_interval = 0.5,
@@ -82,15 +82,15 @@ dofile(minetest.get_modpath("creative") .. "/inventory.lua")
 -- end
 
 -- Unlimited node placement
-minetest.register_on_placenode(function(pos, newnode, placer, oldnode, itemstack)
+core.register_on_placenode(function(pos, newnode, placer, oldnode, itemstack)
 	if placer and placer:is_player() then
 		return creative.is_enabled_for(placer:get_player_name())
 	end
 end)
 
 -- Don't pick up if the item is already in the inventory
-local old_handle_node_drops = minetest.handle_node_drops
-function minetest.handle_node_drops(pos, drops, digger)
+local old_handle_node_drops = core.handle_node_drops
+function core.handle_node_drops(pos, drops, digger)
 	if not digger or not digger:is_player() or
 		not creative.is_enabled_for(digger:get_player_name()) then
 		return old_handle_node_drops(pos, drops, digger)

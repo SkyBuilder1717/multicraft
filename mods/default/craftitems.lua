@@ -1,12 +1,12 @@
 -- mods/default/craftitems.lua
 
-minetest.register_craftitem("default:stick", {
+core.register_craftitem("default:stick", {
 	description = "Stick",
 	inventory_image = "default_stick.png",
 	groups = {stick = 1, flammable = 2}
 })
 
-minetest.register_craftitem("default:paper", {
+core.register_craftitem("default:paper", {
 	description = "Paper",
 	inventory_image = "default_paper.png",
 	groups = {flammable = 3}
@@ -21,7 +21,7 @@ local function book_on_use(itemstack, user)
 	local page, page_max, lines, string = 1, 1, {}, ""
 
 	-- Backwards compatibility
-	local old_data = minetest.deserialize(itemstack:get_metadata())
+	local old_data = core.deserialize(itemstack:get_metadata())
 	if old_data then
 		meta:from_table({ fields = old_data })
 	end
@@ -52,31 +52,31 @@ local function book_on_use(itemstack, user)
 	if owner == player_name then
 		formspec = "size[8,8]" ..
 			"field[0.5,1;7.5,0;title;Title:;" ..
-				minetest.formspec_escape(title) .. "]" ..
+				core.formspec_escape(title) .. "]" ..
 			"textarea[0.5,1.5;7.5,7;text;Contents:;" ..
-				minetest.formspec_escape(text) .. "]" ..
+				core.formspec_escape(text) .. "]" ..
 			"button_exit[2.5,7.5;3,1;save;Save]"
 	else
 		formspec = "size[8,8]" ..
 			"label[0.5,0.5;by " .. owner .. "]" ..
 			"tablecolumns[color;text]" ..
 			"tableoptions[background=#00000000;highlight=#00000000;border=false]" ..
-			"table[0.4,0;7,0.5;title;#FFFF00," .. minetest.formspec_escape(title) .. "]" ..
+			"table[0.4,0;7,0.5;title;#FFFF00," .. core.formspec_escape(title) .. "]" ..
 			"textarea[0.5,1.5;7.5,7;;" ..
-				minetest.formspec_escape(string ~= "" and string or text) .. ";]" ..
+				core.formspec_escape(string ~= "" and string or text) .. ";]" ..
 			"button[2.4,7.6;0.8,0.8;book_prev;<]" ..
 			"label[3.2,7.7;Page " .. page .. " of " .. page_max .. "]" ..
 			"button[4.9,7.6;0.8,0.8;book_next;>]"
 	end
 
-	minetest.show_formspec(player_name, "default:book", formspec)
+	core.show_formspec(player_name, "default:book", formspec)
 	return itemstack
 end
 
 local max_text_size = 10000
 local max_title_size = 80
 local short_title_size = 35
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
 	if formname ~= "default:book" then return end
 	local inv = player:get_inventory()
 	local stack = player:get_wielded_item()
@@ -119,7 +119,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			if inv:room_for_item("main", new_stack) then
 				inv:add_item("main", new_stack)
 			else
-				minetest.add_item(player:get_pos(), new_stack)
+				core.add_item(player:get_pos(), new_stack)
 			end
 		else
 			stack:get_meta():from_table({ fields = data })
@@ -154,14 +154,14 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	player:set_wielded_item(stack)
 end)
 
-minetest.register_craftitem("default:book", {
+core.register_craftitem("default:book", {
 	description = "Book",
 	inventory_image = "default_book.png",
 	groups = {book = 1, flammable = 3},
 	on_use = book_on_use
 })
 
-minetest.register_craftitem("default:book_written", {
+core.register_craftitem("default:book_written", {
 	description = "Book With Text",
 	inventory_image = "default_book_written.png",
 	groups = {book = 1, not_in_creative_inventory = 1, flammable = 3},
@@ -169,88 +169,88 @@ minetest.register_craftitem("default:book_written", {
 	on_use = book_on_use
 })
 
-minetest.register_craftitem("default:coal_lump", {
+core.register_craftitem("default:coal_lump", {
 	description = "Coal Lump",
 	inventory_image = "default_coal_lump.png",
 	groups = {coal = 1, flammable = 1}
 })
 
-minetest.register_craftitem("default:charcoal_lump", {
+core.register_craftitem("default:charcoal_lump", {
 	description = "Charcoal Lump",
 	inventory_image = "default_charcoal_lump.png",
 	groups = {coal = 1, flammable = 1}
 })
 
-minetest.register_craftitem("default:diamond", {
+core.register_craftitem("default:diamond", {
 	description = "Diamond",
 	inventory_image = "default_diamond.png"
 })
 
-minetest.register_craftitem("default:clay_lump", {
+core.register_craftitem("default:clay_lump", {
 	description = "Clay Lump",
 	inventory_image = "default_clay_lump.png"
 })
 
-minetest.register_craftitem("default:steel_ingot", {
+core.register_craftitem("default:steel_ingot", {
 	description = "Steel Ingot",
 	inventory_image = "default_steel_ingot.png"
 })
 
-minetest.register_craftitem("default:gold_ingot", {
+core.register_craftitem("default:gold_ingot", {
 	description = "Gold Ingot",
 	inventory_image = "default_gold_ingot.png"
 })
 
-minetest.register_craftitem("default:emerald", {
+core.register_craftitem("default:emerald", {
 	description = "Emerald",
 	inventory_image = "default_emerald.png"
 })
 
-minetest.register_craftitem("default:clay_brick", {
+core.register_craftitem("default:clay_brick", {
 	description = "Clay Brick",
 	inventory_image = "default_clay_brick.png"
 })
 
-minetest.register_craftitem("default:gunpowder", {
+core.register_craftitem("default:gunpowder", {
 	description = "Gunpowder",
 	inventory_image = "default_gunpowder.png"
 })
 
-minetest.register_craftitem("default:bone", {
+core.register_craftitem("default:bone", {
 	description = "Bone",
 	inventory_image = "default_bone.png"
 })
 
-minetest.register_craftitem("default:glowstone_dust", {
+core.register_craftitem("default:glowstone_dust", {
 	description = "Glowstone Dust",
 	inventory_image = "default_glowstone_dust.png"
 })
 
-minetest.register_craftitem("default:fish_raw", {
+core.register_craftitem("default:fish_raw", {
 	description = "Raw Fish",
 	inventory_image = "default_fish.png",
 	groups = {food = 1},
-	on_use = minetest.item_eat(2)
+	on_use = core.item_eat(2)
 })
 
-minetest.register_craftitem("default:fish", {
+core.register_craftitem("default:fish", {
 	description = "Cooked Fish",
 	inventory_image = "default_fish_cooked.png",
 	groups = {food = 1},
-	on_use = minetest.item_eat(4)
+	on_use = core.item_eat(4)
 })
 
-minetest.register_craftitem("default:sugar", {
+core.register_craftitem("default:sugar", {
 	description = "Sugar",
 	inventory_image = "default_sugar.png"
 })
 
-minetest.register_craftitem("default:quartz_crystal", {
+core.register_craftitem("default:quartz_crystal", {
 	description = "Quartz Crystal",
 	inventory_image = "default_quartz_crystal.png"
 })
 
-minetest.register_craftitem("default:flint", {
+core.register_craftitem("default:flint", {
 	description = "Flint",
 	inventory_image = "default_flint.png"
 })

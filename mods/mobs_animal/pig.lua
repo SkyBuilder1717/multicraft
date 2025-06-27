@@ -8,12 +8,12 @@ mobs:register_mob("mobs_animal:pig", {
 	visual = "mesh",
 	mesh = "mobs_pig.x",
 	textures = {
-		{"mobs_pig.png"},
+		{"mobs_pig.png"}
 	},
 	makes_footstep_sound = true,
 	sounds = {
 		random = "mobs_pig",
-		attack = "mobs_pig_angry",
+		attack = "mobs_pig_angry"
 	},
 	walk_velocity = 2,
 	run_velocity = 3,
@@ -22,7 +22,6 @@ mobs:register_mob("mobs_animal:pig", {
 		if rawget(_G, "experience") then
 			experience.add_orb(math.random(1,3), pos) -- random amount between 1 and 3
 		end
-
 		return {
 			{name = "mobs:pork_raw"},
 			{name = "mobs:pork_raw", chance = 2},
@@ -37,12 +36,11 @@ mobs:register_mob("mobs_animal:pig", {
 		walk_start = 61,
 		walk_end = 80,
 		punch_start = 90,
-		punch_end = 110,
+		punch_end = 110
 	},
 	on_rightclick = function (self, clicker)
 		mobs:feed_tame(self, clicker, 8, true, true)
-		--mobs:capture_mob(self, clicker, 0, 5, 50, false, nil)
-	end,
+	end
 })
 
 mobs:spawn({
@@ -51,7 +49,7 @@ mobs:spawn({
 	min_light = 5,
 	chance = 20000,
 	min_height = 0,
-	day_toggle = true,
+	day_toggle = true
 })
 
 mobs:register_egg("mobs_animal:pig", "Pig egg", "mobs_pig_egg.png", 1)

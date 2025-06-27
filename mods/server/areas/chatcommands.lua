@@ -1,9 +1,9 @@
 local S = areas.S
 
 local sub8 = utf8.sub
-local anticurse_exists = minetest.global_exists("chat_anticurse")
+local anticurse_exists = core.global_exists("chat_anticurse")
 
-minetest.register_chatcommand("protect", {
+core.register_chatcommand("protect", {
 	params = S("<AreaName>"),
 	description = S("Protect your own area"),
 	privs = {[areas.config.self_protection_privilege]=true},
@@ -25,10 +25,10 @@ minetest.register_chatcommand("protect", {
 
 		param = sub8(param, 1, areas.config.max_area_name_length)
 
-		minetest.log("action", "/protect invoked, owner="..name..
+		core.log("action", "/protect invoked, owner="..name..
 				" AreaName="..param..
-				" StartPos="..minetest.pos_to_string(pos1)..
-				" EndPos="  ..minetest.pos_to_string(pos2))
+				" StartPos="..core.pos_to_string(pos1)..
+				" EndPos="  ..core.pos_to_string(pos2))
 
 		local canAdd, errMsg = areas:canPlayerAddArea(pos1, pos2, name)
 		if not canAdd then
@@ -43,7 +43,7 @@ minetest.register_chatcommand("protect", {
 })
 
 
-minetest.register_chatcommand("set_owner", {
+core.register_chatcommand("set_owner", {
 	params = S("<PlayerName>").." "..S("<AreaName>"),
 	description = S("Protect an area between two positions and give"
 		.." a player access to it without setting the parent of the"
@@ -65,15 +65,15 @@ minetest.register_chatcommand("set_owner", {
 			return false, S("The player \"@1\" does not exist.", ownerName)
 		end
 
-		minetest.log("action", name.." runs /set_owner. Owner = "..ownerName..
+		core.log("action", name.." runs /set_owner. Owner = "..ownerName..
 				" AreaName = "..areaName..
-				" StartPos = "..minetest.pos_to_string(pos1)..
-				" EndPos = "  ..minetest.pos_to_string(pos2))
+				" StartPos = "..core.pos_to_string(pos1)..
+				" EndPos = "  ..core.pos_to_string(pos2))
 
 		local id = areas:add(ownerName, areaName, pos1, pos2, nil)
 		areas:save()
 
-		minetest.chat_send_player(ownerName,
+		core.chat_send_player(ownerName,
 				S("You have been granted control over area #@1. "..
 				"Type /list_areas to show your areas.", id))
 		return true, S("Area protected. ID: @1", id)
@@ -81,7 +81,7 @@ minetest.register_chatcommand("set_owner", {
 })
 
 
-minetest.register_chatcommand("add_owner", {
+core.register_chatcommand("add_owner", {
 	params = S("<ParentID>").." "..S("<PlayerName>").." "..S("<AreaName>"),
 	description = S("Give a player access to a sub-area between two"
 		.." positions that have already been protected,"
@@ -101,7 +101,7 @@ minetest.register_chatcommand("add_owner", {
 			return false, S("The player \"@1\" does not exist.", ownerName)
 		end
 
-		if not minetest.check_player_privs(name, "areas_high_limit") then
+		if not core.check_player_privs(name, "areas_high_limit") then
 			local canAdd, errMsg = areas:canPlayerAddOwner(pos1, pos2, ownerName)
 			if not canAdd then
 				return false, S("You can't protect that area: @1", errMsg)
@@ -117,7 +117,7 @@ minetest.register_chatcommand("add_owner", {
 
 		areaName = sub8(param, 1, areas.config.max_area_name_length)
 
-		minetest.log("action", name.." runs /add_owner. Owner = "..ownerName..
+		core.log("action", name.." runs /add_owner. Owner = "..ownerName..
 				" AreaName = "..areaName.." ParentID = "..pid..
 				" StartPos = "..pos1.x..","..pos1.y..","..pos1.z..
 				" EndPos = "  ..pos2.x..","..pos2.y..","..pos2.z)
@@ -133,7 +133,7 @@ minetest.register_chatcommand("add_owner", {
 		areas.areas[id].prev_owner = name
 		areas:save()
 
-		minetest.chat_send_player(ownerName,
+		core.chat_send_player(ownerName,
 				S("You have been granted control over area #@1. "..
 				"Type /list_areas to show your areas.", id))
 		return true, S("Area protected. ID: @1", id)
@@ -141,7 +141,7 @@ minetest.register_chatcommand("add_owner", {
 })
 
 
-minetest.register_chatcommand("rename_area", {
+core.register_chatcommand("rename_area", {
 	params = "<ID>".." "..S("<newName>"),
 	description = S("Rename an area that you own"),
 	func = function(name, param)
@@ -176,7 +176,7 @@ minetest.register_chatcommand("rename_area", {
 })
 
 
-minetest.register_chatcommand("find_areas", {
+core.register_chatcommand("find_areas", {
 	params = "<regexp>",
 	description = S("Find areas using a Lua regular expression"),
 	privs = areas.adminPrivs,
@@ -214,12 +214,12 @@ minetest.register_chatcommand("find_areas", {
 })
 
 
-minetest.register_chatcommand("list_areas", {
+core.register_chatcommand("list_areas", {
 	description = S("List your areas"),
 	func = function(name, param)
 		local user = name
 		-- allow admins to check the areas of other players
-		if param ~= "" and minetest.check_player_privs(name, areas.adminPrivs) then
+		if param ~= "" and core.check_player_privs(name, areas.adminPrivs) then
 			user = param
 		end
 
@@ -228,7 +228,7 @@ minetest.register_chatcommand("list_areas", {
 			if area.owner == user then
 				table.insert(areaStrings, areas:toString(id))
 				if #areaStrings > 50 then
-					minetest.chat_send_player(name, S("Too many areas to list all."))
+					core.chat_send_player(name, S("Too many areas to list all."))
 					break
 				 end
 			end
@@ -243,7 +243,7 @@ minetest.register_chatcommand("list_areas", {
 })
 
 
-minetest.register_chatcommand("recursive_remove_areas", {
+core.register_chatcommand("recursive_remove_areas", {
 	params = "<ID>",
 	description = S("Recursively remove areas using an ID"),
 	func = function(name, param)
@@ -265,13 +265,13 @@ minetest.register_chatcommand("recursive_remove_areas", {
 })
 
 
-minetest.register_chatcommand("remove_area", {
+core.register_chatcommand("remove_area", {
 	params = "<ID>",
 	description = S("Remove an area using an ID"),
 	func = function(name, param)
 		local id = tonumber(param)
 
-		minetest.log("action", "/remove_area invoked, owner = " .. name..
+		core.log("action", "/remove_area invoked, owner = " .. name..
 			" AreaName = " .. param)
 
 		if not id then
@@ -290,7 +290,7 @@ minetest.register_chatcommand("remove_area", {
 })
 
 
-minetest.register_chatcommand("change_owner", {
+core.register_chatcommand("change_owner", {
 	params = "<ID>".." "..S("<NewOwner>"),
 	description = S("Change the owner of an area using its ID"),
 	func = function(name, param)
@@ -312,7 +312,7 @@ minetest.register_chatcommand("change_owner", {
 		areas.areas[id].owner = newOwner
 		areas.areas[id].prev_owner = name
 		areas:save()
-		minetest.chat_send_player(newOwner,
+		core.chat_send_player(newOwner,
 			S("@1 has given you control over the area \"@2\" (ID @3).",
 				name, areas.areas[id].name, id))
 		return true, S("Owner changed.")
@@ -320,7 +320,7 @@ minetest.register_chatcommand("change_owner", {
 })
 
 
-minetest.register_chatcommand("area_open", {
+core.register_chatcommand("area_open", {
 	params = "<ID>",
 	description = S("Toggle an area open (anyone can interact) or closed"),
 	func = function(name, param)
@@ -342,7 +342,7 @@ minetest.register_chatcommand("area_open", {
 })
 
 
-minetest.register_chatcommand("move_area", {
+core.register_chatcommand("move_area", {
 	params = "<ID>",
 	description = S("Move (or resize) an area to the current positions."),
 	privs = areas.adminPrivs,
@@ -370,11 +370,11 @@ minetest.register_chatcommand("move_area", {
 })
 
 
-minetest.register_chatcommand("area_info", {
+core.register_chatcommand("area_info", {
 	description = S("Get information about area configuration and usage."),
 	func = function(name)
 		local lines = {}
-		local privs = minetest.get_player_privs(name)
+		local privs = core.get_player_privs(name)
 
 		-- Short (and fast to access) names
 		local cfg = areas.config
@@ -452,7 +452,7 @@ minetest.register_chatcommand("area_info", {
 })
 
 
-minetest.register_chatcommand("areas_cleanup", {
+core.register_chatcommand("areas_cleanup", {
 	description = S("Removes all ownerless areas"),
 	privs = areas.adminPrivs,
 	func = function()
@@ -476,9 +476,9 @@ minetest.register_chatcommand("areas_cleanup", {
 -- Get a table with all connected players with a position
 local function player_list()
 	local list = {}
-	for _, player in pairs(minetest.get_connected_players()) do
+	for _, player in pairs(core.get_connected_players()) do
 		local pos = player:get_pos()
-		if minetest.is_valid_pos(pos) then
+		if core.is_valid_pos(pos) then
 			local name = player:get_player_name()
 			list[#list + 1] = {name = name, pos = pos}
 		end
@@ -487,7 +487,7 @@ local function player_list()
 	return list
 end
 
-minetest.register_chatcommand("area_pvp", {
+core.register_chatcommand("area_pvp", {
 	description = "Toggle PvP in an area",
 	params = "<ID>",
 	func = function(name, param)

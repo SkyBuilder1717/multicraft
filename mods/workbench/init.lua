@@ -4,7 +4,7 @@ local min, ceil = math.min, math.ceil
 -- Nodes allowed to be cut
 -- Only the regular, solid blocks without metas or explosivity can be cut
 local nodes = {}
-for node, def in pairs(minetest.registered_nodes) do
+for node, def in pairs(core.registered_nodes) do
 	if 	(def.drawtype == "normal" or def.drawtype:sub(1,5) == "glass" or def.drawtype:sub(1,8) == "allfaces") and
 		(def.tiles and type(def.tiles[1]) == "string") and
 		not def.on_rightclick and
@@ -133,7 +133,7 @@ function workbench:set_formspec(meta, id)
 end
 
 function workbench.construct(pos)
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	local inv = meta:get_inventory()
 
 	inv:set_size("tool", 1)
@@ -147,7 +147,7 @@ function workbench.construct(pos)
 end
 
 function workbench.fields(pos, _, fields, sender)
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	if		fields.back		then workbench:set_formspec(meta, 1)
 	elseif	fields.creating	then workbench:set_formspec(meta, 2)
 	elseif	fields.anvil	then workbench:set_formspec(meta, 3)
@@ -157,7 +157,7 @@ function workbench.fields(pos, _, fields, sender)
 		local inv = sender:get_inventory()
 		if inv then
 			for i, stack in ipairs(inv:get_list("craft")) do
-				minetest.item_drop(stack, nil, pos)
+				core.item_drop(stack, nil, pos)
 				inv:set_stack("craft", i, nil)
 			end
 		end
@@ -166,7 +166,7 @@ function workbench.fields(pos, _, fields, sender)
 			for _, name in pairs({"craft", "tool", "hammer"}) do
 				for i = 1, inv:get_size(name) do
 					local stack = inv:get_stack(name, i)
-					minetest.item_drop(stack, nil, pos)
+					core.item_drop(stack, nil, pos)
 					inv:set_stack(name, i, nil)
 				end
 			end
@@ -178,8 +178,8 @@ function workbench.fields(pos, _, fields, sender)
 end
 
 function workbench.timer(pos)
-	local timer = minetest.get_node_timer(pos)
-	local inv = minetest.get_meta(pos):get_inventory()
+	local timer = core.get_node_timer(pos)
+	local inv = core.get_meta(pos):get_inventory()
 	local tool = inv:get_stack("tool", 1)
 	local hammer = inv:get_stack("hammer", 1)
 
@@ -215,18 +215,18 @@ function workbench.move(_, from_list, _, to_list, _, count)
 end
 
 function workbench.on_put(pos, listname, _, stack)
-	local inv = minetest.get_meta(pos):get_inventory()
+	local inv = core.get_meta(pos):get_inventory()
 	if listname == "craft" then
 		local input = inv:get_stack("craft", 1)
 		workbench:get_output(inv, input, stack:get_name())
 	elseif listname == "tool" or listname == "hammer" then
-		local timer = minetest.get_node_timer(pos)
+		local timer = core.get_node_timer(pos)
 		timer:start(0.5)
 	end
 end
 
 function workbench.on_take(pos, listname, index, stack, player)
-	local inv = minetest.get_meta(pos):get_inventory()
+	local inv = core.get_meta(pos):get_inventory()
 	local input = inv:get_stack("craft", 1)
 	local inputname = input:get_name()
 	local stackname = stack:get_name()
@@ -251,7 +251,7 @@ function workbench.on_take(pos, listname, index, stack, player)
 	end
 end
 
-minetest.register_node("workbench:workbench", {
+core.register_node("workbench:workbench", {
 	description = "Workbench",
 	paramtype = "light",
 	paramtype2 = "facedir",
@@ -272,7 +272,7 @@ minetest.register_node("workbench:workbench", {
 for _, d in pairs(workbench.defs) do
 	for i=1, #nodes do
 		local node = nodes[i]
-		local def = minetest.registered_nodes[node]
+		local def = core.registered_nodes[node]
 
 		if d[3] then
 			local groups = {}
@@ -295,7 +295,7 @@ for _, d in pairs(workbench.defs) do
 				tiles = {def.tiles[1]}
 			end
 
-			minetest.register_node(":stairs:"..d[1].."_"..node:gsub(":", "_"), {
+			core.register_node(":stairs:"..d[1].."_"..node:gsub(":", "_"), {
 				description = def.description.." "..d[1]:gsub("^%l", string.upper),
 				paramtype = "light",
 				paramtype2 = "facedir",
@@ -307,10 +307,10 @@ for _, d in pairs(workbench.defs) do
 				node_box = workbench:pixelbox(16, {unpack(d, 3)}),
 				sunlight_propagates = true,
 				is_ground_content = false,
-				on_place = minetest.rotate_node
+				on_place = core.rotate_node
 			})
 
-			minetest.register_node(":stairs:slope_" .. node:gsub(":", "_"), {
+			core.register_node(":stairs:slope_" .. node:gsub(":", "_"), {
 				description = def.description .. " Slope",
 				paramtype = "light",
 				paramtype2 = "facedir",
@@ -323,7 +323,7 @@ for _, d in pairs(workbench.defs) do
 				sunlight_propagates = true,
 				is_ground_content = false,
 				use_texture_alpha = def.use_texture_alpha,
-				on_place = minetest.rotate_node,
+				on_place = core.rotate_node,
 				collision_box = {
 					type = "fixed",
 					fixed = {
@@ -350,47 +350,47 @@ local stairs_aliases = {
 for i=1, #nodes do
 	local node = nodes[i]
 	for _, d in pairs(workbench.defs) do
-		minetest.register_alias("stairs:"..d[1].."_"..node:match(":(.*)"), "stairs:"..d[1].."_"..node:gsub(":", "_"))
-		minetest.register_alias(node.."_"..d[1],                           "stairs:"..d[1].."_"..node:gsub(":", "_"))
+		core.register_alias("stairs:"..d[1].."_"..node:match(":(.*)"), "stairs:"..d[1].."_"..node:gsub(":", "_"))
+		core.register_alias(node.."_"..d[1],                           "stairs:"..d[1].."_"..node:gsub(":", "_"))
 	end
 
 	for _, e in pairs(stairs_aliases) do
-		minetest.register_alias("stairs:"..e[1].."_"..node:match(":(.*)"), "stairs:"..e[2].."_"..node:gsub(":", "_"))
-		minetest.register_alias("stairs:"..e[1].."_"..node:gsub(":", "_"), "stairs:"..e[2].."_"..node:gsub(":", "_"))
-		minetest.register_alias(node.."_"..e[1],                           "stairs:"..e[2].."_"..node:gsub(":", "_"))
+		core.register_alias("stairs:"..e[1].."_"..node:match(":(.*)"), "stairs:"..e[2].."_"..node:gsub(":", "_"))
+		core.register_alias("stairs:"..e[1].."_"..node:gsub(":", "_"), "stairs:"..e[2].."_"..node:gsub(":", "_"))
+		core.register_alias(node.."_"..e[1],                           "stairs:"..e[2].."_"..node:gsub(":", "_"))
 	end
 end
 
 for _, d in pairs(workbench.defs) do
-	minetest.register_alias("stairs:"..d[1].."_coal",        "stairs:"..d[1].."_default_coalblock")
-	minetest.register_alias("stairs:"..d[1].."_lapis_block", "stairs:"..d[1].."_default_lapisblock")
+	core.register_alias("stairs:"..d[1].."_coal",        "stairs:"..d[1].."_default_coalblock")
+	core.register_alias("stairs:"..d[1].."_lapis_block", "stairs:"..d[1].."_default_lapisblock")
 end
 
 for _, e in pairs(stairs_aliases) do
-	minetest.register_alias("stairs:"..e[1].."_coal",        "stairs:"..e[2].."_default_coalblock")
-	minetest.register_alias("stairs:"..e[1].."_lapis_block", "stairs:"..e[2].."_default_lapisblock")
+	core.register_alias("stairs:"..e[1].."_coal",        "stairs:"..e[2].."_default_coalblock")
+	core.register_alias("stairs:"..e[1].."_lapis_block", "stairs:"..e[2].."_default_lapisblock")
 end
 
-minetest.register_alias("stairs:stair_steel",    "stairs:stair_default_steelblock")
-minetest.register_alias("stairs:slab_steel",     "stairs:slab_default_steelblock")
-minetest.register_alias("stairs:corner_steel",   "stairs:corner_default_steelblock")
-minetest.register_alias("stairs:stair_gold",     "stairs:stair_default_goldblock")
-minetest.register_alias("stairs:slab_gold",      "stairs:slab_default_goldblock")
-minetest.register_alias("stairs:corner_gold",    "stairs:corner_default_goldblock")
-minetest.register_alias("stairs:stair_diamond",  "stairs:stair_default_diamondblock")
-minetest.register_alias("stairs:slab_diamond",   "stairs:slab_default_diamondblock")
-minetest.register_alias("stairs:corner_diamond", "stairs:corner_default_diamondblock")
+core.register_alias("stairs:stair_steel",    "stairs:stair_default_steelblock")
+core.register_alias("stairs:slab_steel",     "stairs:slab_default_steelblock")
+core.register_alias("stairs:corner_steel",   "stairs:corner_default_steelblock")
+core.register_alias("stairs:stair_gold",     "stairs:stair_default_goldblock")
+core.register_alias("stairs:slab_gold",      "stairs:slab_default_goldblock")
+core.register_alias("stairs:corner_gold",    "stairs:corner_default_goldblock")
+core.register_alias("stairs:stair_diamond",  "stairs:stair_default_diamondblock")
+core.register_alias("stairs:slab_diamond",   "stairs:slab_default_diamondblock")
+core.register_alias("stairs:corner_diamond", "stairs:corner_default_diamondblock")
 
 -- Craft items
 
-minetest.register_tool("workbench:hammer", {
+core.register_tool("workbench:hammer", {
 	description = "Hammer",
 	inventory_image = "workbench_hammer.png",
 	stack_max = 1,
 	on_use = function() do return end end
 })
 
-minetest.register_craft({
+core.register_craft({
 	output = "workbench:workbench",
 	recipe = {
 		{"group:wood", "group:wood"},
@@ -398,7 +398,7 @@ minetest.register_craft({
 	}
 })
 
-minetest.register_craft({
+core.register_craft({
 	output = "workbench:hammer",
 	recipe = {
 		{"default:steel_ingot", "group:stick", "default:steel_ingot"},
@@ -406,7 +406,7 @@ minetest.register_craft({
 	}
 })
 
-minetest.register_craft({
+core.register_craft({
 	type = "fuel",
 	recipe = "workbench:workbench",
 	burntime = 30,

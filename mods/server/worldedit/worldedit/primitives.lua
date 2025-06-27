@@ -19,7 +19,7 @@ function worldedit.cube(pos, width, height, length, node_name, hollow)
 	local data = mh.get_empty_data(area)
 
 	-- Add cube
-	local node_id = minetest.get_content_id(node_name)
+	local node_id = core.get_content_id(node_name)
 	local stride = vector.new(1, area.ystride, area.zstride)
 	local offset = vector.subtract(basepos, area.MinEdge)
 	local count = 0
@@ -57,7 +57,7 @@ function worldedit.sphere(pos, radius, node_name, hollow)
 	local data = mh.get_empty_data(area)
 
 	-- Fill selected area with node
-	local node_id = minetest.get_content_id(node_name)
+	local node_id = core.get_content_id(node_name)
 	local min_radius, max_radius = radius * (radius - 1), radius * (radius + 1)
 	local offset_x, offset_y, offset_z = pos.x - area.MinEdge.x, pos.y - area.MinEdge.y, pos.z - area.MinEdge.z
 	local stride_z, stride_y = area.zstride, area.ystride
@@ -103,7 +103,7 @@ function worldedit.dome(pos, radius, node_name, hollow)
 	local data = mh.get_empty_data(area)
 
 	-- Add dome
-	local node_id = minetest.get_content_id(node_name)
+	local node_id = core.get_content_id(node_name)
 	local min_radius, max_radius = radius * (radius - 1), radius * (radius + 1)
 	local offset_x, offset_y, offset_z = pos.x - area.MinEdge.x, pos.y - area.MinEdge.y, pos.z - area.MinEdge.z
 	local stride_z, stride_y = area.zstride, area.ystride
@@ -161,7 +161,7 @@ function worldedit.cylinder(pos, axis, length, radius1, radius2, node_name, holl
 	local data = mh.get_empty_data(area)
 
 	-- Add desired shape (anything inbetween cylinder & cone)
-	local node_id = minetest.get_content_id(node_name)
+	local node_id = core.get_content_id(node_name)
 	local stride = vector.new(1, area.ystride, area.zstride)
 	local offset = {
 		x = current_pos.x - area.MinEdge.x,
@@ -224,7 +224,7 @@ function worldedit.pyramid(pos, axis, height, node_name, hollow)
 	end
 
 	-- Add pyramid
-	local node_id = minetest.get_content_id(node_name)
+	local node_id = core.get_content_id(node_name)
 	local stride = vector.new(1, area.ystride, area.zstride)
 	local offset = {
 		x = pos.x - area.MinEdge.x,
@@ -270,7 +270,7 @@ function worldedit.spiral(pos, length, height, spacer, node_name)
 	local data = mh.get_empty_data(area)
 
 	-- Set up variables
-	local node_id = minetest.get_content_id(node_name)
+	local node_id = core.get_content_id(node_name)
 	local stride = vector.new(1, area.ystride, area.zstride)
 	local offset_x, offset_y, offset_z = pos.x - area.MinEdge.x, pos.y - area.MinEdge.y, pos.z - area.MinEdge.z
 	local i = offset_z * stride.z + offset_y * stride.y + offset_x + 1

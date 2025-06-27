@@ -1,17 +1,18 @@
 local time = 0
-local update_time = tonumber(minetest.settings:get("wieldview_update_time"))
+local update_time = tonumber(core.settings:get("wieldview_update_time"))
+
 if not update_time then
 	update_time = 1.5
-	minetest.settings:set("wieldview_update_time", tostring(update_time))
+	core.settings:set("wieldview_update_time", tostring(update_time))
 end
 
 wieldview = {
 	wielded_item = {},
-	transform = {},
+	transform = {}
 }
 
-dofile(minetest.get_modpath(minetest.get_current_modname()).."/wielditem/get_texture.lua")
-dofile(minetest.get_modpath(minetest.get_current_modname()).."/wielditem/transform.lua")
+dofile(core.get_modpath(core.get_current_modname()).."/wielditem/get_texture.lua")
+dofile(core.get_modpath(core.get_current_modname()).."/wielditem/transform.lua")
 
 wieldview.get_item_texture = function(self, item)
 	local texture = "blank.png"
@@ -19,7 +20,7 @@ wieldview.get_item_texture = function(self, item)
 		texture = armor.get_wield_image(item)
 
 		-- Get item image transformation, first from group, then from transform.lua
-		local transform = minetest.get_item_group(item, "wieldview_transform")
+		local transform = core.get_item_group(item, "wieldview_transform")
 		if transform == 0 then
 			transform = wieldview.transform[item]
 		end
@@ -57,21 +58,21 @@ wieldview.update_wielded_item = function(self, player)
 	self.wielded_item[name] = item
 end
 
-minetest.register_on_joinplayer(function(player)
+core.register_on_joinplayer(function(player)
 	local name = player:get_player_name()
 	wieldview.wielded_item[name] = ""
-	minetest.after(0, function(pname)
-		local pplayer = minetest.get_player_by_name(pname)
+	core.after(0, function(pname)
+		local pplayer = core.get_player_by_name(pname)
 		if pplayer then
 			wieldview:update_wielded_item(pplayer)
 		end
 	end, name)
 end)
 
-minetest.register_globalstep(function(dtime)
+core.register_globalstep(function(dtime)
 	time = time + dtime
 	if time > update_time then
-		for _,player in ipairs(minetest.get_connected_players()) do
+		for _,player in ipairs(core.get_connected_players()) do
 			wieldview:update_wielded_item(player)
 		end
 		time = 0

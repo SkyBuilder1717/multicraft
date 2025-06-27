@@ -59,7 +59,7 @@ function villages.paths()
 				local surface_point, surface_mat = villages.find_surface(starting_point)
 				-- replace surface node with default:gravel
 				if surface_point then
-					minetest.swap_node(surface_point,{name="default:gravel"})
+					core.swap_node(surface_point,{name="default:gravel"})
 					-- don't set y coordinate, surface might be too low or high
 					starting_point.x = surface_point.x
 					starting_point.z = surface_point.z

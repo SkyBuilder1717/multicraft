@@ -1,6 +1,6 @@
-local S = minetest.get_translator("worldedit_commands")
+local S = core.get_translator("worldedit_commands")
 
-minetest.register_privilege("worldedit", S("Can use WorldEdit commands"))
+core.register_privilege("worldedit", S("Can use WorldEdit commands"))
 
 worldedit.pos1 = {}
 worldedit.pos2 = {}
@@ -10,10 +10,10 @@ worldedit.inspect = {}
 worldedit.prob_pos = {}
 worldedit.prob_list = {}
 
-local safe_region, reset_pending, safe_area = dofile(minetest.get_modpath("worldedit_commands") .. "/safe.lua")
+local safe_region, reset_pending, safe_area = dofile(core.get_modpath("worldedit_commands") .. "/safe.lua")
 
 function worldedit.player_notify(name, message)
-	minetest.chat_send_player(name, "WorldEdit -!- " .. message, false)
+	core.chat_send_player(name, "WorldEdit -!- " .. message, false)
 end
 
 worldedit.registered_commands = {}
@@ -62,7 +62,7 @@ local function chatcommand_handler(cmd_name, name, param)
 	local run = function()
 		local _, msg = def.func(name, unpack(parsed))
 		if msg then
-			minetest.chat_send_player(name, msg)
+			core.chat_send_player(name, msg)
 		end
 	end
 
@@ -130,13 +130,13 @@ function worldedit.register_command(name, def)
 
 	-- for development
 	--[[if def.require_pos == 2 and not def.nodes_needed then
-		minetest.log("warning", "//" .. name .. " might be missing nodes_needed")
+		core.log("warning", "//" .. name .. " might be missing nodes_needed")
 	end--]]
 
 	-- disable further modification
 	setmetatable(def, {__newindex = {}})
 
-	minetest.register_chatcommand("/" .. name, {
+	core.register_chatcommand("/" .. name, {
 		privs = def.privs,
 		params = def.params,
 		description = def.description,
@@ -147,11 +147,11 @@ function worldedit.register_command(name, def)
 	worldedit.registered_commands[name] = def
 end
 
-if minetest.is_singleplayer() then return end
+if core.is_singleplayer() then return end
 
-dofile(minetest.get_modpath("worldedit_commands") .. "/cuboid.lua")
-dofile(minetest.get_modpath("worldedit_commands") .. "/mark.lua")
-dofile(minetest.get_modpath("worldedit_commands") .. "/wand.lua")
+dofile(core.get_modpath("worldedit_commands") .. "/cuboid.lua")
+dofile(core.get_modpath("worldedit_commands") .. "/mark.lua")
+dofile(core.get_modpath("worldedit_commands") .. "/wand.lua")
 
 
 local function check_region(name)
@@ -159,7 +159,7 @@ local function check_region(name)
 end
 
 -- Strips any kind of escape codes (translation, colors) from a string
--- https://github.com/minetest/minetest/blob/53dd7819277c53954d1298dfffa5287c306db8d0/src/util/string.cpp#L777
+-- https://github.com/core/core/blob/53dd7819277c53954d1298dfffa5287c306db8d0/src/util/string.cpp#L777
 local function strip_escapes(input)
 	local s = function(idx) return input:sub(idx, idx) end
 	local out = ""
@@ -193,7 +193,7 @@ end
 local description_cache = nil
 
 local function node_name_valid(nodename)
-	return minetest.get_item_group(nodename, "not_in_creative_inventory") == 0 and nodename ~= "ignore"
+	return core.get_item_group(nodename, "not_in_creative_inventory") == 0 and nodename ~= "ignore"
 end
 
 -- normalizes node "description" `nodename`, returning a string (or nil)
@@ -202,13 +202,13 @@ worldedit.normalize_nodename = function(nodename)
 	if nodename == "" then return nil end
 
 	local fullname = ItemStack({name=nodename}):get_name() -- resolve aliases
-	if (minetest.registered_nodes[fullname] and node_name_valid(fullname)) or
+	if (core.registered_nodes[fullname] and node_name_valid(fullname)) or
 			fullname == "air" then -- full name
 		return fullname
 	end
 	nodename = nodename:lower()
 
-	for key, _ in pairs(minetest.registered_nodes) do
+	for key, _ in pairs(core.registered_nodes) do
 		if string_endswith(key:lower(), ":" .. nodename) and
 				node_name_valid(key) then -- matches name (w/o mod part)
 			return key
@@ -218,7 +218,7 @@ worldedit.normalize_nodename = function(nodename)
 	if description_cache == nil then
 		-- cache stripped descriptions
 		description_cache = {}
-		for key, value in pairs(minetest.registered_nodes) do
+		for key, value in pairs(core.registered_nodes) do
 			local desc = strip_escapes(value.description):gsub("\n.*", "", 1):lower()
 			if desc ~= "" and node_name_valid(key) then
 				description_cache[key] = desc
@@ -252,7 +252,7 @@ end
 
 -- Determines the axis in which a player is facing, returning an axis ("x", "y", or "z") and the sign (1 or -1)
 function worldedit.player_axis(name)
-	local player = minetest.get_player_by_name(name)
+	local player = core.get_player_by_name(name)
 	if not player then
 		return "", 0 -- bad behavior
 	end
@@ -276,9 +276,9 @@ end
 local function open_schematic(name, param)
 	-- find the file in the world path
 	local testpaths = {
-		minetest.get_worldpath() .. "/schems/" .. param,
-		minetest.get_worldpath() .. "/schems/" .. param .. ".we",
-		minetest.get_worldpath() .. "/schems/" .. param .. ".wem",
+		core.get_worldpath() .. "/schems/" .. param,
+		core.get_worldpath() .. "/schems/" .. param .. ".we",
+		core.get_worldpath() .. "/schems/" .. param .. ".wem",
 	}
 	local file, err
 	for index, path in ipairs(testpaths) do
@@ -315,8 +315,8 @@ worldedit.register_command("about", {
 		worldedit.player_notify(name, S("WorldEdit @1"..
 			" is available on this server. Type @2 to get a list of "..
 			"commands, or find more information at @3",
-			worldedit.version_string, minetest.colorize("#00ffff", "//help"),
-			"https://github.com/Uberi/Minetest-WorldEdit"
+			worldedit.version_string, core.colorize("#00ffff", "//help"),
+			"https://github.com/Uberi/core-WorldEdit"
 		))
 	end,
 })
@@ -331,10 +331,10 @@ worldedit.register_command("help", {
 	end,
 	func = function(name, param)
 		local function format_help_line(cmd, def, follow_alias)
-			local msg = minetest.colorize("#00ffff", "//"..cmd)
+			local msg = core.colorize("#00ffff", "//"..cmd)
 			if def.name ~= cmd then
 				msg = msg .. ": " .. S("alias to @1",
-					minetest.colorize("#00ffff", "//"..def.name))
+					core.colorize("#00ffff", "//"..def.name))
 				if follow_alias then
 					msg = msg .. "\n" .. format_help_line(def.name, def)
 				end
@@ -366,18 +366,18 @@ worldedit.register_command("help", {
 			end)
 		end
 
-		if not minetest.check_player_privs(name, "worldedit") then
+		if not core.check_player_privs(name, "worldedit") then
 			return false, S("You are not allowed to use any WorldEdit commands.")
 		end
 		if param == "" then
 			local list = {}
 			for cmd, def in pairs(worldedit.registered_commands) do
-				if minetest.check_player_privs(name, def.privs) then
+				if core.check_player_privs(name, def.privs) then
 					list[#list + 1] = cmd
 				end
 			end
 			table.sort(list)
-			local help = minetest.colorize("#00ffff", "//help")
+			local help = core.colorize("#00ffff", "//help")
 			return true, S("Available commands: @1@n"
 					.. "Use '@2' to get more information,"
 					.. " or '@3' to list everything.",
@@ -385,7 +385,7 @@ worldedit.register_command("help", {
 		elseif param == "all" then
 			local cmds = {}
 			for cmd, def in pairs(worldedit.registered_commands) do
-				if minetest.check_player_privs(name, def.privs) then
+				if core.check_player_privs(name, def.privs) then
 					cmds[#cmds + 1] = {cmd, def}
 				end
 			end
@@ -450,19 +450,19 @@ local function get_node_rlight(pos)
 	}
 	local ret = 0
 	for _, v in ipairs(vecs) do
-		ret = math.max(ret, minetest.get_node_light(vector.add(pos, v)))
+		ret = math.max(ret, core.get_node_light(vector.add(pos, v)))
 	end
 	return ret
 end
 
-minetest.register_on_punchnode(function(pos, node, puncher)
+core.register_on_punchnode(function(pos, node, puncher)
 	local name = puncher:get_player_name()
 	if worldedit.inspect[name] then
 		local axis, sign = worldedit.player_axis(name)
 		local message = S(
 			"inspector: @1 at @2 (param1=@3, param2=@4, received light=@5) punched facing the @6 axis",
 			node.name,
-			minetest.pos_to_string(pos),
+			core.pos_to_string(pos),
 			node.param1,
 			node.param2,
 			get_node_rlight(pos),
@@ -521,13 +521,13 @@ worldedit.register_command("pos1", {
 	category = S("Region operations"),
 	privs = {worldedit=true},
 	func = function(name)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if not player then return false end
 		local pos = player:get_pos()
 		pos.x, pos.y, pos.z = math.floor(pos.x + 0.5), math.floor(pos.y + 0.5), math.floor(pos.z + 0.5)
 		worldedit.pos1[name] = pos
 		worldedit.mark_pos1(name)
-		worldedit.player_notify(name, S("position @1 set to @2", 1, minetest.pos_to_string(pos)))
+		worldedit.player_notify(name, S("position @1 set to @2", 1, core.pos_to_string(pos)))
 	end,
 })
 
@@ -537,13 +537,13 @@ worldedit.register_command("pos2", {
 	category = S("Region operations"),
 	privs = {worldedit=true},
 	func = function(name)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if not player then return false end
 		local pos = player:get_pos()
 		pos.x, pos.y, pos.z = math.floor(pos.x + 0.5), math.floor(pos.y + 0.5), math.floor(pos.z + 0.5)
 		worldedit.pos2[name] = pos
 		worldedit.mark_pos2(name)
-		worldedit.player_notify(name, S("position @1 set to @2", 2, minetest.pos_to_string(pos)))
+		worldedit.player_notify(name, S("position @1 set to @2", 2, core.pos_to_string(pos)))
 	end,
 })
 
@@ -570,12 +570,12 @@ worldedit.register_command("p", {
 			worldedit.player_notify(name, S("select position @1 by punching a node", 2))
 		elseif param == "get" then --display current WorldEdit positions
 			if worldedit.pos1[name] ~= nil then
-				worldedit.player_notify(name, S("position @1: @2", 1, minetest.pos_to_string(worldedit.pos1[name])))
+				worldedit.player_notify(name, S("position @1: @2", 1, core.pos_to_string(worldedit.pos1[name])))
 			else
 				worldedit.player_notify(name, S("position @1 not set", 1))
 			end
 			if worldedit.pos2[name] ~= nil then
-				worldedit.player_notify(name, S("position @1: @2", 2, minetest.pos_to_string(worldedit.pos2[name])))
+				worldedit.player_notify(name, S("position @1: @2", 2, core.pos_to_string(worldedit.pos2[name])))
 			else
 				worldedit.player_notify(name, S("position @1 not set", 2))
 			end
@@ -599,36 +599,36 @@ worldedit.register_command("fixedpos", {
 		if flag == "set1" then
 			worldedit.pos1[name] = pos
 			worldedit.mark_pos1(name)
-			worldedit.player_notify(name, S("position @1 set to @2", 1, minetest.pos_to_string(pos)))
+			worldedit.player_notify(name, S("position @1 set to @2", 1, core.pos_to_string(pos)))
 		else --flag == "set2"
 			worldedit.pos2[name] = pos
 			worldedit.mark_pos2(name)
-			worldedit.player_notify(name, S("position @1 set to @2", 2, minetest.pos_to_string(pos)))
+			worldedit.player_notify(name, S("position @1 set to @2", 2, core.pos_to_string(pos)))
 		end
 	end,
 })
 
-minetest.register_on_punchnode(function(pos, node, puncher)
+core.register_on_punchnode(function(pos, node, puncher)
 	local name = puncher:get_player_name()
 	if name ~= "" and worldedit.set_pos[name] ~= nil then --currently setting position
 		if worldedit.set_pos[name] == "pos1" then --setting position 1
 			worldedit.pos1[name] = pos
 			worldedit.mark_pos1(name)
 			worldedit.set_pos[name] = "pos2" --set position 2 on the next invocation
-			worldedit.player_notify(name, S("position @1 set to @2", 1, minetest.pos_to_string(pos)))
+			worldedit.player_notify(name, S("position @1 set to @2", 1, core.pos_to_string(pos)))
 		elseif worldedit.set_pos[name] == "pos1only" then --setting position 1 only
 			worldedit.pos1[name] = pos
 			worldedit.mark_pos1(name)
 			worldedit.set_pos[name] = nil --finished setting positions
-			worldedit.player_notify(name, S("position @1 set to @2", 1, minetest.pos_to_string(pos)))
+			worldedit.player_notify(name, S("position @1 set to @2", 1, core.pos_to_string(pos)))
 		elseif worldedit.set_pos[name] == "pos2" then --setting position 2
 			worldedit.pos2[name] = pos
 			worldedit.mark_pos2(name)
 			worldedit.set_pos[name] = nil --finished setting positions
-			worldedit.player_notify(name, S("position @1 set to @2", 2, minetest.pos_to_string(pos)))
-		elseif worldedit.set_pos[name] == "prob" then --setting Minetest schematic node probabilities
+			worldedit.player_notify(name, S("position @1 set to @2", 2, core.pos_to_string(pos)))
+		elseif worldedit.set_pos[name] == "prob" then --setting core schematic node probabilities
 			worldedit.prob_pos[name] = pos
-			minetest.show_formspec(name, "prob_val_enter", "field[text;;]")
+			core.show_formspec(name, "prob_val_enter", "field[text;;]")
 		end
 	end
 end)
@@ -663,7 +663,7 @@ worldedit.register_command("deleteblocks", {
 	nodes_needed = check_region,
 	func = function(name)
 		local pos1, pos2 = worldedit.pos1[name], worldedit.pos2[name]
-		local success = minetest.delete_area(pos1, pos2)
+		local success = core.delete_area(pos1, pos2)
 		if success then
 			worldedit.player_notify(name, S("Area deleted."))
 		else
@@ -1374,13 +1374,13 @@ worldedit.register_command("drain", {
 		local count = 0
 		local pos1, pos2 = worldedit.sort_pos(worldedit.pos1[name], worldedit.pos2[name])
 
-		local get_node, remove_node = minetest.get_node, minetest.remove_node
+		local get_node, remove_node = core.get_node, core.remove_node
 		for x = pos1.x, pos2.x do
 		for y = pos1.y, pos2.y do
 		for z = pos1.z, pos2.z do
 			local p = vector.new(x, y, z)
 			local n = get_node(p).name
-			local d = minetest.registered_nodes[n]
+			local d = core.registered_nodes[n]
 			if d ~= nil and (d.drawtype == "liquid" or d.drawtype == "flowingliquid") then
 				remove_node(p)
 				count = count + 1
@@ -1398,7 +1398,7 @@ local function clearcut(pos1, pos2)
 	-- decide which nodes we consider plants
 	if clearcut_cache == nil then
 		clearcut_cache = {}
-		for name, def in pairs(minetest.registered_nodes) do
+		for name, def in pairs(core.registered_nodes) do
 			local groups = def.groups or {}
 			if (
 				-- the groups say so
@@ -1420,7 +1420,7 @@ local function clearcut(pos1, pos2)
 	local count = 0
 	local prev, any
 
-	local get_node, remove_node = minetest.get_node, minetest.remove_node
+	local get_node, remove_node = core.get_node, core.remove_node
 	for x = pos1.x, pos2.x do
 	for z = pos1.z, pos2.z do
 		prev = false
@@ -1433,7 +1433,7 @@ local function clearcut(pos1, pos2)
 				prev = true
 				any = true
 			elseif prev then
-				local def = minetest.registered_nodes[n] or {}
+				local def = core.registered_nodes[n] or {}
 				local groups = def.groups or {}
 				if groups.attached_node or (def.buildable_to and groups.falling_node) then
 					remove_node(pos)
@@ -1547,7 +1547,7 @@ local function detect_misaligned_schematic(name, pos1, pos2)
 	-- The expected behaviour is that the (0,0,0) corner of the schematic stays
 	-- at pos1, this only works when the minimum position is actually present
 	-- in the schematic.
-	local node = minetest.get_node(pos1)
+	local node = core.get_node(pos1)
 	local have_node_at_origin = node.name ~= "air" and node.name ~= "ignore"
 	if not have_node_at_origin then
 		worldedit.player_notify(name,
@@ -1579,9 +1579,9 @@ worldedit.register_command("save", {
 				worldedit.pos2[name])
 		detect_misaligned_schematic(name, worldedit.pos1[name], worldedit.pos2[name])
 
-		local path = minetest.get_worldpath() .. "/schems"
+		local path = core.get_worldpath() .. "/schems"
 		-- Create directory if it does not already exist
-		minetest.mkdir(path)
+		core.mkdir(path)
 
 		local filename = path .. "/" .. param .. ".we"
 		local f_r = io.open(filename, "r")
@@ -1618,7 +1618,7 @@ worldedit.register_command("del_saved", {
 		return true, param
 	end,
 	func = function(name, param)
-		local path = minetest.get_worldpath() .. "/schems"
+		local path = core.get_worldpath() .. "/schems"
 		local filename = path .. "/" .. param .. ".we"
 		if os.remove(filename) then
 			worldedit.player_notify(name, S("Removed file \"@1\"", param))
@@ -1700,7 +1700,7 @@ worldedit.register_command("load", {
 --[[
 worldedit.register_command("mtschemcreate", {
 	params = "<file>",
-	description = S("Save the current WorldEdit region using the Minetest "..
+	description = S("Save the current WorldEdit region using the core "..
 		"Schematic format to \"(world folder)/schems/<filename>.mts\""),
 	category = S("Schematics"),
 	privs = {worldedit=true},
@@ -1716,18 +1716,18 @@ worldedit.register_command("mtschemcreate", {
 	end,
 	nodes_needed = check_region,
 	func = function(name, param)
-		local path = minetest.get_worldpath() .. "/schems"
+		local path = core.get_worldpath() .. "/schems"
 		-- Create directory if it does not already exist
-		minetest.mkdir(path)
+		core.mkdir(path)
 
 		local filename = path .. "/" .. param .. ".mts"
-		local ret = minetest.create_schematic(worldedit.pos1[name],
+		local ret = core.create_schematic(worldedit.pos1[name],
 				worldedit.pos2[name], worldedit.prob_list[name],
 				filename)
 		if ret == nil then
-			worldedit.player_notify(name, S("Failed to create Minetest schematic"))
+			worldedit.player_notify(name, S("Failed to create core schematic"))
 		else
-			worldedit.player_notify(name, S("Saved Minetest schematic to @1", param))
+			worldedit.player_notify(name, S("Saved core schematic to @1", param))
 		end
 		worldedit.prob_list[name] = {}
 	end,
@@ -1751,18 +1751,18 @@ worldedit.register_command("mtschemplace", {
 	func = function(name, param)
 		local pos = worldedit.pos1[name]
 
-		local path = minetest.get_worldpath() .. "/schems/" .. param .. ".mts"
-		if minetest.place_schematic(pos, path) == nil then
-			worldedit.player_notify(name, S("failed to place Minetest schematic"))
+		local path = core.get_worldpath() .. "/schems/" .. param .. ".mts"
+		if core.place_schematic(pos, path) == nil then
+			worldedit.player_notify(name, S("failed to place core schematic"))
 		else
-			worldedit.player_notify(name, S("placed Minetest schematic @1 at @2", param, minetest.pos_to_string(pos)))
+			worldedit.player_notify(name, S("placed core schematic @1 at @2", param, core.pos_to_string(pos)))
 		end
 	end,
 })
 
 worldedit.register_command("mtschemprob", {
 	params = "start/finish/get",
-	description = S("Begins node probability entry for Minetest schematics, gets the nodes that have probabilities set, or ends node probability entry"),
+	description = S("Begins node probability entry for core schematics, gets the nodes that have probabilities set, or ends node probability entry"),
 	category = S("Schematics"),
 	privs = {worldedit=true},
 	parse = function(param)
@@ -1775,10 +1775,10 @@ worldedit.register_command("mtschemprob", {
 		if param == "start" then --start probability setting
 			worldedit.set_pos[name] = "prob"
 			worldedit.prob_list[name] = {}
-			worldedit.player_notify(name, S("select Minetest schematic probability values by punching nodes"))
+			worldedit.player_notify(name, S("select core schematic probability values by punching nodes"))
 		elseif param == "finish" then --finish probability setting
 			worldedit.set_pos[name] = nil
-			worldedit.player_notify(name, S("finished Minetest schematic probability selection"))
+			worldedit.player_notify(name, S("finished core schematic probability selection"))
 		elseif param == "get" then --get all nodes that had probabilities set on them
 			local text = ""
 			local problist = worldedit.prob_list[name]
@@ -1787,7 +1787,7 @@ worldedit.register_command("mtschemprob", {
 			end
 			for k,v in pairs(problist) do
 				local prob = math.floor(((v.prob / 256) * 100) * 100 + 0.5) / 100
-				text = text .. minetest.pos_to_string(v.pos) .. ": " .. prob .. "% | "
+				text = text .. core.pos_to_string(v.pos) .. ": " .. prob .. "% | "
 			end
 			worldedit.player_notify(name, S("currently set node probabilities:"))
 			worldedit.player_notify(name, text)
@@ -1795,7 +1795,7 @@ worldedit.register_command("mtschemprob", {
 	end,
 })
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
 	if formname == "prob_val_enter" then
 		local name = player:get_player_name()
 		local problist = worldedit.prob_list[name]

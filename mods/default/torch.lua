@@ -18,12 +18,12 @@ function default.register_torch(name, def)
 		on_blast = def.on_blast,
 		on_flood = function(pos, oldnode, newnode)
 			local torch = (oldnode.name:gsub("_wall", "") or oldnode.name:gsub("_celling", "")) or oldnode.name
-			minetest.add_item(pos, ItemStack(torch))
+			core.add_item(pos, ItemStack(torch))
 			-- Play flame-extinguish sound if liquid is not an 'igniter'
-			local nodedef = minetest.registered_items[newnode.name]
+			local nodedef = core.registered_items[newnode.name]
 			if not (nodedef and nodedef.groups and
 					nodedef.groups.igniter and nodedef.groups.igniter > 0) then
-				minetest.sound_play(
+				core.sound_play(
 					"default_cool_lava",
 					{pos = pos, max_hear_distance = 16, gain = 0.1}
 				)
@@ -33,8 +33,8 @@ function default.register_torch(name, def)
 		end,
 		on_place = function(itemstack, placer, pointed_thing)
 			local under = pointed_thing.under
-			local node = minetest.get_node(under)
-			local def = minetest.registered_nodes[node.name]
+			local node = core.get_node(under)
+			local def = core.registered_nodes[node.name]
 			if def and def.on_rightclick and
 				not (placer and placer:is_player() and
 				placer:get_player_control().sneak) then
@@ -42,7 +42,7 @@ function default.register_torch(name, def)
 					pointed_thing) or itemstack
 			end
 			local above = pointed_thing.above
-			local wdir = minetest.dir_to_wallmounted(vector.subtract(under, above))
+			local wdir = core.dir_to_wallmounted(vector.subtract(under, above))
 			local fakestack = itemstack
 			if wdir == 0 then
 				fakestack:set_name(name .. "_ceiling")
@@ -51,7 +51,7 @@ function default.register_torch(name, def)
 			else
 				fakestack:set_name(name .. "_wall")
 			end
-			itemstack = minetest.item_place(fakestack, placer, pointed_thing, wdir)
+			itemstack = core.item_place(fakestack, placer, pointed_thing, wdir)
 			itemstack:set_name(name)
 			return itemstack
 		end
@@ -82,9 +82,9 @@ function default.register_torch(name, def)
 	}
 	torch_ceiling.groups.not_in_creative_inventory = 1
 
-	minetest.register_node(":" .. name, torch_floor)
-	minetest.register_node(":" .. name .. "_wall", torch_wall)
-	minetest.register_node(":" .. name .. "_ceiling", torch_ceiling)
+	core.register_node(":" .. name, torch_floor)
+	core.register_node(":" .. name .. "_wall", torch_wall)
+	core.register_node(":" .. name .. "_ceiling", torch_ceiling)
 end
 
 default.register_torch("default:torch", {

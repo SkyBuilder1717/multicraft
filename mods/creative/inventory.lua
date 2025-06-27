@@ -1,22 +1,22 @@
-local creative_mode_cache = minetest.settings:get_bool("creative_mode")
-local has_armor = minetest.get_modpath("3d_armor")
+local creative_mode_cache = core.settings:get_bool("creative_mode")
+local has_armor = core.get_modpath("3d_armor")
 creative = {
     players = {},
     registered_tabs = {},
     is_enabled_for = function(name)
-	    return creative_mode_cache or minetest.check_player_privs(name, {creative = true}) or minetest.is_creative_enabled(name)
+	    return creative_mode_cache or core.check_player_privs(name, {creative = true}) or core.is_creative_enabled(name)
     end
 }
 
 local inventory_cache = {}
 
-local stack_max = minetest.settings:get("default_stack_max")
+local stack_max = core.settings:get("default_stack_max")
 local function init(name)
     creative.players[name] = {
         tabs_scroll_pos = 0,
         search = "",
     }
-    minetest.create_detached_inventory("creative_" .. name, {
+    core.create_detached_inventory("creative_" .. name, {
         allow_move = function() return 0 end,
         allow_put = function() return 0 end,
         allow_take = function(_, _, _, _, player)
@@ -53,7 +53,7 @@ local function init_creative_cache(tab_name)
             group = def.groups or {}
         end
     end
-    for name, def in pairs(minetest.registered_items) do
+    for name, def in pairs(core.registered_items) do
         local groups = def.groups or {}
         if def.description and def.description ~= "" and groups.not_in_creative_inventory ~= 1 and filter(name, def, groups) then
             table.insert(inventory_cache[tab_name], name)
@@ -74,9 +74,9 @@ local function init_creative_cache(tab_name)
 end
 
 local function update_creative_inventory(player_name, tab_name, search, tabs_scroll_pos)
-    local player = minetest.get_player_by_name(player_name)
+    local player = core.get_player_by_name(player_name)
     if not player or not player:is_player() then return end
-    local inv = minetest.get_inventory({ type = "detached", name = "creative_" .. player_name })
+    local inv = core.get_inventory({ type = "detached", name = "creative_" .. player_name })
     if not inv then return end
     local plrinv = creative.players[player_name]
     if tabs_scroll_pos then
@@ -92,7 +92,7 @@ local function update_creative_inventory(player_name, tab_name, search, tabs_scr
     local searching = search and (search ~= "")
     if searching then
         for _, iname in pairs(creative_inv) do
-            local def = minetest.registered_items[iname]
+            local def = core.registered_items[iname]
             if def and (string.find(def.name, search) or string.find(def.description, search)) then
                 table.insert(inventory, iname)
             end
@@ -185,7 +185,7 @@ local function get_creative_formspec(player_name, page, search)
             "image_button[9,1;0.83,0.83;creative_search.png;creative_search;;;false]" ..
             "field[5.31,1.35;4.0,0.75;Dsearch;;" .. search .. "]"
     end
-    local inv = minetest.get_inventory({ type = "detached", name = "creative_" .. player_name })
+    local inv = core.get_inventory({ type = "detached", name = "creative_" .. player_name })
     local creative_list = inv:get_list("main")
     if page ~= "inv" then
         local rows = math.ceil(#creative_list / 9)
@@ -257,7 +257,7 @@ local function add_to_player_inventory(player, item)
     if not player or not player:is_player() or not item then return end
     local inv = player:get_inventory()
     if not inv then return end
-    local def = minetest.registered_items[item]
+    local def = core.registered_items[item]
     if not def or (def.groups and def.groups.not_in_creative_inventory) then return end
 
     local list = inv:get_list("main")
@@ -328,7 +328,7 @@ creative.register_tab("inv", {
     offset = "10.18,6.94",
     offset_icon = "10.26,7.1"
 })
-minetest.register_on_mods_loaded(function()
+core.register_on_mods_loaded(function()
     creative.register_tab("all", {
         description = "Search Items",
         groups = {all = 1},
@@ -345,7 +345,7 @@ minetest.register_on_mods_loaded(function()
         groups = {blocks = 1},
         icon = "default:dirt_with_grass",
         filter = function(name, def, groups)
-            return minetest.registered_nodes[name] and
+            return core.registered_nodes[name] and
                 not def.mesecons and not def.groups.stairs and
                 (def.drawtype == "normal" or def.drawtype:sub(1, 5) == "glass" or def.drawtype:sub(1, 8) == "allfaces") or
                 found_in_list(name, {"cactus", "slimeblock"})
@@ -403,7 +403,7 @@ minetest.register_on_mods_loaded(function()
         groups = {tool = 1},
         icon = "default:pick_diamond",
         filter = function(name)
-            return minetest.registered_tools[name] or found_in_list(name, {"arrow"})
+            return core.registered_tools[name] or found_in_list(name, {"arrow"})
         end
     })
     creative.register_tab("materials", {
@@ -411,7 +411,7 @@ minetest.register_on_mods_loaded(function()
         groups = {materials = 1},
         icon = "default:emerald",
         filter = function(name, def)
-            return minetest.registered_craftitems[name] and
+            return core.registered_craftitems[name] and
                 not found_in_list(name, {"^boats:", "^carts:", "^vessels:", "^pep:", "^bucket:", "^doors:"}) and
                 not def.on_use
         end
@@ -436,7 +436,7 @@ function sfinv.get_homepage_name(player)
 end
 
 -- Create the trash field
-local trash = minetest.create_detached_inventory("creative_trash", {
+local trash = core.create_detached_inventory("creative_trash", {
     allow_put = function(inv, listname, index, stack, player)
         return stack:get_count()
     end,

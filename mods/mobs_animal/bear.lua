@@ -56,19 +56,19 @@ mobs:register_mob("mobs_animal:bear", {
 		end
 		if clicker:get_wielded_item():is_empty() and clicker:get_player_name() == self.owner then
 			if clicker:get_player_control().sneak then
-			self.order = ""
-			self.state = "walk"
-			self.walk_velocity = 1
-			else
-			if self.order == "follow" then
-				self.order = "stand"
-				self.state = "stand"
+				self.order = ""
+				self.state = "walk"
 				self.walk_velocity = 1
 			else
-				self.order = "follow"
-				self.state = "walk"
-				self.walk_velocity = 3
-			end
+				if self.order == "follow" then
+					self.order = "stand"
+					self.state = "stand"
+					self.walk_velocity = 1
+				else
+					self.order = "follow"
+					self.state = "walk"
+					self.walk_velocity = 3
+				end
 			end
 			return
 		end
@@ -77,11 +77,11 @@ mobs:register_mob("mobs_animal:bear", {
 	after_activate = function(self, staticdata, def, dtime)
 		-- replace bear using the old directx model
 		if self.mesh == "mobs_bear.x" then
-		local pos = self.object:get_pos()
-		if pos then
-			minetest.add_entity(pos, self.name)
-			self.object:remove()
-		end
+			local pos = self.object:get_pos()
+			if pos then
+				core.add_entity(pos, self.name)
+				self.object:remove()
+			end
 		end
 	end,
 })

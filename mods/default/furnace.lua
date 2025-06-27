@@ -40,11 +40,11 @@ end
 --
 
 local function can_dig(pos, player)
-	local meta = minetest.get_meta(pos);
+	local meta = core.get_meta(pos);
 	local inv = meta:get_inventory()
 	for _, name in pairs({"fuel", "dst", "src"}) do
 		local stack = inv:get_stack(name, 1)
-		minetest.item_drop(stack, nil, pos)
+		core.item_drop(stack, nil, pos)
 		stack:clear()
 		inv:set_stack(name, 1, stack)
 	end
@@ -55,10 +55,10 @@ local function allow_metadata_inventory_put(pos, listname, index, stack, player)
 	if minetest.is_protected(pos, player:get_player_name()) then
 		return 0
 	end
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	local inv = meta:get_inventory()
 	if listname == "fuel" then
-		if minetest.get_craft_result({method="fuel", width=1, items={stack}}).time ~= 0 then
+		if core.get_craft_result({method="fuel", width=1, items={stack}}).time ~= 0 then
 			if inv:is_empty("src") then
 				meta:set_string("infotext", "Furnace is empty")
 			end
@@ -74,7 +74,7 @@ local function allow_metadata_inventory_put(pos, listname, index, stack, player)
 end
 
 local function allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	local inv = meta:get_inventory()
 	local stack = inv:get_stack(from_list, from_index)
 	return allow_metadata_inventory_put(pos, to_list, to_index, stack, player)
@@ -88,19 +88,19 @@ local function allow_metadata_inventory_take(pos, listname, index, stack, player
 end
 
 local function swap_node(pos, name)
-	local node = minetest.get_node(pos)
+	local node = core.get_node(pos)
 	if node.name == name then
 		return
 	end
 	node.name = name
-	minetest.swap_node(pos, node)
+	core.swap_node(pos, node)
 end
 
 local function furnace_node_timer(pos, elapsed)
 	--
 	-- Inizialize metadata
 	--
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	local fuel_time = meta:get_float("fuel_time") or 0
 	local src_time = meta:get_float("src_time") or 0
 	local fuel_totaltime = meta:get_float("fuel_totaltime") or 0
@@ -124,7 +124,7 @@ local function furnace_node_timer(pos, elapsed)
 
 		-- Check if we have cookable content
 		local aftercooked
-		cooked, aftercooked = minetest.get_craft_result({method = "cooking", width = 1, items = srclist})
+		cooked, aftercooked = core.get_craft_result({method = "cooking", width = 1, items = srclist})
 		cookable = cooked.time ~= 0
 
 		local el = math.min(elapsed, fuel_totaltime - fuel_time)
@@ -157,7 +157,7 @@ local function furnace_node_timer(pos, elapsed)
 			if cookable then
 				-- We need to get new fuel
 				local afterfuel
-				fuel, afterfuel = minetest.get_craft_result({method = "fuel", width = 1, items = fuellist})
+				fuel, afterfuel = core.get_craft_result({method = "fuel", width = 1, items = fuellist})
 
 				if fuel.time == 0 then
 					-- No valid fuel in fuel list
@@ -227,7 +227,7 @@ local function furnace_node_timer(pos, elapsed)
 		formspec = default.get_furnace_inactive_formspec()
 		swap_node(pos, "default:furnace")
 		-- stop timer on the inactive furnace
-		minetest.get_node_timer(pos):stop()
+		core.get_node_timer(pos):stop()
 	end
 
 	local infotext = "Furnace " .. active .. "\n(Item: " .. item_state ..
@@ -249,7 +249,7 @@ end
 -- Node definitions
 --
 
-minetest.register_node("default:furnace", {
+core.register_node("default:furnace", {
 	description = "Furnace",
 	tiles = {
 		"default_furnace_top.png", "default_furnace_top.png",
@@ -267,7 +267,7 @@ minetest.register_node("default:furnace", {
 	on_timer = furnace_node_timer,
 
 	on_construct = function(pos)
-		local meta = minetest.get_meta(pos)
+		local meta = core.get_meta(pos)
 		meta:set_string("formspec", default.get_furnace_inactive_formspec())
 		local inv = meta:get_inventory()
 		inv:set_size('src', 1)
@@ -276,11 +276,11 @@ minetest.register_node("default:furnace", {
 	end,
 
 	on_metadata_inventory_move = function(pos)
-		minetest.get_node_timer(pos):start(1.0)
+		core.get_node_timer(pos):start(1.0)
 	end,
 	on_metadata_inventory_put = function(pos)
 		-- start timer function, it will sort out whether furnace can burn or not.
-		minetest.get_node_timer(pos):start(1.0)
+		core.get_node_timer(pos):start(1.0)
 	end,
 	on_blast = function(pos)
 		local drops = {}
@@ -288,7 +288,7 @@ minetest.register_node("default:furnace", {
 		default.get_inventory_drops(pos, "fuel", drops)
 		default.get_inventory_drops(pos, "dst", drops)
 		drops[#drops+1] = "default:furnace"
-		minetest.remove_node(pos)
+		core.remove_node(pos)
 		return drops
 	end,
 
@@ -297,7 +297,7 @@ minetest.register_node("default:furnace", {
 	allow_metadata_inventory_take = allow_metadata_inventory_take,
 })
 
-minetest.register_node("default:furnace_active", {
+core.register_node("default:furnace_active", {
 	description = "Furnace",
 	tiles = {
 		"default_furnace_top.png", "default_furnace_top.png",
@@ -315,7 +315,7 @@ minetest.register_node("default:furnace_active", {
 		}
 	},
 	paramtype2 = "facedir",
-	light_source = minetest.LIGHT_MAX - 5,
+	light_source = core.LIGHT_MAX - 5,
 	drop = "default:furnace",
 	groups = {cracky = 2, not_in_creative_inventory=1},
 	legacy_facedir_simple = true,

@@ -1,20 +1,14 @@
-local world_path = minetest.get_worldpath()
+local world_path = core.get_worldpath()
 local file = world_path .. "/beds_spawns"
 
 function beds.read_spawns()
 	local spawns = beds.spawn
 	local input = io.open(file, "r")
 	if input then
-		repeat
-			local x = input:read("*n")
-			if x == nil then
-				break
-			end
-			local y = input:read("*n")
-			local z = input:read("*n")
-			local name = input:read("*l")
-			spawns[name:sub(2)] = {x = x, y = y, z = z}
-		until input:read(0) == nil
+		local content = core.parse_json(core.decode_base64(input:read("*all")))
+		if content then
+			beds.spawn = core.deserialize(content.data)
+		end
 		io.close(input)
 	end
 end
@@ -27,16 +21,13 @@ function beds.save_spawns()
 	end
 	local data = {}
 	local output = io.open(file, "w")
-	for k, v in pairs(beds.spawn) do
-		table.insert(data, string.format("%.1f %.1f %.1f %s\n", v.x, v.y, v.z, k))
-	end
-	output:write(table.concat(data))
+	output:write(core.encode_base64(core.write_json({data = core.serialize(beds.spawn)})))
 	io.close(output)
 end
 
 function beds.set_spawns()
 	for name,_ in pairs(beds.player) do
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		local p = player:get_pos()
 		-- but don't change spawn location if borrowing a bed
 		if not minetest.is_protected(p, name) then

@@ -4,7 +4,7 @@ flowers = {}
 
 -- Map Generation
 
-dofile(minetest.get_modpath("flowers") .. "/mapgen.lua")
+dofile(core.get_modpath("flowers") .. "/mapgen.lua")
 
 --
 -- Flowers
@@ -12,13 +12,13 @@ dofile(minetest.get_modpath("flowers") .. "/mapgen.lua")
 
 -- Aliases for original flowers mod
 
-minetest.register_alias("flowers:flower_rose", "flowers:rose")
-minetest.register_alias("flowers:flower_tulip", "flowers:tulip")
-minetest.register_alias("flowers:flower_dandelion_yellow", "flowers:dandelion_yellow")
-minetest.register_alias("flowers:flower_orchid", "flowers:orchid")
-minetest.register_alias("flowers:flower_allium", "flowers:allium")
-minetest.register_alias("flowers:flower_dandelion_white", "flowers:dandelion_white")
-minetest.register_alias("flowers:dandelion_white", "flowers:oxeye_daisy")
+core.register_alias("flowers:flower_rose", "flowers:rose")
+core.register_alias("flowers:flower_tulip", "flowers:tulip")
+core.register_alias("flowers:flower_dandelion_yellow", "flowers:dandelion_yellow")
+core.register_alias("flowers:flower_orchid", "flowers:orchid")
+core.register_alias("flowers:flower_allium", "flowers:allium")
+core.register_alias("flowers:flower_dandelion_white", "flowers:dandelion_white")
+core.register_alias("flowers:dandelion_white", "flowers:oxeye_daisy")
 
 -- Flower registration
 
@@ -29,7 +29,7 @@ local function add_simple_flower(name, desc, box, f_groups)
 	f_groups.flora = 1
 	f_groups.attached_node = 1
 
-	minetest.register_node("flowers:" .. name, {
+	core.register_node("flowers:" .. name, {
 		description = desc,
 		drawtype = "plantlike",
 		waving = 1,
@@ -99,22 +99,22 @@ end
 
 function flowers.flower_spread(pos, node)
 	pos.y = pos.y - 1
-	local under = minetest.get_node(pos)
+	local under = core.get_node(pos)
 	pos.y = pos.y + 1
 	-- Replace flora with dry shrub in desert sand and silver sand,
 	-- as this is the only way to generate them.
 	-- However, preserve grasses in sand dune biomes.
-	if minetest.get_item_group(under.name, "sand") == 1 and
+	if core.get_item_group(under.name, "sand") == 1 and
 			under.name ~= "default:sand" then
-		minetest.set_node(pos, {name = "default:dry_shrub"})
+		core.set_node(pos, {name = "default:dry_shrub"})
 		return
 	end
 
-	if minetest.get_item_group(under.name, "soil") == 0 then
+	if core.get_item_group(under.name, "soil") == 0 then
 		return
 	end
 
-	local light = minetest.get_node_light(pos)
+	local light = core.get_node_light(pos)
 	if not light or light < 13 then
 		return
 	end
@@ -126,31 +126,31 @@ function flowers.flower_spread(pos, node)
 	-- flower density by ABM spread of 13 per 9x9 area.
 	-- Warning: Setting this limit theoretically without in-game testing
 	-- results in a maximum flower density by ABM spread that is far too high.
-	if #minetest.find_nodes_in_area(pos0, pos1, "group:flora") > 7 then
+	if #core.find_nodes_in_area(pos0, pos1, "group:flora") > 7 then
 		return
 	end
 
-	local soils = minetest.find_nodes_in_area_under_air(
+	local soils = core.find_nodes_in_area_under_air(
 		pos0, pos1, "group:soil")
 	local num_soils = #soils
 	if num_soils >= 1 then
 		for si = 1, math.min(3, num_soils) do
 			local soil = soils[math.random(num_soils)]
-			local soil_name = minetest.get_node(soil).name
+			local soil_name = core.get_node(soil).name
 			local soil_above = {x = soil.x, y = soil.y + 1, z = soil.z}
-			light = minetest.get_node_light(soil_above)
+			light = core.get_node_light(soil_above)
 			if light and light >= 13 and
 					-- Only spread to same surface node
 					soil_name == under.name and
 					-- Desert sand is in the soil group
 					soil_name ~= "default:desert_sand" then
-				minetest.set_node(soil_above, {name = node.name})
+				core.set_node(soil_above, {name = node.name})
 			end
 		end
 	end
 end
 
-minetest.register_abm({
+core.register_abm({
 	label = "Flower spread",
 	nodenames = {"group:flora"},
 	interval = 20,
@@ -165,7 +165,7 @@ minetest.register_abm({
 -- Mushrooms
 --
 
-minetest.register_node("flowers:mushroom_red", {
+core.register_node("flowers:mushroom_red", {
 	description = "Red Mushroom",
 	tiles = {"3dmushrooms_red.png"},
 	inventory_image = "3dmushrooms_red_inv.png",
@@ -183,7 +183,7 @@ minetest.register_node("flowers:mushroom_red", {
 	},
 })
 
-minetest.register_node("flowers:mushroom_brown", {
+core.register_node("flowers:mushroom_brown", {
 	description = "Brown Mushroom",
 	tiles = {"3dmushrooms_brown.png"},
 	inventory_image = "3dmushrooms_brown_inv.png",
@@ -195,7 +195,7 @@ minetest.register_node("flowers:mushroom_brown", {
 	buildable_to = true,
 	groups = {food_mushroom = 1, snappy = 3, attached_node = 1, flammable = 1, food = 1},
 	sounds = default.node_sound_leaves_defaults(),
-	on_use = minetest.item_eat(1),
+	on_use = core.item_eat(1),
 	selection_box = {
 		type = "fixed",
 		fixed = {-0.3, -0.5, -0.3, 0.3, 0, 0.3}
@@ -206,13 +206,13 @@ minetest.register_node("flowers:mushroom_brown", {
 -- Mushroom spread and death
 
 function flowers.mushroom_spread(pos, node)
-	if minetest.get_node_light(pos, 0.5) > 3 then
-	if minetest.get_node_light(pos, nil) == 15 then
-		minetest.remove_node(pos)
+	if core.get_node_light(pos, 0.5) > 3 then
+	if core.get_node_light(pos, nil) == 15 then
+		core.remove_node(pos)
 		end
 		return
 	end
-	local positions = minetest.find_nodes_in_area_under_air(
+	local positions = core.find_nodes_in_area_under_air(
 		{x = pos.x - 1, y = pos.y - 2, z = pos.z - 1},
 		{x = pos.x + 1, y = pos.y + 1, z = pos.z + 1},
 		{"group:soil", "group:tree"})
@@ -221,12 +221,12 @@ function flowers.mushroom_spread(pos, node)
 	end
 	local pos2 = positions[math.random(#positions)]
 	pos2.y = pos2.y + 1
-	if minetest.get_node_light(pos2, 0.5) <= 3 then
-		minetest.set_node(pos2, {name = node.name})
+	if core.get_node_light(pos2, 0.5) <= 3 then
+		core.set_node(pos2, {name = node.name})
 	end
 end
 
-minetest.register_abm({
+core.register_abm({
 	label = "Mushroom spread",
 	nodenames = {"flowers:mushroom_brown", "flowers:mushroom_red"},
 	interval = 20,
@@ -239,19 +239,19 @@ minetest.register_abm({
 
 -- These old mushroom related nodes can be simplified now
 
-minetest.register_alias("flowers:mushroom_spores_brown", "flowers:mushroom_brown")
-minetest.register_alias("flowers:mushroom_spores_red", "flowers:mushroom_red")
-minetest.register_alias("flowers:mushroom_fertile_brown", "flowers:mushroom_brown")
-minetest.register_alias("flowers:mushroom_fertile_red", "flowers:mushroom_red")
-minetest.register_alias("mushroom:brown_natural", "flowers:mushroom_brown")
-minetest.register_alias("mushroom:red_natural", "flowers:mushroom_red")
+core.register_alias("flowers:mushroom_spores_brown", "flowers:mushroom_brown")
+core.register_alias("flowers:mushroom_spores_red", "flowers:mushroom_red")
+core.register_alias("flowers:mushroom_fertile_brown", "flowers:mushroom_brown")
+core.register_alias("flowers:mushroom_fertile_red", "flowers:mushroom_red")
+core.register_alias("mushroom:brown_natural", "flowers:mushroom_brown")
+core.register_alias("mushroom:red_natural", "flowers:mushroom_red")
 
 
 --
 -- Waterlily
 --
 
-minetest.register_node("flowers:waterlily", {
+core.register_node("flowers:waterlily", {
 	description = "Waterlily",
 	drawtype = "nodebox",
 	paramtype = "light",
@@ -278,8 +278,8 @@ minetest.register_node("flowers:waterlily", {
 
 	on_place = function(itemstack, placer, pointed_thing)
 		local pos = pointed_thing.above
-		local node = minetest.get_node(pointed_thing.under)
-		local def = minetest.registered_nodes[node.name]
+		local node = core.get_node(pointed_thing.under)
+		local def = core.registered_nodes[node.name]
 		local player_name = placer and placer:get_player_name() or ""
 
 		if def and def.on_rightclick then
@@ -288,16 +288,16 @@ minetest.register_node("flowers:waterlily", {
 		end
 
 		if def and def.liquidtype == "source" and
-				minetest.get_item_group(node.name, "water") > 0 then
+				core.get_item_group(node.name, "water") > 0 then
 			if not minetest.is_protected(pos, player_name) then
-				minetest.set_node(pos, {name = "flowers:waterlily",
+				core.set_node(pos, {name = "flowers:waterlily",
 					param2 = math.random(0, 3)})
 				if not (creative and creative.is_enabled_for
 						and creative.is_enabled_for(player_name)) then
 					itemstack:take_item()
 				end
 			else
-				minetest.record_protection_violation(pos, player_name)
+				core.record_protection_violation(pos, player_name)
 			end
 		end
 

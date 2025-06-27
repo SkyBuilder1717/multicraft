@@ -49,11 +49,11 @@ function worldedit.keep_loaded(pos1, pos2)
 	-- Create a vmanip and read the area from map, this
 	-- causes all MapBlocks to be loaded into memory synchronously.
 	-- This doesn't actually *keep* them loaded, unlike the name implies.
-	if minetest.load_area then
+	if core.load_area then
 		-- same effect but without unnecessary data copying
-		minetest.load_area(pos1, pos2)
+		core.load_area(pos1, pos2)
 	else
-		local manip = minetest.get_voxel_manip()
+		local manip = core.get_voxel_manip()
 		manip:read_from_map(pos1, pos2)
 	end
 end
@@ -69,7 +69,7 @@ function mh.get_empty_data(area)
 	-- Fill emerged area with ignore so that blocks in the area that are
 	-- only partially modified aren't overwriten.
 	local data = {}
-	local c_ignore = minetest.get_content_id("ignore")
+	local c_ignore = core.get_content_id("ignore")
 	for i = 1, worldedit.volume(area.MinEdge, area.MaxEdge) do
 		data[i] = c_ignore
 	end
@@ -78,7 +78,7 @@ end
 
 
 function mh.init(pos1, pos2)
-	local manip = minetest.get_voxel_manip()
+	local manip = core.get_voxel_manip()
 	local emerged_pos1, emerged_pos2 = manip:read_from_map(pos1, pos2)
 	local area = VoxelArea:new({MinEdge=emerged_pos1, MaxEdge=emerged_pos2})
 	return manip, area

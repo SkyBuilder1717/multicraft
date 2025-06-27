@@ -1,10 +1,10 @@
-if not minetest["objects_inside_radius"] then
+if not core["objects_inside_radius"] then
     error("\n\nYour version of engine is too old for this game,"
         .."\nand doesn't support newer functions of API!"
         .."\n\nDownload newer version of engine to continue!\n")
 end
 
-local modpath = minetest.get_modpath(minetest.get_current_modname())
+local modpath = core.get_modpath(core.get_current_modname())
 dofile(modpath.."/flowlib.lua")
 
 -- very important!
@@ -20,7 +20,7 @@ function core.is_valid_pos(pos)
 	end
 	return true
 end
-minetest.is_valid_pos = core.is_valid_pos
+core.is_valid_pos = core.is_valid_pos
 
 function table.update(t, ...)
 	for _, to in ipairs {...} do
@@ -85,8 +85,8 @@ end
 
 -- local radius = 2   -- Radius of item magnet
 -- local age = 0.5 -- How old an item has to be before collecting
--- function minetest.handle_node_drops(pos, drops, digger)
--- 	if digger and digger:is_player() and minetest.is_creative_enabled(digger:get_player_name()) then
+-- function core.handle_node_drops(pos, drops, digger)
+-- 	if digger and digger:is_player() and core.is_creative_enabled(digger:get_player_name()) then
 -- 		local inv = digger:get_inventory()
 -- 		if inv then
 -- 			for _, item in ipairs(drops) do
@@ -98,14 +98,14 @@ end
 -- 		return
 -- 	elseif not doTileDrops then return end
 
--- 	local dug_node = minetest.get_node(pos)
+-- 	local dug_node = core.get_node(pos)
 -- 	local tooldef
 -- 	local tool
 -- 	local is_book
 -- 	if digger and digger:is_player() then
 -- 		tool = digger:get_wielded_item()
 -- 		is_book = tool:get_name() == "mcl_enchanting:book_enchanted"
--- 		tooldef = minetest.registered_items[tool:get_name()]
+-- 		tooldef = core.registered_items[tool:get_name()]
 
 -- 		if not mcl_autogroup.can_harvest(dug_node.name, tool:get_name(), digger) then
 -- 			return
@@ -117,7 +117,7 @@ end
 -- 	local enchantments = tool and mcl_enchanting.get_enchantments(tool)
 
 -- 	local silk_touch_drop = false
--- 	local nodedef = minetest.registered_nodes[dug_node.name]
+-- 	local nodedef = core.registered_nodes[dug_node.name]
 -- 	if not nodedef then return end
 
 -- 	if shearsy_level and shearsy_level > 0 and nodedef._mcl_shears_drop then
@@ -161,7 +161,7 @@ end
 -- 	end
 
 -- 	if digger and mcl_experience.throw_xp and not silk_touch_drop then
--- 		local experience_amount = minetest.get_item_group(dug_node.name,"xp")
+-- 		local experience_amount = core.get_item_group(dug_node.name,"xp")
 -- 		if experience_amount > 0 then
 -- 			mcl_experience.throw_xp(pos, experience_amount)
 -- 		end
@@ -181,7 +181,7 @@ end
 -- 			if nodedef and nodedef.drawtype == "plantlike_rooted" and nodedef.walkable then
 -- 				dpos.y = dpos.y + 1
 -- 			end
--- 			local obj = minetest.add_item(dpos, drop_item)
+-- 			local obj = core.add_item(dpos, drop_item)
 -- 			if obj then
 -- 				if digger and digger:is_player() then
 -- 					obj:get_luaentity().random_velocity = 1
@@ -198,12 +198,12 @@ end
 -- local function collect_items(player)
 -- 	local playername = player:get_player_name()
 -- 	local pos = player:get_pos()
--- 	if not minetest.is_valid_pos(pos) then
+-- 	if not core.is_valid_pos(pos) then
 -- 		return
 -- 	end
 -- 	-- Detect
 -- 	local col_pos = vector.add(pos, {x = 0, y = 1.3, z = 0})
--- 	local objects = minetest.get_objects_inside_radius(col_pos, radius)
+-- 	local objects = core.get_objects_inside_radius(col_pos, radius)
 -- 	for _, object in ipairs(objects) do
 -- 		local entity = object:get_luaentity()
 -- 		if entity and not object:is_player() and
@@ -218,8 +218,8 @@ end
 -- 				entity.collectioner = playername
 -- 				-- Collect
 -- 				if entity.collectioner == playername then
--- 					minetest.after(0.05, function()
--- 						minetest.sound_play("item_drop_pickup", {
+-- 					core.after(0.05, function()
+-- 						core.sound_play("item_drop_pickup", {
 -- 							pos = col_pos,
 -- 							max_hear_distance = 10,
 -- 							gain = 0.2,
@@ -236,14 +236,14 @@ end
 
 -- -- Item collection
 
--- minetest.register_playerstep(function(dtime, playernames)
+-- core.register_playerstep(function(dtime, playernames)
 -- 	for _, name in pairs(playernames) do
--- 		local player = minetest.get_player_by_name(name)
+-- 		local player = core.get_player_by_name(name)
 -- 		if player and player:is_player() and player:get_hp() > 0 then
 -- 			collect_items(player)
 -- 		end
 -- 	end
--- end, minetest.is_singleplayer()) -- Force step in singlplayer mode only
+-- end, core.is_singleplayer()) -- Force step in singlplayer mode only
 
 --basic settings
 local item_drop_settings                 = {} --settings table
@@ -264,14 +264,14 @@ local function get_gravity()
 	return 9.81
 end
 
-minetest.register_playerstep(function(dtime, playernames)
+core.register_playerstep(function(dtime, playernames)
 	for _, name in pairs(playernames) do
-		local player = minetest.get_player_by_name(name)
-		if player:get_hp() > 0 or not minetest.settings:get_bool("enable_damage") then
+		local player = core.get_player_by_name(name)
+		if player:get_hp() > 0 or not core.settings:get_bool("enable_damage") then
 			local pos = player:get_pos()
 	
 			local checkpos = vector.offset(pos, 0, item_drop_settings.player_collect_height, 0)
-			for object in minetest.objects_inside_radius(checkpos, item_drop_settings.xp_radius_magnet) do
+			for object in core.objects_inside_radius(checkpos, item_drop_settings.xp_radius_magnet) do
 				if not object:is_player() then
 					local le = object:get_luaentity()
 					if le and le.name == "__builtin:item" and not le._removed and
@@ -287,30 +287,30 @@ end, true)
 
 local function get_drops(drop, toolname, param2, paramtype2)
 	local tmp_node_name = "drops:TMP_NODE"
-	minetest.registered_nodes[tmp_node_name] = {
+	core.registered_nodes[tmp_node_name] = {
 		name = tmp_node_name,
 		drop = drop,
 		paramtype2 = paramtype2
 	}
-	local drops = minetest.get_node_drops({name = tmp_node_name, param2 = param2}, toolname)
-	minetest.registered_nodes[tmp_node_name] = nil
+	local drops = core.get_node_drops({name = tmp_node_name, param2 = param2}, toolname)
+	core.registered_nodes[tmp_node_name] = nil
 	return drops
 end
 
 local exceptions
 
 local function can_harvest(nodename, toolname, player)
-	local ndef = minetest.registered_nodes[nodename]
+	local ndef = core.registered_nodes[nodename]
 
 	if not ndef then
 		return false
 	end
 
-	if minetest.get_item_group(nodename, "dig_immediate") >= 2 then
+	if core.get_item_group(nodename, "dig_immediate") >= 2 then
 		return true
 	end
 
-	local tdef = minetest.registered_tools[toolname]
+	local tdef = core.registered_tools[toolname]
 	if tdef and tdef.tool_capabilities.groupcaps then
 		for g, gdef in pairs(tdef.tool_capabilities.groupcaps) do
 			if ndef.groups[g] then
@@ -323,7 +323,7 @@ local function can_harvest(nodename, toolname, player)
 
 	if player and player:is_player() then
 		local name = player:get_inventory():get_stack("hand", 1):get_name()
-		tdef = minetest.registered_items[name]
+		tdef = core.registered_items[name]
 	end
 	if tdef and tdef.tool_capabilities.groupcaps then
 		for g, gdef in pairs(tdef.tool_capabilities.groupcaps) do
@@ -338,7 +338,7 @@ local function can_harvest(nodename, toolname, player)
 	return false
 end
 
-function minetest.handle_node_drops(pos, drops, digger)
+function core.handle_node_drops(pos, drops, digger)
 	if digger and digger:is_player() and player_api.is_enabled_for(digger:get_player_name()) then
 		local inv = digger:get_inventory()
 		if inv then
@@ -351,19 +351,19 @@ function minetest.handle_node_drops(pos, drops, digger)
 		return
 	end
 
-	local dug_node = minetest.get_node(pos)
+	local dug_node = core.get_node(pos)
 	local tooldef
 	local tool
 	if digger and digger:is_player() then
 		tool = digger:get_wielded_item()
-		tooldef = minetest.registered_items[tool:get_name()]
+		tooldef = core.registered_items[tool:get_name()]
 
 		if not can_harvest(dug_node.name, tool:get_name(), digger) then
 			return
 		end
 	end
 
-	local nodedef = minetest.registered_nodes[dug_node.name]
+	local nodedef = core.registered_nodes[dug_node.name]
 	if not nodedef then return end
 
 	for _,item in ipairs(drops) do
@@ -380,7 +380,7 @@ function minetest.handle_node_drops(pos, drops, digger)
 			if nodedef and nodedef.drawtype == "plantlike_rooted" and nodedef.walkable then
 				dpos.y = dpos.y + 1
 			end
-			local obj = minetest.add_item(dpos, drop_item)
+			local obj = core.add_item(dpos, drop_item)
 			if obj then
 				if digger and digger:is_player() then
 					obj:get_luaentity().random_velocity = 1
@@ -394,7 +394,7 @@ function minetest.handle_node_drops(pos, drops, digger)
 	end
 end
 
-function minetest.item_drop(itemstack, dropper, pos)
+function core.item_drop(itemstack, dropper, pos)
 	local p = {x=pos.x, y=pos.y+1.2, z=pos.z}
 	if dropper and dropper:is_player() then
 		local v = dropper:get_look_dir()
@@ -403,7 +403,7 @@ function minetest.item_drop(itemstack, dropper, pos)
 			cs = 1
 		end
 		local item = itemstack:take_item(cs)
-		local obj = minetest.add_item(p, item)
+		local obj = core.add_item(p, item)
 		if obj then
 			v.x = v.x*4
 			v.y = v.y*4 + 2
@@ -413,25 +413,25 @@ function minetest.item_drop(itemstack, dropper, pos)
 			return itemstack
 		end
 	else
-		local obj = minetest.add_item(p, itemstack)
+		local obj = core.add_item(p, itemstack)
 		if obj then
 			obj:get_luaentity()._insta_collect = false
 		end
 	end
 end
 
-local old_mt_node_dig = minetest.node_dig
-function minetest.node_dig(pos, node, digger)
+local old_mt_node_dig = core.node_dig
+function core.node_dig(pos, node, digger)
 	local wielded = digger and digger:is_player() and digger:get_wielded_item()
-	local def = minetest.registered_nodes[node.name]
+	local def = core.registered_nodes[node.name]
 	if wielded and def then
 		local wdef = wielded:get_definition()
 		local tp = wielded:get_tool_capabilities()
-		local dp = minetest.get_dig_params(def and def.groups, tp, wielded:get_wear())
+		local dp = core.get_dig_params(def and def.groups, tp, wielded:get_wear())
 		if wdef and not wdef.after_use then
-			if not minetest.is_creative_enabled(digger:get_player_name()) then
+			if not core.is_creative_enabled(digger:get_player_name()) then
 				if wielded:get_wear() + dp.wear >= 65535 then
-					minetest.handle_node_drops(pos, minetest.get_node_drops(node, wielded and wielded:get_name()), digger)
+					core.handle_node_drops(pos, core.get_node_drops(node, wielded and wielded:get_name()), digger)
 				end
 			end
 		end
@@ -452,7 +452,7 @@ local function cxcz(o, cw, one, zero)
 	return o
 end
 
-minetest.register_entity(":__builtin:item", {
+core.register_entity(":__builtin:item", {
 	initial_properties = {
 		hp_max = 1,
 		physical = true,
@@ -513,7 +513,7 @@ minetest.register_entity(":__builtin:item", {
 		local leftovers = inv:add_item("main", itemstack)
 
 		if leftovers:get_count() < count then
-			minetest.sound_play("item_drop_pickup", {
+			core.sound_play("item_drop_pickup", {
 				pos = player:get_pos(),
 				gain = 0.3,
 				max_hear_distance = 16,
@@ -592,11 +592,11 @@ minetest.register_entity(":__builtin:item", {
 			glow = def.light_source,
 		}, props_overrides))
 		if item_drop_settings.random_item_velocity == true and self.age < 1 then
-			minetest.after(0, self.apply_random_vel, self)
+			core.after(0, self.apply_random_vel, self)
 		end
 	end,
 	get_staticdata = function(self)
-		local data = minetest.serialize({
+		local data = core.serialize({
 			itemstring = self.itemstring,
 			always_collect = self.always_collect,
 			age = self.age,
@@ -608,7 +608,7 @@ minetest.register_entity(":__builtin:item", {
 			local stack = ItemStack(self.itemstring)
 			stack:get_meta():from_table(nil)
 			self.itemstring = stack:to_string()
-			minetest.log(
+			core.log(
 				"warning",
 				"Overlong item entity metadata removed: “" ..
 				self.itemstring ..
@@ -621,7 +621,7 @@ minetest.register_entity(":__builtin:item", {
 	end,
 	on_activate = function(self, staticdata, _)
 		if string.sub(tostring(staticdata), 1, string.len("return")) == "return" then
-			local data = minetest.deserialize(staticdata)
+			local data = core.deserialize(staticdata)
 			if data and type(data) == "table" then
 				self.itemstring = data.itemstring
 				self.always_collect = data.always_collect
@@ -714,13 +714,13 @@ minetest.register_entity(":__builtin:item", {
 			return
 		end
 		if self.itemstring == "" then
-			minetest.log("warning", "deleting empty itemstring at "..minetest.pos_to_string(self.object:get_pos()))
+			core.log("warning", "deleting empty itemstring at "..core.pos_to_string(self.object:get_pos()))
 			self._removed = true
 			self.object:remove()
 			return
 		end
 		local p = self.object:get_pos()
-		if minetest.get_node(p).name == "ignore" then
+		if core.get_node(p).name == "ignore" then
 			self:disable_physics()
 			return
 		end
@@ -736,10 +736,10 @@ minetest.register_entity(":__builtin:item", {
 	end,
 	apply_physics = function(self, dtime, moveresult)
 		local p = self.object:get_pos()
-		local node = minetest.get_node(p)
+		local node = core.get_node(p)
 		local nn = node.name
-		local is_in_water = (minetest.get_item_group(nn, "liquid") ~= 0)
-		local nn_above = minetest.get_node({x=p.x, y=p.y+0.1, z=p.z}).name
+		local is_in_water = (core.get_item_group(nn, "liquid") ~= 0)
+		local nn_above = core.get_node({x=p.x, y=p.y+0.1, z=p.z}).name
 		local sleep_threshold = 0.3
 		local is_floating = false
 		local is_stationary = math.abs(self.object:get_velocity().x) < sleep_threshold
@@ -747,7 +747,7 @@ minetest.register_entity(":__builtin:item", {
 		and math.abs(self.object:get_velocity().z) < sleep_threshold
 		if is_in_water and is_stationary then
 			is_floating = (is_in_water
-				and (minetest.get_item_group(nn_above, "liquid") == 0))
+				and (core.get_item_group(nn_above, "liquid") == 0))
 		end
 
 		if is_floating and self.physical_state == true then
@@ -756,15 +756,15 @@ minetest.register_entity(":__builtin:item", {
 			self:disable_physics()
 		end
 
-		local def = minetest.registered_nodes[nn]
-		local lg = minetest.get_item_group(nn, "lava")
-		local fg = minetest.get_item_group(nn, "fire")
-		local dg = minetest.get_item_group(nn, "destroys_items")
+		local def = core.registered_nodes[nn]
+		local lg = core.get_item_group(nn, "lava")
+		local fg = core.get_item_group(nn, "fire")
+		local dg = core.get_item_group(nn, "destroys_items")
 		if (def and (lg ~= 0 or fg ~= 0 or dg == 1)) then
 			local item_name = ItemStack(self.itemstring):get_name()
-			if self.age > 2 and minetest.get_item_group(item_name, "fire_immune") == 0 then
+			if self.age > 2 and core.get_item_group(item_name, "fire_immune") == 0 then
 				if dg ~= 2 then
-					minetest.sound_play("builtin_item_lava", {pos = self.object:get_pos(), gain = 0.5})
+					core.sound_play("builtin_item_lava", {pos = self.object:get_pos(), gain = 0.5})
 				end
 				self._removed = true
 				self.object:remove()
@@ -787,8 +787,8 @@ minetest.register_entity(":__builtin:item", {
 			end
 
 			for o=1, #order do
-				local nn = minetest.get_node(vector.add(p, order[o])).name
-				local def = minetest.registered_nodes[nn]
+				local nn = core.get_node(vector.add(p, order[o])).name
+				local def = core.registered_nodes[nn]
 				if def and def.walkable == false and nn ~= "ignore" then
 					shootdir = order[o]
 					break
@@ -796,7 +796,7 @@ minetest.register_entity(":__builtin:item", {
 			end
 			if shootdir == nil then
 				shootdir = { x=0, y=1, z=0 }
-				local nn = minetest.get_node(vector.add(p, shootdir)).name
+				local nn = core.get_node(vector.add(p, shootdir)).name
 				if nn == "ignore" then
 					return
 				end
@@ -881,13 +881,13 @@ minetest.register_entity(":__builtin:item", {
 			return
 		end
 
-		local nn = minetest.get_node(vector.offset(p, 0, -0.5, 0)).name
-		local def = minetest.registered_nodes[nn]
+		local nn = core.get_node(vector.offset(p, 0, -0.5, 0)).name
+		local def = core.registered_nodes[nn]
 		local v = self.object:get_velocity()
 		local is_on_floor = def and (def.walkable and not def.groups.slippery and v.y == 0)
 
-		if not minetest.registered_nodes[nn] or is_floating or is_on_floor then
-			for object in minetest.objects_inside_radius(p, 0.8) do
+		if not core.registered_nodes[nn] or is_floating or is_on_floor then
+			for object in core.objects_inside_radius(p, 0.8) do
 				local l = object:get_luaentity()
 
 				if l and l.name == "__builtin:item" and l.physical_state == false then

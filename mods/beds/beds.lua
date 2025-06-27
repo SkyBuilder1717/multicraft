@@ -14,13 +14,13 @@ beds.register_bed("beds:bed", {
 
 -- Fuel
 
-minetest.register_craft({
+core.register_craft({
 	type = "fuel",
 	recipe = "beds:fancy_bed_bottom",
 	burntime = 13,
 })
 
-minetest.register_craft({
+core.register_craft({
 	type = "fuel",
 	recipe = "beds:bed_bottom",
 	burntime = 12,

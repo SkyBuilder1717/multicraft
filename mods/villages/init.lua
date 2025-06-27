@@ -1,5 +1,5 @@
 villages = {}
-villages.modpath = minetest.get_modpath("villages")
+villages.modpath = core.get_modpath("villages")
 building_all_info = nil
 schematic_data = nil
 heightmap = nil
@@ -17,7 +17,7 @@ dofile(villages.modpath .. "/paths.lua")
 villages_in_world = villages.load()
 
 -- register block for npc spawn
-minetest.register_node("villages:junglewood", {
+core.register_node("villages:junglewood", {
 	paramtype2 = "facedir",
 	place_param2 = 0,
 	tiles = {"default_junglewood.png"},
@@ -28,7 +28,7 @@ minetest.register_node("villages:junglewood", {
 })
 
 -- register block for trader spawn
-minetest.register_node("villages:cobble", {
+core.register_node("villages:cobble", {
 	paramtype2 = "facedir",
 	place_param2 = 0,
 	tiles = {"default_cobble.png"},
@@ -42,9 +42,9 @@ local po_prikoly_XD = false
 
 if not po_prikoly_XD then
 	-- on map generation, try to build a village
-	minetest.register_on_generated(function(minp, maxp)
+	core.register_on_generated(function(minp, maxp)
 		-- needed for manual and automated village building
-		heightmap = minetest.get_mapgen_object("heightmap")
+		heightmap = core.get_mapgen_object("heightmap")
 		-- randomly try to build villages
 		if math.random(1, 2) == 1 then
 			-- time between cration of two villages
@@ -73,7 +73,7 @@ if not po_prikoly_XD then
 				return
 			end
 			-- waiting necessary for chunk to load, otherwise, townhall is not in the middle, no map found behind townhall
-			minetest.after(2, function()
+			core.after(2, function()
 				-- if nothing prevents the village -> do it
 
 				-- fill village_info with buildings and their data
@@ -101,12 +101,12 @@ if not po_prikoly_XD then
 		end
 	end)
 else
-	minetest.register_on_generated(function(minp, maxp)
+	core.register_on_generated(function(minp, maxp)
 		if maxp.y < 0 then
 			return
 		end
 		-- waiting necessary for chunk to load, otherwise, townhall is not in the middle, no map found behind townhall
-		minetest.after(2, function()
+		core.after(2, function()
 			-- if nothing prevents the village -> do it
 
 			-- fill village_info with buildings and their data
@@ -134,7 +134,7 @@ end
 -- manually place buildings, for debugging only
 villages.debug = false
 if villages.debug then
-	minetest.register_craftitem("villages:tool", {
+	core.register_craftitem("villages:tool", {
 		description = "villages build tool",
 		inventory_image = "default_tool_woodshovel.png",
 		-- build village
@@ -175,7 +175,7 @@ if villages.debug then
 				villages.initialize_nodes()
 				
 					local end_time = os.time()
-					minetest.chat_send_all("Time: " .. end_time - start_time)
+					core.chat_send_all("Time: " .. end_time - start_time)
 			end
 		end
 	})
@@ -210,7 +210,7 @@ if villages.debug then
 				villages.place_schematics()
 				villages.initialize_nodes()
 				local end_time = os.time()
-				return true, "Created village at " .. minetest.pos_to_string(vector.round(pos)) .. " in " .. math.round(end_time - start_time) .. " seconds."
+				return true, "Created village at " .. core.pos_to_string(vector.round(pos)) .. " in " .. math.round(end_time - start_time) .. " seconds."
 			end
 		end
 	})

@@ -1,4 +1,4 @@
-local world_path = minetest.get_worldpath()
+local world_path = core.get_worldpath()
 
 areas.config = {}
 
@@ -6,13 +6,13 @@ local function setting(tp, name, default)
 	local full_name = "areas." .. name
 	local value
 	if tp == "boolean" then
-		value = minetest.settings:get_bool(full_name)
+		value = core.settings:get_bool(full_name)
 	elseif tp == "string" then
-		value = minetest.settings:get(full_name)
+		value = core.settings:get(full_name)
 	elseif tp == "position" then
-		value = minetest.setting_get_pos(full_name)
+		value = core.setting_get_pos(full_name)
 	elseif tp == "number" then
-		value = tonumber(minetest.settings:get(full_name))
+		value = tonumber(core.settings:get(full_name))
 	else
 		error("Cannot parse setting type " .. tp)
 	end

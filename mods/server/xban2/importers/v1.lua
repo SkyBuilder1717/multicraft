@@ -1,6 +1,5 @@
-
 function xban.importers.v1()
-	local f, e = io.open(minetest.get_worldpath().."/players.iplist")
+	local f, e = io.open(core.get_worldpath().."/players.iplist")
 	if not f then
 		return false, "Unable to open `players.iplist': "..e
 	end

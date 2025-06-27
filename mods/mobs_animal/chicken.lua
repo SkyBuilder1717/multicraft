@@ -53,8 +53,8 @@ mobs:register_mob("mobs_animal:chicken", {
 		end
 
 		local pos = self.object:get_pos()
-		minetest.add_item(pos, "mobs:chicken_egg")
-		minetest.sound_play("default_place_node_hard", {
+		core.add_item(pos, "mobs:chicken_egg")
+		core.sound_play("default_place_node_hard", {
 			pos = pos,
 			gain = 1.0,
 			max_hear_distance = 5,
@@ -65,7 +65,7 @@ mobs:register_mob("mobs_animal:chicken", {
 		if self.mesh == "mobs_chicken.x" then
 			local pos = self.object:get_pos()
 			if pos then
-				minetest.add_entity(pos, self.name)
+				core.add_entity(pos, self.name)
 				self.object:remove()
 			end
 		end
@@ -96,15 +96,15 @@ function egg_impact(thrower, pos, dir, hit_object)
 
 	if math.random(1, 8) == 8 then
 		pos.y = pos.y + 1
-		local nod = minetest.get_node_or_nil(pos)
+		local nod = core.get_node_or_nil(pos)
 
 		if not nod or
-		not minetest.registered_nodes[nod.name] or
-		minetest.registered_nodes[nod.name].walkable == true then
+		not core.registered_nodes[nod.name] or
+		core.registered_nodes[nod.name].walkable == true then
 			return
 		end
 
-		local mob = minetest.add_entity(pos, "mobs_animal:chicken")
+		local mob = core.add_entity(pos, "mobs_animal:chicken")
 		local ent2 = mob:get_luaentity()
 		mob:set_properties({
 			visual_size = {

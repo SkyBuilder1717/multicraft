@@ -3,8 +3,8 @@
 --
 
 local function is_water(pos, nodename)
-	local nn = nodename or minetest.get_node(pos).name
-	return minetest.get_item_group(nn, "water") ~= 0, nn
+	local nn = nodename or core.get_node(pos).name
+	return core.get_item_group(nn, "water") ~= 0, nn
 end
 
 
@@ -29,7 +29,7 @@ local function get_v(v)
 end
 
 local function after_detach(name, pos)
-	local player = minetest.get_player_by_name(name)
+	local player = core.get_player_by_name(name)
 	if player then
 		player:set_pos(pos)
 	end
@@ -37,7 +37,7 @@ end
 
 
 local function after_attach(name)
-	local player = minetest.get_player_by_name(name)
+	local player = core.get_player_by_name(name)
 	if player then
 		player_api.set_animation(player, "sit" , 30)
 	end
@@ -82,7 +82,7 @@ function boat.on_rightclick(self, clicker)
 		player_api.set_animation(clicker, "stand" , 30)
 		local pos = clicker:get_pos()
 		pos = {x = pos.x, y = pos.y + 0.2, z = pos.z}
-		minetest.after(0.1, after_detach, name, pos)
+		core.after(0.1, after_detach, name, pos)
 	elseif not self.driver then
 		local attach = clicker:get_attach()
 		if attach and attach:get_luaentity() then
@@ -96,7 +96,7 @@ function boat.on_rightclick(self, clicker)
 		clicker:set_attach(self.object, "",
 			{x = 0.5, y = 11, z = -3}, {x = 0, y = 0, z = 0})
 		player_api.player_attached[name] = true
-		minetest.after(0.2, after_attach, name)
+		core.after(0.2, after_attach, name)
 		clicker:set_look_horizontal(self.object:get_yaw())
 	end
 end
@@ -137,30 +137,30 @@ function boat.on_punch(self, puncher)
 		self.removed = true
 		local inv = puncher:get_inventory()
 		if not inv then
-			minetest.add_item(self.object:get_pos(), "boats:boat")
+			core.add_item(self.object:get_pos(), "boats:boat")
 		else
 			local leftover = inv:add_item("main", "boats:boat")
 			-- if no room in inventory add a replacement boat to the world
 			if not leftover:is_empty() then
-				minetest.add_item(self.object:get_pos(), leftover)
+				core.add_item(self.object:get_pos(), leftover)
 			end
 		end
 		-- delay remove to ensure player is detached
-		minetest.after(0.1, after_remove, self.object)
+		core.after(0.1, after_remove, self.object)
 	end
 end
 
 
 function boat.on_step(self, dtime)
 	local drop_timer = 300 -- 5 min
-	if not minetest.is_singleplayer() then
+	if not core.is_singleplayer() then
 		drop_timer = 60 -- 1 min
 	end
 	self.count = (self.count or 0) + dtime
 
 	-- Drop boat if the player is not on board
 	if self.count > drop_timer then
-		minetest.add_item(self.object:get_pos(), "boats:boat")
+		core.add_item(self.object:get_pos(), "boats:boat")
 		self.object:remove()
 		return
 	end
@@ -168,19 +168,19 @@ function boat.on_step(self, dtime)
 	self.v = get_v(self.object:get_velocity()) * get_sign(self.v)
 	if self.driver then
 		self.count = 0
-		local driver_objref = minetest.get_player_by_name(self.driver)
+		local driver_objref = core.get_player_by_name(self.driver)
 		if driver_objref then
 			local ctrl = driver_objref:get_player_control()
 			if ctrl.up and ctrl.down then
 				if not self.auto then
 					self.auto = true
-					minetest.chat_send_player(self.driver, "[boats] Cruise on")
+					core.chat_send_player(self.driver, "[boats] Cruise on")
 				end
 			elseif ctrl.down then
 				self.v = self.v - dtime * 2.0
 				if self.auto then
 					self.auto = false
-					minetest.chat_send_player(self.driver, "[boats] Cruise off")
+					core.chat_send_player(self.driver, "[boats] Cruise off")
 				end
 			elseif ctrl.up or self.auto then
 				self.v = self.v + dtime * 2.0
@@ -225,7 +225,7 @@ function boat.on_step(self, dtime)
 	local new_acce = {x = 0, y = 0, z = 0}
 	local iswater, nodename = is_water(p)
 	if not iswater then
-		local nodedef = minetest.registered_nodes[nodename]
+		local nodedef = core.registered_nodes[nodename]
 		if (not nodedef) or nodedef.walkable then
 			self.v = 0
 			new_acce = {x = 0, y = 1, z = 0}
@@ -270,7 +270,7 @@ function boat.on_step(self, dtime)
 
 		if self.driver then
 --print ("Crash! with driver", self.v2 - self.v)
-			local driver_objref = minetest.get_player_by_name(self.driver)
+			local driver_objref = core.get_player_by_name(self.driver)
 			player_api.player_attached[self.driver] = false
 			driver_objref:set_detach()
 			player_api.set_animation(driver_objref, "stand" , 30)
@@ -278,7 +278,7 @@ function boat.on_step(self, dtime)
 --print ("Crash! no driver")
 		end
 
-		minetest.add_item(self.object:get_pos(), "default:wood 3")
+		core.add_item(self.object:get_pos(), "default:wood 3")
 		self.object:remove()
 		return
 	end
@@ -287,10 +287,10 @@ function boat.on_step(self, dtime)
 end
 
 
-minetest.register_entity("boats:boat", boat)
+core.register_entity("boats:boat", boat)
 
 
-minetest.register_craftitem("boats:boat", {
+core.register_craftitem("boats:boat", {
 	description = "Boat",
 	inventory_image = "boats_inventory.png",
 	liquids_pointable = true,
@@ -299,8 +299,8 @@ minetest.register_craftitem("boats:boat", {
 
 	on_place = function(itemstack, placer, pointed_thing)
 		local under = pointed_thing.under
-		local node = minetest.get_node(under)
-		local udef = minetest.registered_nodes[node.name]
+		local node = core.get_node(under)
+		local udef = core.registered_nodes[node.name]
 		if udef and udef.on_rightclick and
 				not (placer and placer:is_player() and
 				placer:get_player_control().sneak) then
@@ -315,7 +315,7 @@ minetest.register_craftitem("boats:boat", {
 			return itemstack
 		end
 		pointed_thing.under.y = pointed_thing.under.y + 0.5
-		boat = minetest.add_entity(pointed_thing.under, "boats:boat")
+		boat = core.add_entity(pointed_thing.under, "boats:boat")
 		if boat then
 			if placer then
 				boat:set_yaw(placer:get_look_horizontal())
@@ -323,7 +323,7 @@ minetest.register_craftitem("boats:boat", {
 			local player_name = placer and placer:get_player_name() or ""
 			if not (creative and creative.is_enabled_for and
 					creative.is_enabled_for(player_name)) or
-					not minetest.is_singleplayer() then
+					not core.is_singleplayer() then
 				itemstack:take_item()
 			end
 		end
@@ -332,7 +332,7 @@ minetest.register_craftitem("boats:boat", {
 })
 
 
-minetest.register_craft({
+core.register_craft({
 	output = "boats:boat",
 	recipe = {
 		{"", "", ""},
@@ -341,7 +341,7 @@ minetest.register_craft({
 	},
 })
 
-minetest.register_craft({
+core.register_craft({
 	type = "fuel",
 	recipe = "boats:boat",
 	burntime = 20,

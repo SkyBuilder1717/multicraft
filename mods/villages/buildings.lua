@@ -10,7 +10,7 @@ local platform_material_name
 -------------------------------------------------------------------------------
 function villages.build_schematic(vm, data, va, pos, building, replace_wall, name)
 	-- get building node material for better integration to surrounding
-	local platform_material = minetest.get_node_or_nil(pos)
+	local platform_material = core.get_node_or_nil(pos)
 	if not platform_material then
 		return
 	end
@@ -18,7 +18,7 @@ function villages.build_schematic(vm, data, va, pos, building, replace_wall, nam
 	-- pick random material
 	local material = wallmaterial[math.random(1, #wallmaterial)]
 	-- schematic conversion to lua
-	local schem_lua = minetest.serialize_schematic(building, "lua",
+	local schem_lua = core.serialize_schematic(building, "lua",
 		{lua_use_comments = false, lua_num_indent_spaces = 0}) .. " return(schematic)"
 	-- replace material
 	if replace_wall == "y" then
@@ -40,7 +40,7 @@ function villages.build_schematic(vm, data, va, pos, building, replace_wall, nam
 	villages.foundation(pos, width, depth, height, rotation)
 	vm:set_data(data)
 	-- place schematic
-	minetest.place_schematic_on_vmanip(vm, pos, schematic, rotation, nil, true)
+	core.place_schematic_on_vmanip(vm, pos, schematic, rotation, nil, true)
 	vm:write_to_map(true)
 end
 -------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ function villages.initialize_village_info()
 	number_of_buildings = math.random(10, 25)
 	number_built = 1
 	if villages.debug then
-		minetest.chat_send_all("Village: " .. number_of_buildings)
+		core.chat_send_all("Village: " .. number_of_buildings)
 	end
 end
 -------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ function villages.create_site_plan(maxp, minp)
 			end
 		end
 		if villages.debug then
-			minetest.chat_send_all("Really: " .. number_built)
+			core.chat_send_all("Really: " .. number_built)
 		end
 		return true
 	else
@@ -183,14 +183,14 @@ function villages.place_schematics()
 		local rotation = village_info[i]["rotat"]
 		-- get building node material for better integration to surrounding
 		local platform_material = village_info[i]["surface_mat"]
-		--platform_material_name = minetest.get_name_from_content_id(platform_material)
+		--platform_material_name = core.get_name_from_content_id(platform_material)
 		-- pick random material
 		local material = wallmaterial[math.random(1, #wallmaterial)]
 		--
 		local building = building_all_info["mts"]
 		local replace_wall = building_all_info["rplc"]
 		-- schematic conversion to lua
-		local schem_lua = minetest.serialize_schematic(building, "lua",
+		local schem_lua = core.serialize_schematic(building, "lua",
 			{lua_use_comments = false, lua_num_indent_spaces = 0}).." return(schematic)"
 		-- replace material
 		if replace_wall == "y" then
@@ -209,6 +209,6 @@ function villages.place_schematics()
 		local schematic = loadstring(schem_lua)()
 		-- build foundation for the building an make room above
 		-- place schematic
-		minetest.place_schematic(pos, schematic, rotation, nil, true)
+		core.place_schematic(pos, schematic, rotation, nil, true)
 	end
 end

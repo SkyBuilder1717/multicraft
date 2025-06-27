@@ -1,6 +1,6 @@
 
 function xban.importers.minetest()
-	local f, e = io.open(minetest.get_worldpath().."/ipban.txt")
+	local f, e = io.open(core.get_worldpath().."/ipban.txt")
 	if not f then
 		return false, "Unable to open `ipban.txt': "..e
 	end

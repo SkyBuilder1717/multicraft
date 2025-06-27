@@ -1,6 +1,6 @@
 worldedit = worldedit or {}
 
-if minetest.is_singleplayer() then return end
+if core.is_singleplayer() then return end
 
 worldedit.pages = {} --mapping of identifiers to options
 local identifiers = {} --ordered list of identifiers
@@ -14,15 +14,15 @@ end
 
 worldedit.register_gui_handler = function(identifier, handler)
 	local enabled = true
-	minetest.register_on_player_receive_fields(function(player, formname, fields)
+	core.register_on_player_receive_fields(function(player, formname, fields)
 		if not enabled or formname ~= "" or fields.worldedit_gui then return false end
 		enabled = false
-		minetest.after(0.2, function() enabled = true end)
+		core.after(0.2, function() enabled = true end)
 		local name = player:get_player_name()
 
 		--ensure the player has permission to perform the action
 		local entry = worldedit.pages[identifier]
-		if entry and minetest.check_player_privs(name, entry.privs) then
+		if entry and core.check_player_privs(name, entry.privs) then
 			return handler(name, fields)
 		end
 		return false
@@ -43,7 +43,7 @@ local get_formspec = function(name, identifier)
 end
 
 --implement worldedit.show_page(name, page) in different ways depending on the available APIs
-if minetest.global_exists("unified_inventory") then -- unified inventory installed
+if core.global_exists("unified_inventory") then -- unified inventory installed
 	local old_func = worldedit.register_gui_function
 	worldedit.register_gui_function = function(identifier, options)
 		old_func(identifier, options)
@@ -55,17 +55,17 @@ if minetest.global_exists("unified_inventory") then -- unified inventory install
 		image = "inventory_plus_worldedit_gui.png",
 		tooltip = "Edit your World!",
 		condition = function(player)
-			return minetest.check_player_privs(player:get_player_name(), {worldedit=true})
+			return core.check_player_privs(player:get_player_name(), {worldedit=true})
 		end,
 	})
 
-	minetest.register_on_player_receive_fields(function(player, formname, fields)
+	core.register_on_player_receive_fields(function(player, formname, fields)
 		local name = player:get_player_name()
 		if fields.worldedit_gui then --main page
 			worldedit.show_page(name, "worldedit_gui")
 			return true
 		elseif fields.worldedit_gui_exit then --return to original page
-			local player = minetest.get_player_by_name(name)
+			local player = core.get_player_by_name(name)
 			if player then
 				unified_inventory.set_inventory_formspec(player, "craft")
 			end
@@ -75,14 +75,14 @@ if minetest.global_exists("unified_inventory") then -- unified inventory install
 	end)
 
 	worldedit.show_page = function(name, page)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if player then
 			player:set_inventory_formspec(get_formspec(name, page))
 		end
 	end
-elseif minetest.global_exists("inventory_plus") and inventory_plus.register_button then -- inventory++ installed
-	minetest.register_on_joinplayer(function(player)
-		local can_worldedit = minetest.check_player_privs(player:get_player_name(), {worldedit=true})
+elseif core.global_exists("inventory_plus") and inventory_plus.register_button then -- inventory++ installed
+	core.register_on_joinplayer(function(player)
+		local can_worldedit = core.check_player_privs(player:get_player_name(), {worldedit=true})
 		if can_worldedit then
 			inventory_plus.register_button(player, "worldedit_gui", "WorldEdit")
 		end
@@ -90,7 +90,7 @@ elseif minetest.global_exists("inventory_plus") and inventory_plus.register_butt
 
 	--show the form when the button is pressed and hide it when done
 	local gui_player_formspecs = {}
-	minetest.register_on_player_receive_fields(function(player, formname, fields)
+	core.register_on_player_receive_fields(function(player, formname, fields)
 		local name = player:get_player_name()
 		if fields.worldedit_gui then --main page
 			gui_player_formspecs[name] = player:get_inventory_formspec()
@@ -106,12 +106,12 @@ elseif minetest.global_exists("inventory_plus") and inventory_plus.register_butt
 	end)
 
 	worldedit.show_page = function(name, page)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if player then
 			inventory_plus.set_inventory_formspec(player, get_formspec(name, page))
 		end
 	end
-elseif minetest.global_exists("smart_inventory") then -- smart_inventory installed
+elseif core.global_exists("smart_inventory") then -- smart_inventory installed
 	-- redefinition: Update the code element on inventory page to show the we-page
 	function worldedit.show_page(name, page)
 		local state = smart_inventory.get_page_state("worldedit_gui", name)
@@ -160,12 +160,12 @@ elseif minetest.global_exists("smart_inventory") then -- smart_inventory install
 		smartfs_callback = smart_worldedit_gui_callback,
 		sequence = 99
 	})
-elseif minetest.global_exists("sfinv") and sfinv.pages["sfinv:crafting"] then -- sfinv installed
+elseif core.global_exists("sfinv") and sfinv.pages["sfinv:crafting"] then -- sfinv installed
 	assert(sfinv.enabled)
 	local orig_get = sfinv.pages["sfinv:crafting"].get
 	sfinv.override_page("sfinv:crafting", {
 		get = function(self, player, context)
-			local can_worldedit = minetest.check_player_privs(player, {worldedit=true})
+			local can_worldedit = core.check_player_privs(player, {worldedit=true})
 			local fs = orig_get(self, player, context)
 			return fs .. (can_worldedit and "image_button[0,0;1,1;inventory_plus_worldedit_gui.png;worldedit_gui;]" ..
 				"tooltip[worldedit_gui;Edit your World!]" or "")
@@ -173,7 +173,7 @@ elseif minetest.global_exists("sfinv") and sfinv.pages["sfinv:crafting"] then --
 	})
 
 	--show the form when the button is pressed and hide it when done
-	minetest.register_on_player_receive_fields(function(player, formname, fields)
+	core.register_on_player_receive_fields(function(player, formname, fields)
 		if fields.worldedit_gui then --main page
 			worldedit.show_page(player:get_player_name(), "worldedit_gui")
 			return true
@@ -185,16 +185,16 @@ elseif minetest.global_exists("sfinv") and sfinv.pages["sfinv:crafting"] then --
 	end)
 
 	worldedit.show_page = function(name, page)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if player then
 			player:set_inventory_formspec(get_formspec(name, page))
 		end
 	end
 -- else
--- 	return minetest.log("error",
+-- 	return core.log("error",
 -- 		"worldedit_gui requires a supported gui management mod to be installed.\n"..
 -- 		"To use the it you need to either:\n"..
--- 		"* use minetest_game or another sfinv-compatible subgame\n"..
+-- 		"* use core_game or another sfinv-compatible subgame\n"..
 -- 		"* install Unified Inventory, Inventory++ or Smart Inventory\n"..
 -- 		"If you don't want to use worldedit_gui, disable it by editing world.mt or from the main menu."
 -- 	)
@@ -212,7 +212,7 @@ worldedit.register_gui_function("worldedit_gui", {
 			if identifier ~= "worldedit_gui" then
 				local entry = worldedit.pages[identifier]
 				table.insert(buttons, string.format((entry.get_formspec and "button" or "button_exit") ..
-					"[%g,%g;%g,%g;%s;%s]", x, y, width, height, identifier, minetest.formspec_escape(entry.name)))
+					"[%g,%g;%g,%g;%s;%s]", x, y, width, height, identifier, core.formspec_escape(entry.name)))
 
 				index, x = index + 1, x + width
 				if index == columns then --row is full
@@ -235,7 +235,7 @@ worldedit.register_gui_handler("worldedit_gui", function(name, fields)
 	for identifier, entry in pairs(worldedit.pages) do --check for WorldEdit GUI main formspec button selection
 		if fields[identifier] and identifier ~= "worldedit_gui" then
 			--ensure player has permission to perform action
-			local has_privs, missing_privs = minetest.check_player_privs(name, entry.privs)
+			local has_privs, missing_privs = core.check_player_privs(name, entry.privs)
 			if not has_privs then
 				worldedit.player_notify(name, "you are not allowed to use this function (missing privileges: " .. table.concat(missing_privs, ", ") .. ")")
 				return false
@@ -252,4 +252,4 @@ worldedit.register_gui_handler("worldedit_gui", function(name, fields)
 	return false
 end)
 
-dofile(minetest.get_modpath(minetest.get_current_modname()) .. "/functionality.lua")
+dofile(core.get_modpath(core.get_current_modname()) .. "/functionality.lua")

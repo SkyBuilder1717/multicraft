@@ -1,68 +1,32 @@
---[=[ Main tables ]=]
+local filepath = core.get_worldpath() .. "/playereffects"
 
-playereffects = {}
+playereffects = {
+	groups = {},
+	hudinfos = {},
+	effect_types = {},
+	effects = {},
+	inactive_effects = {},
+	last_effect_id = 0,
+	use_hud = true,
+	save = core.is_singleplayer(),
+	use_autosave = false,
+	autosave_time = 10
+}
 
---[[ table containing the groups (experimental) ]]
-playereffects.groups = {}
-
---[[ table containing all the HUD info tables, indexed by player names.
-A single HUD info table is formatted like this: { text_id = 1, icon_id=2, pos = 0 }
-Where:	text_id: HUD ID of the textual effect description
-	icon_id: HUD ID of the effect icon (optional)
-	pos: Y offset factor (starts with 0)
-Example of full table:
-{ ["player1"] = {{ text_id = 1, icon_id=4, pos = 0 }}, ["player2] = { { text_id = 5, icon_id=6, pos = 0 }, { text_id = 7, icon_id=8, pos = 1 } } }
-]]
-playereffects.hudinfos = {}
-
---[[ table containing all the effect types ]]
-playereffects.effect_types = {}
-
---[[ table containing all the active effects ]]
-playereffects.effects = {}
-
---[[ table containing all the inactive effects.
-Effects become inactive if a player leaves an become active again if they join again. ]]
-playereffects.inactive_effects = {}
-
--- Variable for counting the effect_id
-playereffects.last_effect_id = 0
-
-
---[[
-	Settings for Player Effects
-]]
-
--- Whether to use the HUD to expose the active effects to players (true or false)
-playereffects.use_hud = true
-
--- Whether to use save (true, false or minetest.is_singleplayer())
-playereffects.save = minetest.is_singleplayer()
-
--- Whether to use autosave (true or false)
-playereffects.use_autosave = false
-
--- The time interval between autosaves, in seconds (only used when use_autosave is true)
-playereffects.autosave_time = 10
-
-
---[=[ Load inactive_effects and last_effect_id from playereffects, if this file exists  ]=]
 if playereffects.save then
 	do
-		local filepath = minetest.get_worldpath().."/playereffects"
 		local file = io.open(filepath, "r")
 		if file then
-			minetest.log("action", "[playereffects] playereffects opened.")
+			core.log("action", "[playereffects] playereffects opened.")
 			local string = file:read()
 			io.close(file)
-			if(string ~= nil) then
-				local savetable = minetest.deserialize(string)
-				playereffects.inactive_effects = savetable.inactive_effects
-			--	minetest.debug("[playereffects] playereffects successfully read.")
-			--	minetest.debug("[playereffects] inactive_effects = "..dump(playereffects.inactive_effects))
-				playereffects.last_effect_id = savetable.last_effect_id
-			--	minetest.debug("[playereffects] last_effect_id = "..dump(playereffects.last_effect_id))
-
+			if string ~= nil then
+				local data = core.decode_base64(string)
+				if data ~= nil then
+					local savetable = core.deserialize(data)
+					playereffects.inactive_effects = savetable.inactive_effects
+					playereffects.last_effect_id = savetable.last_effect_id
+				end
 			end
 		end
 	end
@@ -73,7 +37,6 @@ function playereffects.next_effect_id()
 	return playereffects.last_effect_id
 end
 
---[=[ API functions ]=]
 function playereffects.register_effect_type(effect_type_id, description, icon, groups, apply, cancel, hidden, cancel_on_death, repeat_interval)
 	local effect_type = {}
 	effect_type.description = description
@@ -98,7 +61,6 @@ function playereffects.register_effect_type(effect_type_id, description, icon, g
 	effect_type.repeat_interval = repeat_interval
 
 	playereffects.effect_types[effect_type_id] = effect_type
---	minetest.log("action", "[playereffects] Effect type "..effect_type_id.." registered!")
 end
 
 function playereffects.apply_effect_type(effect_type_id, duration, player, repeat_interval_time_left)
@@ -112,7 +74,7 @@ function playereffects.apply_effect_type(effect_type_id, duration, player, repea
 		end
 	end
 	if(is_player == false) then
-		minetest.log("error", "[playereffects] Attempted to apply effect type "..effect_type_id.." to a non-player!")
+		core.log("error", "[playereffects] Attempted to apply effect type "..effect_type_id.." to a non-player!")
 		return false
 	end
 
@@ -126,7 +88,7 @@ function playereffects.apply_effect_type(effect_type_id, duration, player, repea
 	if(playereffects.effect_types[effect_type_id].repeat_interval == nil) then
 		local status = playereffects.effect_types[effect_type_id].apply(player)
 		if(status == false) then
-			minetest.log("action", "[playereffects] Attempt to apply effect type "..effect_type_id.." to player "..playername.." failed!")
+			core.log("action", "[playereffects] Attempt to apply effect type "..effect_type_id.." to player "..playername.." failed!")
 			return false
 		else
 			metadata = status
@@ -168,7 +130,6 @@ function playereffects.apply_effect_type(effect_type_id, duration, player, repea
 		end
 	end
 
-	--[[ show no more than 10 effects on the screen, so that hud_update does not need to be called so often ]]
 	local text_id, icon_id
 	if(free_hudpos <= 10) then
 		text_id, icon_id = playereffects.hud_effect(effect_type_id, player, free_hudpos, duration, repeat_interval_time_left)
@@ -196,9 +157,9 @@ function playereffects.apply_effect_type(effect_type_id, duration, player, repea
 	playereffects.effects[effect_id] = effect
 
 	if(repeat_interval ~= nil) then
-		minetest.after(repeat_interval_time_left, playereffects.repeater, effect_id, duration, player, playereffects.effect_types[effect_type_id].apply)
+		core.after(repeat_interval_time_left, playereffects.repeater, effect_id, duration, player, playereffects.effect_types[effect_type_id].apply)
 	else
-		minetest.after(duration, function(effect_id) playereffects.cancel_effect(effect_id) end, effect_id)
+		core.after(duration, function(effect_id) playereffects.cancel_effect(effect_id) end, effect_id)
 	end
 
 	return effect_id
@@ -217,7 +178,7 @@ function playereffects.repeater(effect_id, repetitions, player, apply)
 			local repeat_interval = playereffects.effect_types[effect.effect_type_id].repeat_interval
 			effect.repeat_interval_time_left = repeat_interval
 			effect.repeat_interval_start_time = os.time()
-			minetest.after(
+			core.after(
 				repeat_interval,
 				playereffects.repeater,
 				effect_id,
@@ -270,7 +231,7 @@ end
 function playereffects.cancel_effect(effect_id)
 	local effect = playereffects.effects[effect_id]
 	if(effect ~= nil) then
-		local player = minetest.get_player_by_name(effect.playername)
+		local player = core.get_player_by_name(effect.playername)
 		local hudinfo = playereffects.hudinfos[effect.playername][effect_id]
 		if(hudinfo ~= nil) then
 			if(hudinfo.text_id~=nil) then
@@ -287,7 +248,7 @@ function playereffects.cancel_effect(effect_id)
 end
 
 function playereffects.get_player_effects(playername)
-	if(minetest.get_player_by_name(playername) ~= nil) then
+	if(core.get_player_by_name(playername) ~= nil) then
 		local effects = {}
 		for k,v in pairs(playereffects.effects) do
 			if(v.playername == playername) then
@@ -310,7 +271,6 @@ function playereffects.has_effect_type(playername, effect_type_id)
 	return false
 end
 
---[=[ Saving all data to file ]=]
 function playereffects.save_to_file()
 	local save_time = os.time()
 	local savetable = {}
@@ -351,22 +311,17 @@ function playereffects.save_to_file()
 	savetable.inactive_effects = inactive_effects
 	savetable.last_effect_id = playereffects.last_effect_id
 
-	local savestring = minetest.serialize(savetable)
-
-	local filepath = minetest.get_worldpath().."/playereffects"
 	local file = io.open(filepath, "w")
 	if file then
-		file:write(savestring)
+		file:write(core.encode_base64(core.serialize(savetable)))
 		io.close(file)
-		minetest.log("action", "[playereffects] Wrote playereffects data into "..filepath..".")
+		core.log("action", "[playereffects] Wrote playereffects data into "..filepath..".")
 	else
-		minetest.log("error", "[playereffects] Failed to write playereffects data into "..filepath..".")
+		core.log("error", "[playereffects] Failed to write playereffects data into "..filepath..".")
 	end
 end
 
---[=[ Callbacks ]=]
---[[ Cancel all effects on player death ]]
-minetest.register_on_dieplayer(function(player)
+core.register_on_dieplayer(function(player)
 	local effects = playereffects.get_player_effects(player:get_player_name())
 	for e=1,#effects do
 		if(playereffects.effect_types[effects[e].effect_type_id].cancel_on_death == true) then
@@ -376,7 +331,7 @@ minetest.register_on_dieplayer(function(player)
 end)
 
 
-minetest.register_on_leaveplayer(function(player)
+core.register_on_leaveplayer(function(player)
 	local leave_time = os.time()
 	local playername = player:get_player_name()
 	local effects = playereffects.get_player_effects(playername)
@@ -395,14 +350,14 @@ minetest.register_on_leaveplayer(function(player)
 	end
 end)
 
-minetest.register_on_shutdown(function()
+core.register_on_shutdown(function()
 	if playereffects.save then
-		minetest.log("action", "[playereffects] Server shuts down. Rescuing data into playereffects")
+		core.log("action", "[playereffects] Server shuts down. Rescuing data into playereffects")
 		playereffects.save_to_file()
 	end
 end)
 
-minetest.register_on_joinplayer(function(player)
+core.register_on_joinplayer(function(player)
 	local playername = player:get_player_name()
 
 	-- load all the effects again (if any)
@@ -417,21 +372,21 @@ end)
 
 -- Autosave into file
 if playereffects.use_autosave then
-	minetest.register_globalstep(function(dtime)
+	core.register_globalstep(function(dtime)
 		playereffects.autosave_timer = playereffects.autosave_timer or 0
 		playereffects.autosave_timer = playereffects.autosave_timer + dtime
 
 		if playereffects.autosave_timer >= playereffects.autosave_time then
 			playereffects.autosave_timer = 0
-			minetest.log("action", "[playereffects] Autosaving mod data to playereffects ...")
+			core.log("action", "[playereffects] Autosaving mod data to playereffects ...")
 			playereffects.save_to_file()
 		end
 	end)
 end
 
-minetest.register_playerstep(function(dtime, playernames)
+core.register_playerstep(function(dtime, playernames)
 	for _, name in pairs(playernames) do
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if player and player:is_player() then
 			playereffects.hud_update(player)
 		end

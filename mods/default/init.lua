@@ -1,4 +1,4 @@
-local S = minetest.get_translator("default")
+local S = core.get_translator("default")
 PLATFORM = ""
 
 -- MultiCraft Game mod: default
@@ -16,10 +16,10 @@ default.listcolors = "listcolors[#9990;#FFF7;#FFF0;#160816;#D4D2FF]"
 
 default = {}
 
-default.S = minetest.get_translator("default")
+default.S = core.get_translator("default")
 
 -- Definitions made by this mod that other mods can use too
-local Cesc = minetest.get_color_escape_sequence
+local Cesc = core.get_color_escape_sequence
 default.colors = {
 	grey = Cesc("#9d9d9d"),
 	green = Cesc("#1eff00"),
@@ -32,10 +32,12 @@ default.colors = {
 default.gui_bg = "bgcolor[#08080880;true]"
 default.listcolors = "listcolors[#0000;#fff7;#0000;#656276;#fff]"
 default.gui_bg_img = "background[-0.2,-0.26;16.71,17.36;formspec_inventory_backround.png]"
+
 function default.gui_close_btn(pos)
 	pos = pos or "8.35,-0.1"
 	return "image_button_exit[" .. pos .. ";0.75,0.75;close.png;exit;;true;false;close_pressed.png]"
 end
+
 default.gui = "size[9,8.75]" ..
 	default.gui_bg ..
 	default.listcolors ..
@@ -55,16 +57,16 @@ function default.get_hotbar_bg(x,y)
 end
 
 -- Load files
-local default_path = minetest.get_modpath("default")
+local default_path = core.get_modpath("default")
 
 -- GUI related stuff
-minetest.register_on_joinplayer(function(player)
+core.register_on_joinplayer(function(player)
 	-- Set formspec prepend
 	local formspec = [[
 			bgcolor[#080808BB;true]
 			listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF] ]]
 	local name = player:get_player_name()
-	local info = minetest.get_player_information(name)
+	local info = core.get_player_information(name)
 	if info.formspec_version < 2 then
 		formspec = formspec .. "background[5,5;1,1;formspec_empty.png;true]"
 	end

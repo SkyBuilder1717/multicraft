@@ -190,7 +190,7 @@ end
 
 local function get_playernames()
 	local names = {}
-	for _, player in pairs(minetest.get_connected_players()) do
+	for _, player in pairs(core.get_connected_players()) do
 		local name = player:get_player_name()
 		table.insert(names, name)
 	end
@@ -205,7 +205,7 @@ core.register_playerstep = minetest.register_playerstep
 
 -- Check each player and apply animations
 function player_api.globalstep()
-	for _, player in ipairs(minetest.get_connected_players()) do
+	for _, player in ipairs(core.get_connected_players()) do
 		local name = player:get_player_name()
 		local player_data = players[name]
 		local model = player_data and models[player_data.model]
@@ -268,7 +268,7 @@ for _, api_function in pairs({"get_animation", "set_animation", "set_model", "se
 	player_api[api_function] = function(player, ...)
 		if not players[player:get_player_name()] then
 			-- HACK for keeping backwards compatibility
-			minetest.log("warning", api_function .. " called on offline player")
+			core.log("warning", api_function .. " called on offline player")
 			return
 		end
 		return original_function(player, ...)

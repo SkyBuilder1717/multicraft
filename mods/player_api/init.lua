@@ -1,13 +1,13 @@
-local creative_mode_cache = minetest.settings:get_bool("creative_mode")
-local give_initial_stuff = minetest.settings:get_bool("give_initial_stuff")
+local creative_mode_cache = core.settings:get_bool("creative_mode")
+local give_initial_stuff = core.settings:get_bool("give_initial_stuff")
 
-local modname = minetest.get_current_modname()
-local modpath = minetest.get_modpath(modname)
-local S = minetest.get_translator(modname)
+local modname = core.get_current_modname()
+local modpath = core.get_modpath(modname)
+local S = core.get_translator(modname)
 dofile(modpath.."/api.lua")
 
 function player_api.is_enabled_for(name)
-	return creative_mode_cache or minetest.check_player_privs(name, {creative = true}) or minetest.is_creative_enabled(name)
+	return creative_mode_cache or core.check_player_privs(name, {creative = true}) or core.is_creative_enabled(name)
 end
 
 -- Default player appearance (scrapped, use 3d_armor instead)
@@ -31,7 +31,7 @@ player_api.register_model("character.b3d", {
 	eye_height = 1.47,
 })
 
-minetest.register_item(":", {
+core.register_item(":", {
 	type = "none",
 	wield_image = "blank.png",
 	tool_capabilities = {
@@ -42,7 +42,7 @@ minetest.register_item(":", {
 
 local digtime = 48
 local caps = {times = {digtime, digtime, digtime}, uses = 0, maxlevel = 192}
-minetest.register_node("player_api:creative_hand", {
+core.register_node("player_api:creative_hand", {
 	tiles = {"character.png"},
 	wield_scale = {x = 1, y = 1, z = 0.7},
 	paramtype = "light",
@@ -66,7 +66,7 @@ minetest.register_node("player_api:creative_hand", {
 	}
 })
 
-minetest.register_node("player_api:hand", {
+core.register_node("player_api:hand", {
 	tiles = {"character.png"},
 	wield_scale = {x = 1, y = 1, z = 0.7},
 	paramtype = "light",
@@ -90,7 +90,7 @@ minetest.register_node("player_api:hand", {
 })
 
 local function setup_hand(name)
-	local player = minetest.get_player_by_name(name)
+	local player = core.get_player_by_name(name)
 	if player and player:is_player() then
 		local inv = player:get_inventory()
 		inv:set_size("hand", 1)
@@ -103,7 +103,7 @@ local function setup_hand(name)
 end
 
 -- Update appearance when the player joins
-minetest.register_on_joinplayer(function(player)
+core.register_on_joinplayer(function(player)
 	player_api.player_attached[player:get_player_name()] = false
 	player_api.set_model(player, "character.b3d")
 	player:set_local_animation(
@@ -123,15 +123,15 @@ minetest.register_on_joinplayer(function(player)
 	setup_hand(player:get_player_name())
 end)
 
-minetest.register_playerstep(function(dtime, playernames)
+core.register_playerstep(function(dtime, playernames)
 	for _, playername in pairs(playernames) do
 		setup_hand(playername)
 	end
 end)
 
 -- Items for the new player
-minetest.register_on_newplayer(function(player)
-	if not creative_mode_cache or not minetest.is_singleplayer() then
+core.register_on_newplayer(function(player)
+	if not creative_mode_cache or not core.is_singleplayer() then
 		local inv = player:get_inventory()
 		if give_initial_stuff then
 			inv:add_item("main", "default:sword_steel")
@@ -142,19 +142,19 @@ minetest.register_on_newplayer(function(player)
 end)
 
 -- Drop items at death
-minetest.register_on_dieplayer(function(player)
+core.register_on_dieplayer(function(player)
 	local player_name = player:get_player_name()
 	local pos = player:get_pos()
 	local inv = player:get_inventory()
 
 	-- Drop inventory items
 	for i = 1, inv:get_size("main") do
-		minetest.item_drop(inv:get_stack("main", i), player, pos)
+		core.item_drop(inv:get_stack("main", i), player, pos)
 		inv:set_stack("main", i, nil)
 	end
 
 	-- Drop armor items
-	local armor_inv = minetest.get_inventory({type="detached", name=player_name.."_armor"})
+	local armor_inv = core.get_inventory({type="detached", name=player_name.."_armor"})
 	for i = 1, armor_inv:get_size("armor") do
 		armor.drop_armor(pos, armor_inv:get_stack("armor", i))
 		armor_inv:set_stack("armor", i, nil)
@@ -162,12 +162,12 @@ minetest.register_on_dieplayer(function(player)
 		armor:save_armor_inventory(player)
 	end
 
-	local title = "Your last coordinates: "..minetest.pos_to_string(vector.round(pos))
+	local title = "Your last coordinates: " .. core.pos_to_string(vector.round(pos))
 
 	-- Display death coordinates
-	minetest.chat_send_player(player_name, minetest.colorize("red", title))
+	core.chat_send_player(player_name, core.colorize("red", title))
 	player:hud_add({
-		hud_elem_type = "waypoint",
+		type = "waypoint",
 		number = 0xff0000,
 		name = title,
 		text = "m",

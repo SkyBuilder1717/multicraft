@@ -74,7 +74,7 @@ mobs:register_mob("mobs_animal:cow", {
 			end
 
 			if self.gotten == true then
-				minetest.chat_send_player(name,
+				core.chat_send_player(name,
 						"Cow already milked!")
 				return
 			end
@@ -88,7 +88,7 @@ mobs:register_mob("mobs_animal:cow", {
 			else
 				local pos = self.object:get_pos()
 				pos.y = pos.y + 0.5
-				minetest.add_item(pos, {name = "mobs:bucket_milk"})
+				core.add_item(pos, {name = "mobs:bucket_milk"})
 			end
 			self.gotten = true -- milked
 			return
@@ -111,7 +111,7 @@ mobs:register_mob("mobs_animal:cow", {
 		if self.mesh == "mobs_cow.x" then
 			local pos = self.object:get_pos()
 			if pos then
-				minetest.add_entity(pos, self.name)
+				core.add_entity(pos, self.name)
 				self.object:remove()
 			end
 		end

@@ -1,4 +1,4 @@
-local enable_bonusboxes = minetest.settings:get_bool("enable_bonusbox", true)
+local enable_bonusboxes = core.settings:get_bool("enable_bonusbox", true)
 
 -- Format of each item:
 -- {item_name, minimum, maximum}
@@ -31,16 +31,16 @@ local item_spawn = function (pos, node)
 	item2 = item2[1] .. " " .. math.random(item2[2], item2[3])
 	local item3 = items_material[math.random(#items_material)]
 	item3 = item3[1] .. " " .. math.random(item3[2], item3[3])
-	minetest.spawn_item({x = pos.x - 0.4, y = pos.y + 0.58, z = pos.z - 0.2}, item1)
-	minetest.spawn_item({x = pos.x, y = pos.y + 0.58, z = pos.z}, item2)
-	minetest.spawn_item({x = pos.x + 0.4, y = pos.y + 0.58, z = pos.z - 0.2}, item3)
+	core.spawn_item({x = pos.x - 0.4, y = pos.y + 0.58, z = pos.z - 0.2}, item1)
+	core.spawn_item({x = pos.x, y = pos.y + 0.58, z = pos.z}, item2)
+	core.spawn_item({x = pos.x + 0.4, y = pos.y + 0.58, z = pos.z - 0.2}, item3)
 
-	minetest.set_node(pos, {name = "bonusbox:chest_open", param2 = node.param2})
-	minetest.set_node({x = pos.x, y = pos.y + 1, z = pos.z}, {name = "bonusbox:chest_cap", param2 = node.param2})
+	core.set_node(pos, {name = "bonusbox:chest_open", param2 = node.param2})
+	core.set_node({x = pos.x, y = pos.y + 1, z = pos.z}, {name = "bonusbox:chest_cap", param2 = node.param2})
 end
 
 if enable_bonusboxes then
-	minetest.register_node("bonusbox:chest", {
+	core.register_node("bonusbox:chest", {
 		tiles = {
 			"chest_top.png",
 			"chest_top.png^[transformFY",
@@ -67,7 +67,7 @@ if enable_bonusboxes then
 		on_rightclick = item_spawn,
 	})
 	
-	minetest.register_node("bonusbox:chest_open", {
+	core.register_node("bonusbox:chest_open", {
 		tiles = {
 			"chest_open_top.png",
 			"chest_open_bottom.png",
@@ -94,7 +94,7 @@ if enable_bonusboxes then
 		sounds = default.node_sound_wood_defaults(),
 	})
 	
-	minetest.register_node("bonusbox:chest_cap", {
+	core.register_node("bonusbox:chest_cap", {
 		tiles = {
 			"chest_open_top.png",
 			"chest_open_bottom.png",
@@ -118,7 +118,7 @@ if enable_bonusboxes then
 		sounds = default.node_sound_wood_defaults(),
 	})
 
-	minetest.register_decoration({
+	core.register_decoration({
 		deco_type = "simple",
 		place_on = {"default:sand", "default:dirt_with_snow", "default:gravel",
 			"default:snowblock", "default:dirt_with_grass", "default:redsand",
@@ -130,7 +130,7 @@ if enable_bonusboxes then
 		decoration = {"bonusbox:chest"},
 	})
 else
-	minetest.register_alias("bonusbox:chest", "air")
-	minetest.register_alias("bonusbox:chest_open", "air")
-	minetest.register_alias("bonusbox:chest_cap", "air")
+	core.register_alias("bonusbox:chest", "air")
+	core.register_alias("bonusbox:chest_open", "air")
+	core.register_alias("bonusbox:chest_cap", "air")
 end

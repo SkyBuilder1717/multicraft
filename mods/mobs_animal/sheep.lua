@@ -48,19 +48,16 @@ for i = 1, #dyes do
 		},
 		fear_height = 3,
 		on_replace = function(self, pos, oldnode, newnode)
-
 			self.food = (self.food or 0) + 1
 
 			-- if sheep replaces 8x grass then it regrows wool
 			if self.food >= 8 then
-
 				self.food = 0
 				self.gotten = false
-
-					self.object:set_properties({
-						textures = {"mobs_sheep_" .. name .. ".png"},
-						mesh = "mobs_sheep.b3d",
-					})
+				self.object:set_properties({
+					textures = {"mobs_sheep_" .. name .. ".png"},
+					mesh = "mobs_sheep.b3d",
+				})
 			end
 		end,
 		on_rightclick = function(self, clicker)
@@ -85,11 +82,11 @@ for i = 1, #dyes do
 			if itemname == "mobs:shears" then
 				if self.gotten or self.child
 				or player ~= self.owner
-				or not minetest.get_modpath("wool") then
+				or not core.get_modpath("wool") then
 					return
 				end
 				self.gotten = true -- shaved
-				local obj = minetest.add_item(
+				local obj = core.add_item(
 					self.object:get_pos(),
 					ItemStack( "wool:" .. name .. " " .. math.random(1, 3) )
 				)
@@ -122,14 +119,14 @@ for i = 1, #dyes do
 						if name == colr then
 							local pos = self.object:get_pos()
 							self.object:remove()
-							local mob = minetest.add_entity(pos, "mobs_animal:sheep_" .. colr)
+							local mob = core.add_entity(pos, "mobs_animal:sheep_" .. colr)
 							local ent = mob:get_luaentity()
 							ent.owner = player
 							ent.tamed = true
 
 							-- take item
 							if not mobs.is_creative(player) or
-							not minetest.is_singleplayer() then
+							not core.is_singleplayer() then
 								item:take_item()
 								clicker:set_wielded_item(item)
 							end
@@ -141,11 +138,10 @@ for i = 1, #dyes do
 			end
 
 			if mobs:protect(self, clicker) then return end
-			--if mobs:capture_mob(self, clicker, 0, 5, 60, false, nil) then return end
 		end
 	})
 
-	minetest.register_alias("mobs_animal:sheep_" .. name, "mobs_animal:sheep_white")
+	core.register_alias("mobs_animal:sheep_" .. name, "mobs_animal:sheep_white")
 end
 
 mobs:register_egg("mobs_animal:sheep_white", "White Sheep egg", "wool_white.png", 1)

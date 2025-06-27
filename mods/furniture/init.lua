@@ -1,8 +1,8 @@
 ts_furniture = {}
 
--- minetest.register_playerstep(function(dtime, playernames)
+-- core.register_playerstep(function(dtime, playernames)
 -- 	for _, name in pairs(playernames) do
--- 		local player = minetest.get_player_by_name(name)
+-- 		local player = core.get_player_by_name(name)
 -- 		if player and player:is_player() then
 -- 			if player_api.player_attached[name] and not player:get_attach() then
 -- 				player:set_eye_offset({ x = 0, y = 0, z = 0 }, { x = 0, y = 0, z = 0 })
@@ -32,7 +32,7 @@ ts_furniture = {}
 -- end)
 
 ts_furniture.sit = function(name, pos)
-	local player = minetest.get_player_by_name(name)
+	local player = core.get_player_by_name(name)
 	if player_api.player_attached[name] then
 		player:set_physics_override({
 			speed = 1,
@@ -169,7 +169,7 @@ local ignore_groups = {
 }
 
 function ts_furniture.register_furniture(recipe, description, texture)
-	local recipe_def = minetest.registered_items[recipe]
+	local recipe_def = core.registered_items[recipe]
 	if not recipe_def then
 		return
 	end
@@ -193,7 +193,7 @@ function ts_furniture.register_furniture(recipe, description, texture)
 			end
 		end
 
-		minetest.register_node(":" .. node_name, {
+		core.register_node(":" .. node_name, {
 			description = description .. " " .. def.description,
 			drawtype = "nodebox",
 			paramtype = "light",
@@ -208,7 +208,7 @@ function ts_furniture.register_furniture(recipe, description, texture)
 			on_rightclick = def.on_rightclick
 		})
 
-		minetest.register_craft({
+		core.register_craft({
 			output = node_name,
 			recipe = def.craft(recipe)
 		})

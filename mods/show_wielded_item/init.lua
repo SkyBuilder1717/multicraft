@@ -1,5 +1,5 @@
-local modname = minetest.get_current_modname()
-local modpath = minetest.get_modpath(modname)
+local modname = core.get_current_modname()
+local modpath = core.get_modpath(modname)
 
 dofile(modpath.."/wielditem/init.lua")
 
@@ -10,22 +10,22 @@ local huds = {}
 local dtimes = {}
 local dlimit = 3  -- HUD element will be hidden after this many seconds
 
-local hudbars_mod = minetest.get_modpath("hudbars")
-local unified_inventory_mod = minetest.get_modpath("unified_inventory")
+local hudbars_mod = core.get_modpath("hudbars")
+local unified_inventory_mod = core.get_modpath("unified_inventory")
 
 -- Legacy support: Name of the HUD type field for 'hud_add'.
 local hud_type_field_name
-if minetest.features.hud_def_type_field then
-	-- Minetest 5.9.0 and later
+if core.features.hud_def_type_field then
+	-- Luanti 5.9.0 and later
 	hud_type_field_name = "type"
 else
-	-- All Minetest versions before 5.9.0
+	-- All Luanti versions before 5.9.0
 	hud_type_field_name = "hud_elem_type"
 end
 
 -- Disable mod if Unified Inventory item names feature is enabled
-if unified_inventory_mod and minetest.settings:get_bool("unified_inventory_item_names") ~= false then
-	minetest.log("action", "[show_wielded_item] Unified Inventory's item names feature was detected! Running show_wielded_item is pointless now, so it won't do anything")
+if unified_inventory_mod and core.settings:get_bool("unified_inventory_item_names") ~= false then
+	core.log("action", "[show_wielded_item] Unified Inventory's item names feature was detected! Running show_wielded_item is pointless now, so it won't do anything")
 	return
 end
 
@@ -33,7 +33,7 @@ local function set_hud(player)
 	if not player:is_player() then return end
 	local player_name = player:get_player_name() 
 	-- Fixed offset in config file
-	local fixed = tonumber(minetest.settings:get("show_wielded_item_y_offset"))
+	local fixed = tonumber(core.settings:get("show_wielded_item_y_offset"))
 	local off
 	if fixed and fixed ~= -1 then
 		-- Manual offset
@@ -46,11 +46,11 @@ local function set_hud(player)
 			-- Tweak offset if hudbars mod was found
 
 			local rows = math.floor((#hb.get_hudbar_identifiers()-1) / 2) + 1
-			local vmargin = tonumber(minetest.settings:get("hudbars_vmargin")) or 24
+			local vmargin = tonumber(core.settings:get("hudbars_vmargin")) or 24
 			off.y = -76 - vmargin*rows
 		end
 
-		-- Dirty trick to avoid collision with Minetest's status text (e.g. “Volume changed to 0%”)
+		-- Dirty trick to avoid collision with Luanti's status text (e.g. “Volume changed to 0%”)
 		if off.y >= -167 and off.y <= -156 then
 			off.y = -181
 		end
@@ -67,7 +67,7 @@ local function set_hud(player)
 	})
 end
 
-minetest.register_on_joinplayer(function(player)
+core.register_on_joinplayer(function(player)
 	set_hud(player)
 
 	local name = player:get_player_name()
@@ -75,7 +75,7 @@ minetest.register_on_joinplayer(function(player)
 	wieldindex[name] = player:get_wield_index()
 end)
 
-minetest.register_on_leaveplayer(function(player)
+core.register_on_leaveplayer(function(player)
 	local name = player:get_player_name()
 	wield[name] = nil
 	wieldindex[name] = nil
@@ -90,8 +90,8 @@ local function get_first_line(text)
 	return text
 end
 
-minetest.register_globalstep(function(dtime)
-	for _, player in pairs(minetest.get_connected_players()) do
+core.register_globalstep(function(dtime)
+	for _, player in pairs(core.get_connected_players()) do
 		local player_name = player:get_player_name()
 		local wstack = player:get_wielded_item()
 		local wname = wstack:get_name()
@@ -112,8 +112,8 @@ minetest.register_globalstep(function(dtime)
 
 			if huds[player_name] then 
 
-				-- Get description (various fallback checks for old Minetest versions)
-				local def = minetest.registered_items[wname]
+				-- Get description (various fallback checks for old Luanti versions)
+				local def = core.registered_items[wname]
 				local desc
 				if wstack.get_short_description then
 					-- get_short_description()
@@ -143,7 +143,7 @@ minetest.register_globalstep(function(dtime)
 				-- Print description
 				if desc then
 					-- Optionally append the 'technical' itemname
-					local tech = minetest.settings:get_bool("show_wielded_item_itemname", false)
+					local tech = core.settings:get_bool("show_wielded_item_itemname", false)
 					if tech and desc ~= "" then
 						desc = desc .. " ["..wname.."]"
 					end

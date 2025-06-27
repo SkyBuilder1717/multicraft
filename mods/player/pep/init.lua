@@ -1,16 +1,16 @@
 -- Boilerplate to support localized strings if intllib mod is installed.
 local S
-if minetest.get_modpath("intllib") then
+if core.get_modpath("intllib") then
 	S = intllib.Getter()
 else
 	S = function(s) return s end
 end
-local ppa = minetest.get_modpath("playerphysics")
+local ppa = core.get_modpath("playerphysics")
 
 pep = {}
 
--- Whether to use mole (true, false or minetest.is_singleplayer())
-pep.mole = minetest.is_singleplayer()
+-- Whether to use mole (true, false or core.is_singleplayer())
+pep.mole = core.is_singleplayer()
 
 function return_empty_bottle(potiondef, user, itemstack)
 	local inventory = user:get_inventory()
@@ -21,7 +21,7 @@ function return_empty_bottle(potiondef, user, itemstack)
 		if inventory:room_for_item("main", "vessels:glass_bottle") then
 			inventory:add_item("main", "vessels:glass_bottle")
 		else
-			minetest.add_item(user:getpos(), empty_vessel)
+			core.add_item(user:getpos(), empty_vessel)
 		end
 	end
 	return itemstack
@@ -31,7 +31,7 @@ function pep.register_potion(potiondef)
 	local on_use
 	on_use = function(itemstack, user, pointed_thing)
 		-- Particles
-		minetest.add_particlespawner({
+		core.add_particlespawner({
 			amount = 30,
 			time = 0.1,
 			minpos = pointed_thing.above,
@@ -59,7 +59,7 @@ function pep.register_potion(potiondef)
 		return itemstack
 	end
 
-	minetest.register_craftitem("pep:"..potiondef.basename, {
+	core.register_craftitem("pep:"..potiondef.basename, {
 		description = string.format(S("Glass Bottle (%s)"), potiondef.contentstring),
 		_doc_items_longdesc = potiondef.longdesc,
 		_doc_items_usagehelp = S("Hold it in your hand, then left-click to drink it."),
@@ -98,11 +98,11 @@ function pep.yaw_to_vector(yaw)
 end
 
 function pep.moledig(playername)
-	local player = minetest.get_player_by_name(playername)
+	local player = core.get_player_by_name(playername)
 
 	local yaw = player:get_look_yaw()
-	-- fix stupid oddity of Minetest, adding pi/2 to the actual player's look yaw...
-	-- TODO: Remove this code as soon as Minetest fixes this.
+	-- fix stupid oddity of core, adding pi/2 to the actual player's look yaw...
+	-- TODO: Remove this code as soon as core fixes this.
 	yaw = yaw - math.pi/2
 
 	local pos = vector.round(player:getpos())
@@ -113,8 +113,8 @@ function pep.moledig(playername)
 	local digpos2 = { x = digpos1.x, y = digpos1.y+1, z = digpos1.z }
 
 	local try_dig = function(pos)
-		local n = minetest.get_node(pos)
-		local ndef = minetest.registered_nodes[n.name]
+		local n = core.get_node(pos)
+		local ndef = core.registered_nodes[n.name]
 		if ndef.walkable and ndef.diggable then
 			if ndef.can_dig ~= nil then
 				if ndef.can_dig() then
@@ -132,21 +132,21 @@ function pep.moledig(playername)
 
 	local dig = function(pos)
 		if try_dig(pos) then
-			local n = minetest.get_node(pos)
-			local ndef = minetest.registered_nodes[n.name]
+			local n = core.get_node(pos)
+			local ndef = core.registered_nodes[n.name]
 			if ndef.sounds ~= nil then
-				minetest.sound_play(ndef.sounds.dug, { pos = pos })
+				core.sound_play(ndef.sounds.dug, { pos = pos })
 			end
-			-- TODO: Replace this code as soon Minetest removes support for this function
-			local drops = minetest.get_node_drops(n.name, "default:pick_steel")
-			minetest.dig_node(pos)
+			-- TODO: Replace this code as soon core removes support for this function
+			local drops = core.get_node_drops(n.name, "default:pick_steel")
+			core.dig_node(pos)
 			local inv = player:get_inventory()
 			local leftovers = {}
 			for i=1, #drops do
 				table.insert(leftovers, inv:add_item("main", drops[i]))
 			end
 			for i=1,#leftovers do
-				minetest.add_item(pos, leftovers[i])
+				core.add_item(pos, leftovers[i])
 			end
 		end
 	end
@@ -157,7 +157,7 @@ end
 
 if pep.mole then
 	pep.timer = 0
-	minetest.register_globalstep(function(dtime)
+	core.register_globalstep(function(dtime)
 		pep.timer = pep.timer + dtime
 		if pep.timer > 0.5 then
 			for playername, is_mole in pairs(pep.moles) do
@@ -346,68 +346,68 @@ pep.register_potion({
 
 --[=[ register crafts ]=]
 --[[ normal potions ]]
-minetest.register_craft({
+core.register_craft({
 	type = "shapeless",
 	output = "pep:breath",
 	recipe = { "default:papyrus", "default:papyrus", "default:papyrus", "default:papyrus",
 			"default:papyrus", "default:papyrus", "default:papyrus", "default:papyrus", "vessels:glass_bottle" }
 })
-minetest.register_craft({
+core.register_craft({
 	type = "shapeless",
 	output = "pep:speedminus",
 	recipe = { "default:dry_grass_1", "default:ice", "vessels:glass_bottle" }
 })
-if(minetest.get_modpath("flowers") ~= nil) then
-	minetest.register_craft({
+if(core.get_modpath("flowers") ~= nil) then
+	core.register_craft({
 	type = "shapeless",
 		output = "pep:jumpplus",
 		recipe = { "flowers:tulip", "default:grass_1", "mesecons:wire_00000000_off_fragment",
 				"mesecons:wire_00000000_off_fragment", "vessels:glass_bottle" }
 	})
-	minetest.register_craft({
+	core.register_craft({
 		type = "shapeless",
 		output = "pep:poisoner",
 		recipe = { "flowers:mushroom_red", "flowers:mushroom_red", "flowers:mushroom_red", "vessels:glass_bottle" }
 	})
 
-	if(minetest.get_modpath("farming") ~= nil) then
-		minetest.register_craft({
+	if(core.get_modpath("farming") ~= nil) then
+		core.register_craft({
 			type = "shapeless",
 			output = "pep:regen",
 			recipe = { "default:cactus", "farming:flour", "flowers:mushroom_brown", "vessels:glass_bottle" }
 		})
 	end
 end
-if(minetest.get_modpath("farming") ~= nil) then
-	minetest.register_craft({
+if(core.get_modpath("farming") ~= nil) then
+	core.register_craft({
 		type = "shapeless",
 		output = "pep:regen2",
 		recipe = { "default:gold_lump", "farming:flour", "pep:regen" }
 	})
 
-minetest.register_craft({
+core.register_craft({
 	type = "shapeless",
 	output = "pep:jumpminus",
 	recipe = { "default:leaves", "default:jungleleaves", "default:iron_lump", "flowers:oxeye_daisy", "vessels:glass_bottle" }
 })
-minetest.register_craft({
+core.register_craft({
 	type = "shapeless",
 	output = "pep:grav0",
 	recipe = { "mesecons:wire_00000000_off", "vessels:glass_bottle" }
 })
-minetest.register_craft({
+core.register_craft({
 	type = "shapeless",
 	output = "pep:mole",
 	recipe = { "default:pick_steel", "default:shovel_steel", "vessels:glass_bottle" },
 })
-minetest.register_craft({
+core.register_craft({
 	type = "shapeless",
 	output = "pep:gravreset" ,
 	recipe = { "pep:grav0", "default:iron_lump" }
 })
 end
-if(minetest.get_modpath("flowers") ~= nil) then
-	minetest.register_craft({
+if(core.get_modpath("flowers") ~= nil) then
+	core.register_craft({
 		type = "shapeless",
 		output = "pep:speedplus",
 		recipe = { "default:pine_sapling", "default:cactus", "flowers:oxeye_daisy", "default:junglegrass", "vessels:glass_bottle" }
@@ -416,12 +416,12 @@ end
 
 --[[ independent crafts ]]
 
-minetest.register_craft({
+core.register_craft({
 	type = "shapeless",
 	output = "pep:speedreset",
 	recipe = { "pep:speedplus", "pep:speedminus" }
 })
-minetest.register_craft({
+core.register_craft({
 	type = "shapeless",
 	output = "pep:jumpreset",
 	recipe = { "pep:jumpplus", "pep:jumpminus" }
@@ -430,16 +430,16 @@ minetest.register_craft({
 
 --[[ aliases ]]
 
-minetest.register_alias("potionspack:antigravity", "pep:grav0")
-minetest.register_alias("potionspack:antigravityii", "pep:gravreset")
-minetest.register_alias("potionspack:speed", "pep:speedminus")
-minetest.register_alias("potionspack:speedii", "pep:speedplus")
-minetest.register_alias("potionspack:inversion", "pep:speedreset")
-minetest.register_alias("potionspack:confusion", "pep:breath")
-minetest.register_alias("potionspack:whatwillthisdo", "pep:mole")
-minetest.register_alias("potionspack:instanthealth", "pep:regen")
-minetest.register_alias("potionspack:instanthealthii", "pep:regen2")
-minetest.register_alias("potionspack:regen", "pep:regen")
-minetest.register_alias("potionspack:regenii", "pep:regen2")
-minetest.register_alias("potionspack:harming", "pep:gravreset")
-minetest.register_alias("potionspack:harmingii", "pep:gravreset")
+core.register_alias("potionspack:antigravity", "pep:grav0")
+core.register_alias("potionspack:antigravityii", "pep:gravreset")
+core.register_alias("potionspack:speed", "pep:speedminus")
+core.register_alias("potionspack:speedii", "pep:speedplus")
+core.register_alias("potionspack:inversion", "pep:speedreset")
+core.register_alias("potionspack:confusion", "pep:breath")
+core.register_alias("potionspack:whatwillthisdo", "pep:mole")
+core.register_alias("potionspack:instanthealth", "pep:regen")
+core.register_alias("potionspack:instanthealthii", "pep:regen2")
+core.register_alias("potionspack:regen", "pep:regen")
+core.register_alias("potionspack:regenii", "pep:regen2")
+core.register_alias("potionspack:harming", "pep:gravreset")
+core.register_alias("potionspack:harmingii", "pep:gravreset")

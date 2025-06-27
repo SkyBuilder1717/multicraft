@@ -1,41 +1,41 @@
-if minetest.is_singleplayer() then return end
-if not minetest.features.object_step_has_moveresult then return end
+if core.is_singleplayer() then return end
+if not core.features.object_step_has_moveresult then return end
 
-local S = minetest.get_translator("terraform")
+local S = core.get_translator("terraform")
 
 local slower = utf8 and utf8.lower or string.lower
 local sub8 = utf8 and utf8.sub or string.sub
 local fmt = string.format
-local esc = minetest.formspec_escape
-local have_inv_themes = minetest.global_exists("inv_themes")
-local function gold(s) return minetest.colorize("#ffdf00", s) end
+local esc = core.formspec_escape
+local have_inv_themes = core.global_exists("inv_themes")
+local function gold(s) return core.colorize("#ffdf00", s) end
 
 local ceil, floor, min, max, random = math.ceil, math.floor, math.min, math.max, math.random
 local function clamp(value, min_val, max_val)
 	return min(max(value, min_val), max_val)
 end
 
-local default_stack_max = minetest.settings:get("default_stack_max")
+local default_stack_max = core.settings:get("default_stack_max")
 
 -- Privilege
-minetest.register_privilege("terraform", S("Ability to use terraform tools"))
+core.register_privilege("terraform", S("Ability to use terraform tools"))
 
 local function privileged(player, f, verbose)
 	local player_name = player and player:get_player_name()
 	if player_name and player_name ~= "" then
-		if minetest.check_player_privs(player_name, "terraform") then
+		if core.check_player_privs(player_name, "terraform") then
 			return f()
 		elseif verbose then
-			minetest.chat_send_player(player_name, S("You need \"terraform\" privilege to perform the action"))
+			core.chat_send_player(player_name, S("You need \"terraform\" privilege to perform the action"))
 		end
 	end
 end
 
 -- Settings
-local undo_history_depth = minetest.settings:get("terraform.undo_history_depth")
+local undo_history_depth = core.settings:get("terraform.undo_history_depth")
 local mod_settings = {
 	undo_history_depth = undo_history_depth and tonumber(undo_history_depth) or 100,
-	undo_for_dig_place = minetest.settings:get_bool("terraform.undo_for_dig_place", false),
+	undo_for_dig_place = core.settings:get_bool("terraform.undo_for_dig_place", false),
 }
 
 -- In-memory history/undo engine
@@ -69,7 +69,7 @@ local history = {
 			return
 		end
 
-		local vm = minetest.get_voxel_manip()
+		local vm = core.get_voxel_manip()
 		local minv,maxv = vm:read_from_map(op.minp, op.maxp)
 		local va = VoxelArea:new({MinEdge = minv, MaxEdge = maxv})
 		local si = 1
@@ -87,35 +87,35 @@ local history = {
 }
 
 if mod_settings.undo_for_dig_place then
-	minetest.register_on_dignode(function(pos,oldnode,player)
+	core.register_on_dignode(function(pos,oldnode,player)
 		privileged(player, function()
-			history:capture(player, {minetest.get_content_id(oldnode.name)}, VoxelArea:new({MinEdge=pos,MaxEdge=pos}), pos, pos)
+			history:capture(player, {core.get_content_id(oldnode.name)}, VoxelArea:new({MinEdge=pos,MaxEdge=pos}), pos, pos)
 		end)
 	end)
-	minetest.register_on_placenode(function(pos,_,player)
+	core.register_on_placenode(function(pos,_,player)
 		privileged(player, function()
-			history:capture(player, {minetest.CONTENT_AIR}, VoxelArea:new({MinEdge=pos,MaxEdge=pos}), pos, pos)
+			history:capture(player, {core.CONTENT_AIR}, VoxelArea:new({MinEdge=pos,MaxEdge=pos}), pos, pos)
 		end)
 	end)
 end
 
 local pending_undo_timers = {}
 
-minetest.register_on_leaveplayer(function(player)
+core.register_on_leaveplayer(function(player)
 	local name = player:get_player_name()
 	if pending_undo_timers[name] then
 		pending_undo_timers[name]:cancel()
 	end
 
-	pending_undo_timers[name] = minetest.after(600, function(player_name)
-		if not minetest.get_player_by_name(player_name) then
+	pending_undo_timers[name] = core.after(600, function(player_name)
+		if not core.get_player_by_name(player_name) then
 			history:forget(player_name)
 		end
 		pending_undo_timers[player_name] = nil
 	end, name)
 end)
 
-minetest.register_on_joinplayer(function(player)
+core.register_on_joinplayer(function(player)
 	local name = player:get_player_name()
 	if pending_undo_timers[name] then
 		pending_undo_timers[name]:cancel()
@@ -138,7 +138,7 @@ terraform = {
 		if spec.init then
 			spec:init()
 		end
-		minetest.register_tool("terraform:"..spec.tool_name, {
+		core.register_tool("terraform:"..spec.tool_name, {
 			description = spec.description,
 			short_description = spec.short_description,
 			inventory_image = spec.inventory_image,
@@ -180,11 +180,11 @@ terraform = {
 		local itemstack = player:get_wielded_item()
 		self._latest_form = { id = "terraform:props:"..tool_name..random(1,100000), tool_name = tool_name}
 		local formspec = self._tools[tool_name]:render_config(player, itemstack:get_meta())
-		minetest.show_formspec(player:get_player_name(), self._latest_form.id, formspec)
+		core.show_formspec(player:get_player_name(), self._latest_form.id, formspec)
 	end,
 
 	get_inventory = function(player)
-		return minetest.get_inventory({type = "detached", name = "terraform."..player:get_player_name()})
+		return core.get_inventory({type = "detached", name = "terraform."..player:get_player_name()})
 	end,
 
 	-- Helpers for storing inventory into settings
@@ -216,7 +216,7 @@ terraform = {
 }
 
 -- Handle input from forms
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
 	privileged(player, function()
 		if terraform._latest_form and formname == terraform._latest_form.id then
 			local tool_name = terraform._latest_form.tool_name
@@ -227,7 +227,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 			local itemstack = player:get_wielded_item()
 			if itemstack:get_name() ~= "terraform:" .. tool_name then
-				minetest.close_formspec(player:get_player_name(), formname)
+				core.close_formspec(player:get_player_name(), formname)
 				return
 			end
 
@@ -253,9 +253,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 end)
 
 local player_max_pages = {}
-minetest.register_on_leaveplayer(function(player)
+core.register_on_leaveplayer(function(player)
 	local name = player:get_player_name()
-	minetest.remove_detached_inventory("terraform." .. name)
+	core.remove_detached_inventory("terraform." .. name)
 	player_max_pages[name] = nil
 end)
 
@@ -266,7 +266,7 @@ end)
 --
 terraform:register_tool("brush", {
 	description = S("Terraform Brush") .. "\n" ..
-		minetest.get_color_escape_sequence("silver") .. S("Paints the world with broad strokes"),
+		core.get_color_escape_sequence("silver") .. S("Paints the world with broad strokes"),
 	short_description = S("Terraform Brush"),
 	inventory_image = "terraform_tool_brush.png",
 	groups = {no_change_anim = 1},
@@ -301,7 +301,7 @@ terraform:register_tool("brush", {
 
 		local player_name = player:get_player_name()
 
-		local inventory = minetest.create_detached_inventory("terraform."..player_name, {
+		local inventory = core.create_detached_inventory("terraform."..player_name, {
 			allow_move = function(inv,source,sindex,dest,dindex,count)
 				if source == "palette" and dest ~= "palette" then
 					local source_stack = inv:get_stack(source, sindex)
@@ -342,13 +342,13 @@ terraform:register_tool("brush", {
 		local count = 0
 		local pattern = slower(settings:get_string("search_text"))
 		local skip = 40 * settings:get_int("search_page")
-		local player_info = minetest.get_player_information(player_name)
+		local player_info = core.get_player_information(player_name)
 		local lang_code = player_info and player_info.lang_code
-		for k,v in pairs(minetest.registered_nodes) do
+		for k,v in pairs(core.registered_nodes) do
 			local desc = v.description or ""
 			if k ~= "ignore" and (string.find(k, pattern, 1, true) ~= nil or
 					string.find(slower(desc), pattern, 1, true) ~= nil or
-					string.find(slower(minetest.get_translated_string(lang_code, desc)), pattern, 1, true) ~= nil) and
+					string.find(slower(core.get_translated_string(lang_code, desc)), pattern, 1, true) ~= nil) and
 						not (v.inventory_image == "" and v.wield_image == "" and v.tiles == nil and v.special_tiles == nil) and
 						v.tool_capabilities == nil then
 				if skip > 0 then
@@ -488,7 +488,7 @@ terraform:register_tool("brush", {
 
 		-- Size
 		if fields.size_sb ~= nil and string.find(fields.size_sb, "CHG") then
-			local e = minetest.explode_scrollbar_event(fields.size_sb)
+			local e = core.explode_scrollbar_event(fields.size_sb)
 			if e.type == "CHG" then
 				settings:set_int("size", clamp(self.max_size - tonumber(e.value), 0, self.max_size))
 				refresh = true
@@ -569,7 +569,7 @@ terraform:register_tool("brush", {
 	execute = function(self, player, target, settings)
 
 		-- Get position
-		local target_pos = minetest.get_pointed_thing_position(target)
+		local target_pos = core.get_pointed_thing_position(target)
 		if not target_pos then
 			return
 		end
@@ -593,7 +593,7 @@ terraform:register_tool("brush", {
 		if settings:get_int("modifiers_landslide") == 1 then
 			minc.y = minc.y - 100
 		end
-		local v = minetest.get_voxel_manip()
+		local v = core.get_voxel_manip()
 		local minv, maxv = v:read_from_map(minc, maxc)
 		local a = VoxelArea:new({MinEdge = minv, MaxEdge = maxv })
 
@@ -606,7 +606,7 @@ terraform:register_tool("brush", {
 			for x = minp.x, maxp.x do
 				for z = minp.z, maxp.z do
 					for y = target_pos.y, target_pos.y - 100, -1 do
-						if data[a:index(x, y, z)] ~= minetest.CONTENT_AIR then
+						if data[a:index(x, y, z)] ~= core.CONTENT_AIR then
 							if y + 1 < minc.y then
 								minc.y = y + 1
 							end
@@ -631,16 +631,16 @@ terraform:register_tool("brush", {
 			if w ~= "" then
 				local stack = ItemStack(w)
 				local node_name = stack:get_name()
-				if minetest.registered_nodes[node_name] then
+				if core.registered_nodes[node_name] then
 					boundary = boundary + stack:get_count()
-					table.insert(paint, { id = minetest.get_content_id(node_name), boundary = boundary })
+					table.insert(paint, { id = core.get_content_id(node_name), boundary = boundary })
 				else
-					table.insert(paint, { id = minetest.CONTENT_AIR, boundary = boundary })
+					table.insert(paint, { id = core.CONTENT_AIR, boundary = boundary })
 				end
 			end
 		end
 		if #paint == 0 then
-			table.insert(paint, { id = minetest.CONTENT_AIR, boundary = 1 })
+			table.insert(paint, { id = core.CONTENT_AIR, boundary = 1 })
 		end
 
 		ctx.paint = paint
@@ -659,10 +659,10 @@ terraform:register_tool("brush", {
 		for _, w in ipairs(terraform.string_to_list(settings:get_string("mask"), 10)) do
 			if w ~= "" then
 				local node_name = ItemStack(w):get_name()
-				if minetest.registered_nodes[node_name] then
-					table.insert(mask, minetest.get_content_id(node_name))
+				if core.registered_nodes[node_name] then
+					table.insert(mask, core.get_content_id(node_name))
 				else
-					table.insert(mask, minetest.CONTENT_AIR)
+					table.insert(mask, core.CONTENT_AIR)
 				end
 			end
 		end
@@ -678,7 +678,7 @@ terraform:register_tool("brush", {
 		local modifiers = {}
 		if settings:get_int("modifiers_landslide") == 1 then
 			table.insert(modifiers, function(i)
-				while data[i - a.ystride] == minetest.CONTENT_AIR and a:position(i).y > minc.y do
+				while data[i - a.ystride] == core.CONTENT_AIR and a:position(i).y > minc.y do
 					i = i - a.ystride
 				end
 				return i
@@ -686,15 +686,15 @@ terraform:register_tool("brush", {
 		end
 		if settings:get_int("modifiers_surface") == 1 then
 			table.insert(modifiers, function(i)
-				if data[i] == minetest.CONTENT_AIR then return nil end
-				if a:position(i).y < maxp.y and data[i+a.ystride] == minetest.CONTENT_AIR then return i end
+				if data[i] == core.CONTENT_AIR then return nil end
+				if a:position(i).y < maxp.y and data[i+a.ystride] == core.CONTENT_AIR then return i end
 				return nil
 			end)
 		end
 		if settings:get_int("modifiers_decor") == 1 then
 			table.insert(modifiers, function(i)
-				if data[i] == minetest.CONTENT_AIR then return nil end
-				if a:position(i).y < maxp.y and data[i+a.ystride] == minetest.CONTENT_AIR then return i+a.ystride end
+				if data[i] == core.CONTENT_AIR then return nil end
+				if a:position(i).y < maxp.y and data[i+a.ystride] == core.CONTENT_AIR then return i+a.ystride end
 				return nil
 			end)
 		end
@@ -794,7 +794,7 @@ terraform:register_tool("brush", {
 						if #ctx.mask > 0 then
 							return not ctx.in_mask(id)
 						else
-							return id ~= minetest.CONTENT_AIR
+							return id ~= core.CONTENT_AIR
 						end
 					end
 
@@ -862,7 +862,7 @@ terraform:register_tool("brush", {
 							for ly = -r,r do
 								for lz = -r,r do
 									local weight = 1 -- all dots are equal, but this could be fancier
-									top = top + (data[i + lx + a.ystride*ly + a.zstride*lz] ~= minetest.CONTENT_AIR and weight or 0)
+									top = top + (data[i + lx + a.ystride*ly + a.zstride*lz] ~= core.CONTENT_AIR and weight or 0)
 									bottom = bottom + weight
 								end
 							end
@@ -886,8 +886,8 @@ terraform:register_tool("brush", {
 					end
 
 					for pos,is_air in pairs(paint_flags) do
-						if is_air ~= (data[pos] == minetest.CONTENT_AIR) then
-							ctx.draw(pos, is_air and minetest.CONTENT_AIR or ctx.get_paint())
+						if is_air ~= (data[pos] == core.CONTENT_AIR) then
+							ctx.draw(pos, is_air and core.CONTENT_AIR or ctx.get_paint())
 						end
 					end
 				end,
@@ -913,7 +913,7 @@ terraform:register_tool("brush", {
 							for ly = -r,r do
 								for lz = -r,r do
 									local weight = 1 -- all dots are equal, but this could be fancier
-									top = top + (data[i + lx + a.ystride*ly + a.zstride*lz] ~= minetest.CONTENT_AIR and weight or 0)
+									top = top + (data[i + lx + a.ystride*ly + a.zstride*lz] ~= core.CONTENT_AIR and weight or 0)
 									bottom = bottom + weight
 								end
 							end
@@ -938,8 +938,8 @@ terraform:register_tool("brush", {
 					end
 
 					for pos,is_air in pairs(paint_flags) do
-						if is_air ~= (data[pos] == minetest.CONTENT_AIR) then
-							ctx.draw(pos, is_air and minetest.CONTENT_AIR or ctx.get_paint())
+						if is_air ~= (data[pos] == core.CONTENT_AIR) then
+							ctx.draw(pos, is_air and core.CONTENT_AIR or ctx.get_paint())
 						end
 					end
 				end,
@@ -949,7 +949,7 @@ terraform:register_tool("brush", {
 })
 
 -- Colorize brush when putting to inventory
-minetest.register_on_player_inventory_action(function(_,action,inventory,inventory_info)
+core.register_on_player_inventory_action(function(_,action,inventory,inventory_info)
 	local stack = inventory_info.stack
 	if action ~= "put" or inventory_info.listname ~= "main" or stack:get_name() ~= "terraform:brush" then
 		return
@@ -967,7 +967,7 @@ end)
 --
 terraform:register_tool("undo", {
 	description = S("Terraform Undo") .. "\n" ..
-		minetest.get_color_escape_sequence("silver") .. S("Undoes changes to the world"),
+		core.get_color_escape_sequence("silver") .. S("Undoes changes to the world"),
 	short_description = S("Terraform Undo"),
 	inventory_image = "terraform_tool_undo.png",
 	execute = function(_, player)
@@ -980,12 +980,12 @@ terraform:register_tool("undo", {
 --
 terraform:register_tool("fixlight", {
 	description = S("Terraform Fix Light") .. "\n" ..
-		minetest.get_color_escape_sequence("silver") .. S("Fix lighting problems"),
+		core.get_color_escape_sequence("silver") .. S("Fix lighting problems"),
 	short_description = S("Terraform Fix Light"),
 	inventory_image = "terraform_tool_fix_light.png",
 	execute = function(_, _, target)
 		-- Get position
-		local target_pos = minetest.get_pointed_thing_position(target)
+		local target_pos = core.get_pointed_thing_position(target)
 		if not target_pos then
 			return
 		end
@@ -993,7 +993,7 @@ terraform:register_tool("fixlight", {
 		local origin = target_pos
 		local minp = vector.subtract(origin, vector.new(s,s,s))
 		local maxp = vector.add(origin, vector.new(s,s,s))
-		minetest.fix_light(minp, maxp)
+		core.fix_light(minp, maxp)
 	end
 })
 
@@ -1029,7 +1029,7 @@ end
 
 local light = {
 	size = 20,
-	level = minetest.LIGHT_MAX,
+	level = core.LIGHT_MAX,
 	pitch_rate = 1/5,
 	queues = { light = {}, dark = {} },
 	players = {},
@@ -1078,14 +1078,14 @@ local light = {
 		-- process queues
 		while #self.queues.dark > 0 do
 			local box = table.remove(self.queues.dark, 1)
-			minetest.get_voxel_manip(box.min, box.max):write_to_map(true) -- fix the light
+			core.get_voxel_manip(box.min, box.max):write_to_map(true) -- fix the light
 		end
 
 		while #self.queues.light > 0 do
 			local box = table.remove(self.queues.light, 1)
 
 			-- Load manipulator
-			local vm = minetest.get_voxel_manip()
+			local vm = core.get_voxel_manip()
 			local mine,maxe = vm:read_from_map(box.min, box.max)
 			local va = VoxelArea:new({MinEdge = mine, MaxEdge = maxe})
 
@@ -1108,7 +1108,7 @@ local light = {
 
 terraform:register_tool("light", {
 	description = S("Terraform Light") .. "\n" ..
-		minetest.get_color_escape_sequence("silver") .. S("Turn on the lights"),
+		core.get_color_escape_sequence("silver") .. S("Turn on the lights"),
 	short_description = S("Terraform Light"),
 	inventory_image = "terraform_tool_light.png",
 	execute = function(_, player)
@@ -1123,48 +1123,48 @@ terraform:register_tool("light", {
 })
 
 --[[
-minetest.register_on_leaveplayer(function(player)
+core.register_on_leaveplayer(function(player)
 	light:remove_player(player)
 end)
 
 local function place_lights()
 	light:tick()
-	minetest.after(0.5, place_lights)
+	core.after(0.5, place_lights)
 end
-minetest.after(0.5, place_lights)
+core.after(0.5, place_lights)
 ]]
 
 
 terraform:register_tool("teleport", {
 	description = S("Terraform Teleport") .. "\n" ..
-		minetest.get_color_escape_sequence("silver") .. S("Travel fast"),
+		core.get_color_escape_sequence("silver") .. S("Travel fast"),
 	short_description = S("Terraform Teleport"),
 	inventory_image = "terraform_tool_teleport.png",
 	execute = function(_, player, target)
 		-- Get position
-		local target_pos = minetest.get_pointed_thing_position(target)
+		local target_pos = core.get_pointed_thing_position(target)
 		if not target_pos then
 			return
 		end
 
 		local player_pos = vector.floor(player:get_pos())
 		local probe = { x = player_pos.x, y = player_pos.y, z = player_pos.z }
-		while minetest.get_node(probe).name == "air" do
+		while core.get_node(probe).name == "air" do
 			probe.y = probe.y - 1
 		end
-		local vm = minetest.get_voxel_manip()
+		local vm = core.get_voxel_manip()
 		local mine,maxe = vm:read_from_map(vector.add(target_pos, vector.new(0, -128, 0)), vector.add(target_pos, vector.new(0, 128 + player_pos.y - probe.y, 0)))
 		local va = VoxelArea:new({MinEdge=mine, MaxEdge=maxe})
 		local data = vm:get_data()
 		local i = va:indexp(target_pos)
-		while data[i] ~= minetest.CONTENT_AIR do -- Move to the topmost block
+		while data[i] ~= core.CONTENT_AIR do -- Move to the topmost block
 			i = i + va.ystride
 		end
 		i = i + va.ystride * (player_pos.y - probe.y - 1)
 
 		for delta = 0,128 do -- Try up to 128 meters up or down
 			for sign = -1,1,2 do
-				if data[i + va.ystride * delta * sign] == minetest.CONTENT_AIR and data[i + va.ystride * (1 + delta * sign)] == minetest.CONTENT_AIR then
+				if data[i + va.ystride * delta * sign] == core.CONTENT_AIR and data[i + va.ystride * (1 + delta * sign)] == core.CONTENT_AIR then
 					local result = va:position(i + va.ystride * delta * sign)
 					player:set_pos(result)
 					return

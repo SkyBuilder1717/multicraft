@@ -3,7 +3,7 @@
 --
 
 local function register_mgv6_flower(flower_name)
-	minetest.register_decoration({
+	core.register_decoration({
 		name = "flowers:"..flower_name,
 		deco_type = "simple",
 		place_on = {"default:dirt_with_grass"},
@@ -23,7 +23,7 @@ local function register_mgv6_flower(flower_name)
 end
 
 local function register_mgv6_mushroom(mushroom_name)
-	minetest.register_decoration({
+	core.register_decoration({
 		name = "flowers:"..mushroom_name,
 		deco_type = "simple",
 		place_on = {"default:dirt_with_grass"},
@@ -45,7 +45,7 @@ local function register_mgv6_mushroom(mushroom_name)
 end
 
 local function register_mgv6_waterlily()
-	minetest.register_decoration({
+	core.register_decoration({
 		deco_type = "schematic",
 		place_on = {"default:dirt"},
 		sidelen = 16,
@@ -59,7 +59,7 @@ local function register_mgv6_waterlily()
 		},
 		y_min = 0,
 		y_max = 0,
-		schematic = minetest.get_modpath("flowers") .. "/schematics/waterlily.mts",
+		schematic = core.get_modpath("flowers") .. "/schematics/waterlily.mts",
 		rotation = "random",
 	})
 end
@@ -84,7 +84,7 @@ end
 --
 
 local function register_flower(seed, flower_name)
-	minetest.register_decoration({
+	core.register_decoration({
 		name = "flowers:"..flower_name,
 		deco_type = "simple",
 		place_on = {"default:dirt_with_grass"},
@@ -106,7 +106,7 @@ local function register_flower(seed, flower_name)
 end
 
 local function register_mushroom(mushroom_name)
-	minetest.register_decoration({
+	core.register_decoration({
 		name = "flowers:"..mushroom_name,
 		deco_type = "simple",
 		place_on = {"default:dirt_with_grass"},
@@ -128,7 +128,7 @@ local function register_mushroom(mushroom_name)
 end
 
 local function register_waterlily()
-	minetest.register_decoration({
+	core.register_decoration({
 		deco_type = "schematic",
 		place_on = {"default:dirt"},
 		sidelen = 16,
@@ -142,7 +142,7 @@ local function register_waterlily()
 		},
 		y_min = 0,
 		y_max = 0,
-		schematic = minetest.get_modpath("flowers") .. "/schematics/waterlily.mts",
+		schematic = core.get_modpath("flowers") .. "/schematics/waterlily.mts",
 		rotation = "random",
 	})
 end
@@ -166,7 +166,7 @@ end
 -- Detect mapgen to select functions
 --
 
-local mg_name = minetest.get_mapgen_setting("mg_name")
+local mg_name = core.get_mapgen_setting("mg_name")
 if mg_name == "v6" then
 	flowers.register_mgv6_decorations()
 else

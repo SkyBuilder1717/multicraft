@@ -1,4 +1,4 @@
-local path = minetest.get_modpath("mobs_animal")
+local path = core.get_modpath("mobs_animal")
 
 dofile(path .. "/bear.lua") -- KrupnoPavel
 dofile(path .. "/bunny.lua") -- ExeterDad

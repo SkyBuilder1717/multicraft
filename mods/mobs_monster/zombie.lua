@@ -40,15 +40,15 @@ mobs:register_mob("mobs_monster:zombie", {
 		}
 	end,
 	after_activate = function(self, staticdata, def, dtime)
-	-- replace zombies using the old directx model
 		if self.mesh == "mobs_zombie.x" then
 			local pos = self.object:get_pos()
 			if pos then
-				minetest.add_entity(pos, self.name)
+				core.add_entity(pos, self.name)
 				self.object:remove()
 			end
 		end
-	end,	})
+	end
+})
 
 mobs:spawn({
 	name = "mobs_monster:zombie",

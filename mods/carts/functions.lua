@@ -40,12 +40,12 @@ function carts:velocity_to_dir(v)
 	end
 end
 
-local get_node = minetest.get_node
-local get_item_group = minetest.get_item_group
+local get_node = core.get_node
+local get_item_group = core.get_item_group
 function carts:is_rail(pos, railtype)
 	local node = get_node(pos).name
 	if node == "ignore" then
-		local vm = minetest.get_voxel_manip()
+		local vm = core.get_voxel_manip()
 		local emin, emax = vm:read_from_map(pos, pos)
 		local area = VoxelArea:new{
 			MinEdge = emin,
@@ -53,7 +53,7 @@ function carts:is_rail(pos, railtype)
 		}
 		local data = vm:get_data()
 		local vi = area:indexp(pos)
-		node = minetest.get_name_from_content_id(data[vi])
+		node = core.get_name_from_content_id(data[vi])
 	end
 	if get_item_group(node, "rail") == 0 then
 		return false
@@ -212,8 +212,8 @@ function carts:pathfinder(pos_, old_pos, old_dir, distance, ctrl,
 end
 
 function carts:boost_rail(pos, amount)
-	minetest.get_meta(pos):set_string("cart_acceleration", tostring(amount))
-	for _,obj_ in ipairs(minetest.get_objects_inside_radius(pos, 0.5)) do
+	core.get_meta(pos):set_string("cart_acceleration", tostring(amount))
+	for _,obj_ in ipairs(core.get_objects_inside_radius(pos, 0.5)) do
 		if not obj_:is_player() and
 				obj_:get_luaentity() and
 				obj_:get_luaentity().name == "carts:cart" then
@@ -243,7 +243,7 @@ function carts:register_rail(name, def_overwrite)
 		def.inventory_image = def.tiles[1]
 	end
 
-	minetest.register_node(name, def)
+	core.register_node(name, def)
 end
 
 function carts:get_rail_groups(additional_groups)
@@ -252,7 +252,7 @@ function carts:get_rail_groups(additional_groups)
 		dig_immediate = 2,
 		falling_node = 1,
 		rail = 1,
-		connect_to_raillike = minetest.raillike_group("rail")
+		connect_to_raillike = core.raillike_group("rail")
 	}
 	if type(additional_groups) == "table" then
 		for k, v in pairs(additional_groups) do

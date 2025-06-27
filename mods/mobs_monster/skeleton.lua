@@ -40,13 +40,12 @@ mobs:register_mob("mobs_monster:skeleton", {
 		}
 	end,
 	after_activate = function(self, staticdata, def, dtime)
-		-- replace skeleton using the old directx model
 		if self.mesh == "mobs_zombie.x" then
-		local pos = self.object:get_pos()
-		if pos then
-			minetest.add_entity(pos, self.name)
-			self.object:remove()
-		end
+			local pos = self.object:get_pos()
+			if pos then
+				core.add_entity(pos, self.name)
+				self.object:remove()
+			end
 		end
 	end,
 })

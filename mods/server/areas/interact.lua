@@ -1,6 +1,6 @@
 local S = areas.S
 
-local enable_damage = minetest.settings:get_bool("enable_damage")
+local enable_damage = core.settings:get_bool("enable_damage")
 
 local old_is_protected = minetest.is_protected
 function minetest.is_protected(pos, name)
@@ -9,18 +9,19 @@ function minetest.is_protected(pos, name)
 	end
 	return old_is_protected(pos, name)
 end
+core.is_protected = minetest.is_protected
 
 local tconcat = table.concat
-minetest.register_on_protection_violation(function(pos, name)
+core.register_on_protection_violation(function(pos, name)
 	if not areas:canInteract(pos, name) then
 		local owners = areas:getNodeOwners(pos)
-		minetest.chat_send_player(name,
+		core.chat_send_player(name,
 			S("@1 is protected by @2.",
-				minetest.pos_to_string(pos),
+				core.pos_to_string(pos),
 				tconcat(owners, ", ")))
 
 		-- Little damage player
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 		if player and player:is_player() then
 			if enable_damage then
 				local hp = player:get_hp()
@@ -50,7 +51,7 @@ local function can_pvp_at(pos)
 	return default
 end
 
-minetest.register_on_punchplayer(function(player, hitter, time_from_last_punch)
+core.register_on_punchplayer(function(player, hitter, time_from_last_punch)
 	if not enable_damage then
 		return true
 	end
@@ -64,7 +65,7 @@ minetest.register_on_punchplayer(function(player, hitter, time_from_last_punch)
 
 	-- It is possible to use cheats
 	if time_from_last_punch < 0.25 then
-		minetest.chat_send_player(player_name, S("Wow, wow, take it easy!"))
+		core.chat_send_player(player_name, S("Wow, wow, take it easy!"))
 		return true
 	end
 
@@ -74,12 +75,12 @@ minetest.register_on_punchplayer(function(player, hitter, time_from_last_punch)
 	end
 
 	-- Otherwise, it doesn't do damage
-	minetest.chat_send_player(player_name, S("PvP is not allowed in this area!"))
+	core.chat_send_player(player_name, S("PvP is not allowed in this area!"))
 	return true
 end)
 
-local old_calculate_knockback = minetest.calculate_knockback
-function minetest.calculate_knockback(player, hitter, time_from_last_punch, ...)
+local old_calculate_knockback = core.calculate_knockback
+function core.calculate_knockback(player, hitter, time_from_last_punch, ...)
 	if player:is_player() and hitter and hitter:is_player() and
 			(time_from_last_punch < 0.25 or not can_pvp_at(player:get_pos()) or
 			not can_pvp_at(hitter:get_pos())) then

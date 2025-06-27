@@ -84,7 +84,7 @@ end
 
 -- Checks if the area is unprotected or owned by you
 function areas:canInteract(pos, name)
-	if minetest.check_player_privs(name, self.adminPrivs) then
+	if core.check_player_privs(name, self.adminPrivs) then
 		return true
 	end
 	local owned = false
@@ -116,7 +116,7 @@ end
 -- @return Boolean indicating whether the player can interact in that area.
 -- @return Un-owned intersecting area ID, if found.
 function areas:canInteractInArea(pos1, pos2, name, allow_open)
-	if name and minetest.check_player_privs(name, self.adminPrivs) then
+	if name and core.check_player_privs(name, self.adminPrivs) then
 		return true
 	end
 	self:sortPos(pos1, pos2)

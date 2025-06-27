@@ -19,10 +19,8 @@ worldedit.cuboid_volumetric_expand = function(name, amount)
 	delta2 = vector.multiply(delta2, delta_dir2)
 	worldedit.pos1[name] = vector.add(pos1, delta1)
 	worldedit.pos2[name] = vector.add(pos2, delta2)
-
 	return true
 end
-
 
 -- Expands or contracts the cuboid in a single axis by amount (positive or negative)
 worldedit.cuboid_linear_expand = function(name, axis, direction, amount)
@@ -54,7 +52,6 @@ worldedit.cuboid_linear_expand = function(name, axis, direction, amount)
 	return true
 end
 
-
 -- Shifts the cuboid by '+-amount' in axis 'axis'
 worldedit.cuboid_shift = function(name, axis, amount)
 	local pos1 = worldedit.pos1[name]
@@ -78,10 +75,8 @@ worldedit.cuboid_shift = function(name, axis, amount)
 	else
 		return false, "invalid axis"
 	end
-
 	return true
 end
-
 
 -- Moves the location of a single marker by adding deltavector
 worldedit.marker_move = function(name, marker, deltavector)
@@ -96,10 +91,8 @@ worldedit.marker_move = function(name, marker, deltavector)
 		local pos = worldedit.pos2[name]
 		worldedit.pos2[name] = vector.add(deltavector, pos)
 	end
-
 	return true
 end
-
 
 -- Returns two vectors with the directions for volumetric expansion
 worldedit.get_expansion_directions = function(mark1, mark2)
@@ -186,7 +179,6 @@ worldedit.marker_get_closest_to_axis = function(name, axis, direction)
 	end
 end
 
-
 -- Translates up, down, left, right, front, back to their corresponding axes and
 -- directions according to faced direction
 worldedit.translate_direction = function(name, direction)
@@ -240,6 +232,5 @@ worldedit.translate_direction = function(name, direction)
 			resdir = dir
 		end
 	end
-
 	return resaxis, resdir
 end

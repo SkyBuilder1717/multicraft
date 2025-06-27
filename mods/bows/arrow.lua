@@ -2,7 +2,7 @@
 local function get_3d_armor_armor(player)
 	local armor_total = 0
 
-	if not player:is_player() or not minetest.get_modpath('3d_armor') or not armor.def[player:get_player_name()] then
+	if not player:is_player() or not core.get_modpath('3d_armor') or not armor.def[player:get_player_name()] then
 		return armor_total
 	end
 
@@ -30,7 +30,7 @@ local function get_obj_box(obj)
 end
 
 -- Main Arrow Entity
-minetest.register_entity('bows:arrow_entity', {
+core.register_entity('bows:arrow_entity', {
 	initial_properties = {
 		visual = 'wielditem',
 		visual_size = {x = 0.2, y = 0.2, z = 0.3},
@@ -47,7 +47,7 @@ minetest.register_entity('bows:arrow_entity', {
 			return
 		end
 
-		local _staticdata = minetest.deserialize(staticdata)
+		local _staticdata = core.deserialize(staticdata)
 
 		-- set/reset - do not inherit from previous entity table
 		self._velocity = {x = 0, y = 0, z = 0}
@@ -65,7 +65,7 @@ minetest.register_entity('bows:arrow_entity', {
 		self._poison_arrow = false
 		self._shot_from_pos = self.object:get_pos()
 		self.arrow = _staticdata.arrow
-		self.user = minetest.get_player_by_name(_staticdata.user_name)
+		self.user = core.get_player_by_name(_staticdata.user_name)
 		self._tflp = _staticdata._tflp
 		self._tool_capabilities = _staticdata._tool_capabilities
 		self._is_critical_hit = _staticdata.is_critical_hit
@@ -83,13 +83,13 @@ minetest.register_entity('bows:arrow_entity', {
 			return
 		end
 
-		minetest.item_drop(ItemStack(self.arrow), nil, vector.round(self._old_pos))
+		core.item_drop(ItemStack(self.arrow), nil, vector.round(self._old_pos))
 	end,
 
 	on_step = function(self, dtime)
 		local pos = self.object:get_pos()
 		self._old_pos = self._old_pos or pos
-		local ray = minetest.raycast(self._old_pos, pos, true, true)
+		local ray = core.raycast(self._old_pos, pos, true, true)
 		local pointed_thing = ray:next()
 
 		self._lifetimer = self._lifetimer - dtime
@@ -135,7 +135,7 @@ minetest.register_entity('bows:arrow_entity', {
 
 		-- arrow falls down when not attached to node any more
 		if self._attached_to.type == 'node' and self._attached and self._nodechecktimer <= 0 then
-			local node = minetest.get_node(self._attached_to.pos)
+			local node = core.get_node(self._attached_to.pos)
 			self._nodechecktimer = 0.5
 
 			if not node then
@@ -196,7 +196,7 @@ minetest.register_entity('bows:arrow_entity', {
 				-- knockback
 				local dir = vector.normalize(vector.subtract(self._shot_from_pos, ip_pos))
 				local distance = vector.distance(self._shot_from_pos, ip_pos)
-				local knockback = minetest.calculate_knockback(
+				local knockback = core.calculate_knockback(
 					pointed_thing.ref,
 					self.object,
 					self._tflp,
@@ -353,8 +353,8 @@ minetest.register_entity('bows:arrow_entity', {
 				return
 
 			elseif pointed_thing.type == 'node' and not self._attached then
-				local node = minetest.get_node(pointed_thing.under)
-				local node_def = minetest.registered_nodes[node.name]
+				local node = core.get_node(pointed_thing.under)
+				local node_def = core.registered_nodes[node.name]
 
 				if not node_def then
 					return
@@ -387,7 +387,7 @@ minetest.register_entity('bows:arrow_entity', {
 					-- only close to the center of the target will trigger signal
 					if distance < 0.54 then
 						mesecon.receptor_on(pointed_thing.under)
-						minetest.get_node_timer(pointed_thing.under):start(2)
+						core.get_node_timer(pointed_thing.under):start(2)
 					end
 				end
 
@@ -404,7 +404,7 @@ minetest.register_entity('bows:arrow_entity', {
 					-- remove last arrow when too many already attached
 					local children = {}
 
-					for k, object in ipairs(minetest.get_objects_inside_radius(pointed_thing.under, 1)) do
+					for k, object in ipairs(core.get_objects_inside_radius(pointed_thing.under, 1)) do
 						if not object:is_player() and object:get_luaentity() and object:get_luaentity().name == 'bows:arrow_entity' then
 							table.insert(children ,object)
 						end

@@ -1,6 +1,6 @@
-if minetest.is_singleplayer() then return end -- Disabling mod in singleplayer
+if core.is_singleplayer() then return end -- Disabling mod in singleplayer
 
-xban = { MP = minetest.get_modpath(minetest.get_current_modname()) }
+xban = { MP = core.get_modpath(core.get_current_modname()) }
 
 dofile(xban.MP.."/serialize.lua")
 
@@ -8,11 +8,11 @@ local db = { }
 local tempbans = { }
 
 local DEF_SAVE_INTERVAL = 300 -- 5 minutes
-local DEF_DB_FILENAME = minetest.get_worldpath().."/xban.db"
+local DEF_DB_FILENAME = core.get_worldpath().."/xban.db"
 
-local DB_FILENAME = minetest.settings:get("xban.db_filename")
+local DB_FILENAME = core.settings:get("xban.db_filename")
 local SAVE_INTERVAL = tonumber(
-  minetest.settings:get("xban.db_save_interval")) or DEF_SAVE_INTERVAL
+  core.settings:get("xban.db_save_interval")) or DEF_SAVE_INTERVAL
 
 if (not DB_FILENAME) or (DB_FILENAME == "") then
 	DB_FILENAME = DEF_DB_FILENAME
@@ -20,7 +20,7 @@ end
 
 local function make_logger(level)
 	return function(text, ...)
-		minetest.log(level, "[xban] "..text:format(...))
+		core.log(level, "[xban] "..text:format(...))
 	end
 end
 
@@ -95,9 +95,9 @@ function xban.ban_player(player, source, expires, reason) --> bool, err
 	}
 	table.insert(e.record, rec)
 	e.names[player] = true
-	local pl = minetest.get_player_by_name(player)
+	local pl = core.get_player_by_name(player)
 	if pl then
-		local ip = minetest.get_player_ip(player)
+		local ip = core.get_player_ip(player)
 		if ip then
 			e.names[ip] = true
 		end
@@ -117,7 +117,7 @@ function xban.ban_player(player, source, expires, reason) --> bool, err
 		msg = ("Banned: Reason: %s"):format(reason)
 	end
 	for nm in pairs(e.names) do
-		minetest.kick_player(nm, msg)
+		core.kick_player(nm, msg)
 	end
 	ACTION("%s bans %s until %s for reason: %s", source, player,
 	  date, reason)
@@ -188,12 +188,12 @@ function xban.get_record(player)
 	local last_pos
 	if e.last_pos then
 		last_pos = ("User was last seen at %s"):format(
-		  minetest.pos_to_string(e.last_pos))
+		  core.pos_to_string(e.last_pos))
 	end
 	return record, last_pos
 end
 
-minetest.register_on_prejoinplayer(function(name, ip)
+core.register_on_prejoinplayer(function(name, ip)
 	local wl = db.whitelist or { }
 	if wl[name] or wl[ip] then return end
 	local e = xban.find_entry(name) or xban.find_entry(ip)
@@ -206,10 +206,10 @@ minetest.register_on_prejoinplayer(function(name, ip)
 	end
 end)
 
-minetest.register_on_joinplayer(function(player)
+core.register_on_joinplayer(function(player)
 	local name = player:get_player_name()
 	local e = xban.find_entry(name)
-	local ip = minetest.get_player_ip(name)
+	local ip = core.get_player_ip(name)
 	if not e then
 		if ip then
 			e = xban.find_entry(ip, true)
@@ -224,7 +224,7 @@ minetest.register_on_joinplayer(function(player)
 	e.last_seen = os.time()
 end)
 
-minetest.register_chatcommand("xban", {
+core.register_chatcommand("xban", {
 	description = "XBan a player",
 	params = "<player> <reason>",
 	privs = { ban=true },
@@ -238,7 +238,7 @@ minetest.register_chatcommand("xban", {
 	end,
 })
 
-minetest.register_chatcommand("xtempban", {
+core.register_chatcommand("xtempban", {
 	description = "XBan a player temporarily",
 	params = "<player> <time> <reason>",
 	privs = { ban=true },
@@ -258,14 +258,14 @@ minetest.register_chatcommand("xtempban", {
 	end,
 })
 
-minetest.register_chatcommand("xunban", {
+core.register_chatcommand("xunban", {
 	description = "XUnBan a player",
 	params = "<player_or_ip>",
 	privs = { ban=true },
 	func = function(name, params)
 		local plname = params:match("%S+")
 		if not plname then
-			minetest.chat_send_player(name,
+			core.chat_send_player(name,
 			  "Usage: /xunban <player_or_ip>")
 			return
 		end
@@ -274,7 +274,7 @@ minetest.register_chatcommand("xunban", {
 	end,
 })
 
-minetest.register_chatcommand("xban_record", {
+core.register_chatcommand("xban_record", {
 	description = "Show the ban records of a player",
 	params = "<player_or_ip>",
 	privs = { ban=true },
@@ -286,20 +286,20 @@ minetest.register_chatcommand("xban_record", {
 		local record, last_pos = xban.get_record(plname)
 		if not record then
 			local err = last_pos
-			minetest.chat_send_player(name, "[xban] "..err)
+			core.chat_send_player(name, "[xban] "..err)
 			return
 		end
 		for _, e in ipairs(record) do
-			minetest.chat_send_player(name, "[xban] "..e)
+			core.chat_send_player(name, "[xban] "..e)
 		end
 		if last_pos then
-			minetest.chat_send_player(name, "[xban] "..last_pos)
+			core.chat_send_player(name, "[xban] "..last_pos)
 		end
 		return true, "Record listed."
 	end,
 })
 
-minetest.register_chatcommand("xban_wl", {
+core.register_chatcommand("xban_wl", {
 	description = "Manages the whitelist",
 	params = "(add|del|get) <name_or_ip>",
 	privs = { ban=true },
@@ -326,7 +326,7 @@ minetest.register_chatcommand("xban_wl", {
 
 
 local function check_temp_bans()
-	minetest.after(60, check_temp_bans)
+	core.after(60, check_temp_bans)
 	local to_rm = { }
 	local now = os.time()
 	for i, e in ipairs(tempbans) do
@@ -344,10 +344,10 @@ local function check_temp_bans()
 end
 
 local function save_db()
-	minetest.after(SAVE_INTERVAL, save_db)
+	core.after(SAVE_INTERVAL, save_db)
 	db.timestamp = os.time()
 	local contents = assert(xban.serialize_db(db))
-	local ok = minetest.safe_file_write(DB_FILENAME, contents)
+	local ok = core.safe_file_write(DB_FILENAME, contents)
 	if not ok then
 		ERROR("Unable to save database")
 	end
@@ -379,7 +379,7 @@ local function load_db()
 	end
 end
 
-minetest.register_chatcommand("xban_cleanup", {
+core.register_chatcommand("xban_cleanup", {
 	description = "Removes all non-banned entries from the xban db",
 	privs = { server=true },
 	func = function(name, params)
@@ -403,12 +403,12 @@ minetest.register_chatcommand("xban_cleanup", {
 	end,
 })
 
-minetest.register_on_shutdown(save_db)
-minetest.after(SAVE_INTERVAL, save_db)
+core.register_on_shutdown(save_db)
+core.after(SAVE_INTERVAL, save_db)
 load_db()
 xban.db = db
 
-minetest.after(1, check_temp_bans)
+core.after(1, check_temp_bans)
 
 dofile(xban.MP.."/dbimport.lua")
 dofile(xban.MP.."/gui.lua")
