@@ -17,10 +17,7 @@ core.register_chatcommand("protect", {
 		end
 
 		if anticurse_exists then
-			param = chat_anticurse.check_curse_and_ban(param, name)
-			if not param then
-				return
-			end
+			param = chat_anticurse.replace_curse(param)
 		end
 
 		param = sub8(param, 1, areas.config.max_area_name_length)
@@ -109,10 +106,7 @@ core.register_chatcommand("add_owner", {
 		end
 
 		if anticurse_exists then
-			areaName = chat_anticurse.check_curse_and_ban(areaName, name)
-			if not areaName then
-				return
-			end
+			areaName = chat_anticurse.replace_curse(areaName)
 		end
 
 		areaName = sub8(param, 1, areas.config.max_area_name_length)
@@ -160,10 +154,7 @@ core.register_chatcommand("rename_area", {
 		end
 
 		if anticurse_exists then
-			newName = chat_anticurse.check_curse_and_ban(newName, name)
-			if not newName then
-				return
-			end
+			newName = chat_anticurse.replace_curse(newName)
 		end
 
 		newName = sub8(newName, 1, areas.config.max_area_name_length)

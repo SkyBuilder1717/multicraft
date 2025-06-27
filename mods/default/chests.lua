@@ -169,6 +169,19 @@ function default.chest.register_chest(prefixed_name, d)
     def.legacy_facedir_simple = true
     def.is_ground_content = false
 
+    def.allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
+        if minetest.is_protected(pos, player:get_player_name()) then return 0 end
+        return count
+    end
+    def.allow_metadata_inventory_put = function(pos, listname, index, stack, player)
+        if minetest.is_protected(pos, player:get_player_name()) then return 0 end
+        return stack:get_count()
+    end
+    def.allow_metadata_inventory_take = function(pos, listname, index, stack, player)
+        if minetest.is_protected(pos, player:get_player_name()) then return 0 end
+        return stack:get_count()
+    end
+
     def.on_construct = function(pos)
         local meta = core.get_meta(pos)
         local param2 = core.get_node(pos).param2
@@ -219,7 +232,12 @@ function default.chest.register_chest(prefixed_name, d)
     def.on_blast = function() end
     def.on_dig = function(pos, node, digger)
         local player_name = digger:get_player_name()
-        if string.find(node.name, "_open") or minetest.is_protected(pos, player_name) then return false end
+        if minetest.is_protected(pos, player_name) and
+			    not core.check_player_privs(player_name, "protection_bypass") then
+            core.record_protection_violation(pos, player_name)
+            return 
+        end
+        if string.find(node.name, "_open") then return false end
         local meta = core.get_meta(pos)
         local inv = meta:get_inventory()
         local list = inv:get_list("main")
@@ -231,6 +249,11 @@ function default.chest.register_chest(prefixed_name, d)
     def.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
         local player_name = clicker:get_player_name()
         if minetest.is_protected(pos, player_name) then return end
+        if minetest.is_protected(pos, player_name) and
+			    not core.check_player_privs(player_name, "protection_bypass") then
+            core.record_protection_violation(pos, player_name)
+            return 
+        end
 
         if default.chest.open_chests[player_name] then
             default.chest.chest_lid_close(player_name)
