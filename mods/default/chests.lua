@@ -29,6 +29,7 @@ local S = default.S
 local round = math.round
 
 function default.chest.is_opened(pos)
+    if not pos then return false end
     for _, def in pairs(default.chest.open_chests) do
         local opos = def.pos
         if (round(opos.x) == round(pos.x)) and (round(opos.y) == round(pos.y)) and (round(opos.z) == round(pos.z)) then
