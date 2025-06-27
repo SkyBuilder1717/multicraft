@@ -276,6 +276,7 @@ function default.chest.register_chest(prefixed_name, d)
 		def_opened.mesh = nil
 		def_opened.drawtype = nil
 	end
+    def_opened.on_right_click = nil
 	def_opened.drop = name
 	def_opened.groups.not_in_creative_inventory = 1
 	def_opened.can_dig = function()
