@@ -164,29 +164,4 @@ core.register_chatcommand("reload_online_skins", {
     end
 })
 
-core.after(1, function()
-    log("Checking for updates...")
-    http.fetch({
-        url = ONLINE_SKINS_URL .. "api/version",
-        timeout = 5
-    },
-    function(data)
-        if data.completed and data.succeeded then
-            local ver = core.parse_json(data.data).version
-            local veo = online_skins.version
-            if ver then
-                if not (ver == veo) then
-                    log("New update found! (New: "..ver.."; Old: "..veo..") Download new update to fix bugs and get new features!", "warning")
-                else
-                    log("No new updates.")
-                end
-            end
-        elseif data.timeout then
-            time("checking last version")
-        elseif not data.succeeded then
-            success("checking last version", data)
-        end
-    end)
-end)
-
 dofile(modpath.."/api.lua")
