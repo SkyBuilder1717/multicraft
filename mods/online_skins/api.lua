@@ -141,6 +141,7 @@ function online_skins.formspec(page, total_pages, start_index, end_index, select
 end
 
 core.register_on_player_receive_fields(function(player, formname, fields)
+    if formname ~= "online_skins:skins" then return end
     local name = player:get_player_name()
     online_skins.current_page[name] = online_skins.current_page[name] or 1
 
