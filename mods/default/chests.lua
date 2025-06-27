@@ -26,6 +26,17 @@ end
 default.chest = {}
 default.chest.enabled_animation = core.settings:get_bool("chests_animation", true)
 local S = default.S
+local round = math.round
+
+function default.chest.is_opened(pos)
+    for _, def in pairs(default.chest.open_chests) do
+        local opos = def.pos
+        if (round(opos.x) == round(pos.x)) and (round(opos.y) == round(pos.y)) and (round(opos.z) == round(pos.z)) then
+            return true
+        end
+    end
+    return false
+end
 
 function default.chest.get_chest_formspec(pos, side)
 	local param2 = core.get_node(pos).param2
@@ -276,12 +287,15 @@ function default.chest.register_chest(prefixed_name, d)
 		def_opened.mesh = nil
 		def_opened.drawtype = nil
 	end
-    def_opened.on_right_click = nil
+    def_opened.on_rightclick = function(pos, node)
+        if not default.chest.is_opened(pos) then
+            node.name = prefixed_name
+            core.swap_node(pos, node)
+        end
+    end
 	def_opened.drop = name
 	def_opened.groups.not_in_creative_inventory = 1
-	def_opened.can_dig = function()
-		return false
-	end
+	def_opened.can_dig = function() return false end
 	def_opened.on_blast = function() end
 	def_closed.mesh = nil
 	def_closed.drawtype = nil
@@ -311,9 +325,17 @@ function default.chest.register_chest(prefixed_name, d)
 	def_left_opened.drop = name
 	def_left_opened.groups.not_in_creative_inventory = 1
 	def_left_closed.groups.not_in_creative_inventory = 1
-	def_left_opened.can_dig = function()
-		return false
-	end
+    def_left_opened.on_rightclick = function(pos, node)
+        local left_neighbor = get_chest_neighborpos(pos, node.param2, "left")
+        local nnode = core.get_node(left_neighbor)
+        if not default.chest.is_opened(pos) or not default.chest.is_opened(npos) then
+            node.name = prefixed_name .. "_left"
+            nnode.name = prefixed_name .. "_right"
+            core.swap_node(pos, node)
+            core.swap_node(left_neighbor, nnode)
+        end
+    end
+	def_left_opened.can_dig = function() return false end
 	def_left_opened.on_blast = function() end
 	def_left_closed.mesh = nil
 	def_left_closed.drawtype = nil
@@ -341,11 +363,19 @@ function default.chest.register_chest(prefixed_name, d)
 		def_right_opened.drawtype = nil
 	end
 	def_right_opened.drop = name
-	def_right_opened.groups.not_in_creative_inventory = 1
 	def_right_closed.groups.not_in_creative_inventory = 1
-	def_right_opened.can_dig = function()
-		return false
-	end
+	def_right_opened.groups.not_in_creative_inventory = 1
+    def_right_opened.on_rightclick = function(pos, node)
+        local right_neighbor = get_chest_neighborpos(pos, node.param2, "right")
+        local nnode = core.get_node(right_neighbor)
+        if not default.chest.is_opened(pos) or not default.chest.is_opened(npos) then
+            node.name = prefixed_name .. "_right"
+            nnode.name = prefixed_name .. "_left"
+            core.swap_node(pos, node)
+            core.swap_node(right_neighbor, nnode)
+        end
+    end
+	def_right_opened.can_dig = function() return false end
 	def_right_opened.on_blast = function() end
 	def_right_closed.mesh = nil
 	def_right_closed.drawtype = nil
