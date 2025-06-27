@@ -13,6 +13,7 @@ mobs:register_mob("mobs_animal:wolf", {
 	textures = {
 		{"mobs_wolf.png"},
 	},
+	reach = 2,
 	jump = false,
 	walk_chance = 75,
 	walk_velocity = 2,
@@ -22,6 +23,8 @@ mobs:register_mob("mobs_animal:wolf", {
 	damage = 2,
 	pathfinding = true,
 	group_attack = true,
+	passive = false,
+	attack_type = "dogfight",
 	hp_min = 8,
 	hp_max = 10,
 	fall_damage = 3,
@@ -63,6 +66,8 @@ mobs:register_mob("mobs_animal:dog", {
 	type = "npc",
 	visual = "mesh",
 	mesh = "mobs_wolf.x",
+	passive = false,
+	attack_type = "dogfight",
 	collisionbox = {-0.4, -0.01, -0.4, 0.4, 1, 0.4},
 	animation = {
 		speed_normal = 20,	speed_run = 30,

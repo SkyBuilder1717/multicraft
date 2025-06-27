@@ -217,7 +217,8 @@ function default.chest.register_chest(prefixed_name, d)
     end
     def.on_blast = function() end
     def.on_dig = function(pos, node, digger)
-        if string.find(node.name, "_open") then return false end
+        local player_name = digger:get_player_name()
+        if string.find(node.name, "_open") or minetest.is_protected(pos, player_name) then return false end
         local meta = core.get_meta(pos)
         local inv = meta:get_inventory()
         local list = inv:get_list("main")
@@ -228,6 +229,7 @@ function default.chest.register_chest(prefixed_name, d)
     end
     def.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
         local player_name = clicker:get_player_name()
+        if minetest.is_protected(pos, player_name) then return end
 
         if default.chest.open_chests[player_name] then
             default.chest.chest_lid_close(player_name)
@@ -328,8 +330,9 @@ function default.chest.register_chest(prefixed_name, d)
 	def_left_closed.groups.not_in_creative_inventory = 1
     def_left_opened.on_rightclick = function(pos, node)
         local left_neighbor = get_chest_neighborpos(pos, node.param2, "left")
+        if not left_neighbor then return end
         local nnode = core.get_node(left_neighbor)
-        if not default.chest.is_opened(pos) or not default.chest.is_opened(npos) then
+        if not default.chest.is_opened(pos) or not default.chest.is_opened(left_neighbor) then
             node.name = prefixed_name .. "_left"
             nnode.name = prefixed_name .. "_right"
             core.swap_node(pos, node)
@@ -368,8 +371,9 @@ function default.chest.register_chest(prefixed_name, d)
 	def_right_opened.groups.not_in_creative_inventory = 1
     def_right_opened.on_rightclick = function(pos, node)
         local right_neighbor = get_chest_neighborpos(pos, node.param2, "right")
+        if not right_neighbor then return end
         local nnode = core.get_node(right_neighbor)
-        if not default.chest.is_opened(pos) or not default.chest.is_opened(npos) then
+        if not default.chest.is_opened(pos) or not default.chest.is_opened(right_neighbor) then
             node.name = prefixed_name .. "_right"
             nnode.name = prefixed_name .. "_left"
             core.swap_node(pos, node)

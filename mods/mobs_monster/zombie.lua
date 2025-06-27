@@ -24,6 +24,7 @@ mobs:register_mob("mobs_monster:zombie", {
 	damage = 2,
 	group_attack = true,
 	attack_npcs = true,
+	passive = false,
 	view_range = 15,
 	walk_chance = 75,
 	walk_velocity = 0.5,
