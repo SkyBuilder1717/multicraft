@@ -1448,7 +1448,14 @@ core.register_node("default:tallgrass", {
 		type = "fixed",
 		fixed = {-6 / 16, -0.5, -6 / 16, 6 / 16, -5 / 16, 6 / 16}
 	},
-
+	drop = {  
+        items = {
+            {
+                rarity = 10,
+                items = {"farming:seed_wheat"},
+            }
+        }
+	},
 	on_place = grass_place
 })
 
