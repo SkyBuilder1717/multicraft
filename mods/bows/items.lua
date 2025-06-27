@@ -30,7 +30,7 @@ core.register_craft({
 	output = 'bows:arrow 4',
 	recipe = {{'default:flint'},
 		  {'group:stick'},
-		  {'animalia:feather'}}
+		  {'farming:string'}}
 })
 		
 core.register_craft({

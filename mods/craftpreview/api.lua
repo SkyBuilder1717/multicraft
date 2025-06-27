@@ -48,7 +48,7 @@ function craftpreview.show_formspec(player_name, itemname)
                 local y0 = 6.5
                 
                 for j = 0, 2 do
-                    for i = 0, 2 do
+                    for i = 0, (width - 1) do
                         local index = j * width + i + 1
                         local item = recipe.items[index]
                         table.insert(formspec, tostring(inventory.get_itemslot_bg((x0 + i), (y0 + j), 1, 1, 0.0025)))
