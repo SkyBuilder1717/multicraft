@@ -131,7 +131,7 @@ local function fetch_skin(player, skin_id)
     },
     function(data)
         if data.completed and data.succeeded then
-            local def = core.parse_json(data.data)
+            local def = core.parse_json(data.data)[1]
             if not def then
                 fetch_skin(player, 1)
             else
