@@ -109,7 +109,7 @@ core.register_chatcommand("add_owner", {
 			areaName = chat_anticurse.replace_curse(areaName)
 		end
 
-		areaName = sub8(param, 1, areas.config.max_area_name_length)
+		areaName = sub8(areaName, 1, areas.config.max_area_name_length)
 
 		core.log("action", name.." runs /add_owner. Owner = "..ownerName..
 				" AreaName = "..areaName.." ParentID = "..pid..
