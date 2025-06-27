@@ -193,6 +193,13 @@ core.register_craftitem("mobs:pork_cooked", {
 
 mobs.add_eatable("mobs:pork_cooked", 5)
 
+core.register_craft({
+	type = "cooking",
+	output = "mobs:pork_cooked",
+	recipe = "mobs:pork_raw",
+	cooktime = 5
+})
+
 -- rotten flesh
 
 core.register_craftitem("mobs:rotten_flesh", {
