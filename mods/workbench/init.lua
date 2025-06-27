@@ -256,6 +256,7 @@ core.register_node("workbench:workbench", {
 	paramtype = "light",
 	paramtype2 = "facedir",
 	groups = {cracky = 2, choppy = 2, oddly_breakable_by_hand = 1, flammable = 2},
+	drop = "workbench:workbench",
 	sounds = default.node_sound_wood_defaults(),
 	tiles = {"workbench_top.png", "workbench_top.png",
 		 "workbench_sides.png", "workbench_sides.png",

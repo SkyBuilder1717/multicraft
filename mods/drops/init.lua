@@ -327,7 +327,7 @@ local function can_harvest(nodename, toolname, player)
 	end
 	if tdef and tdef.tool_capabilities.groupcaps then
 		for g, gdef in pairs(tdef.tool_capabilities.groupcaps) do
-			if ndef.groups[g] then
+			if ndef.groups[g] and gdef.times[ndef.groups[g]] then
 				if ndef.groups[g] >= gdef.times[ndef.groups[g]] then
 					return true
 				end
@@ -357,10 +357,6 @@ function core.handle_node_drops(pos, drops, digger)
 	if digger and digger:is_player() then
 		tool = digger:get_wielded_item()
 		tooldef = core.registered_items[tool:get_name()]
-
-		if not can_harvest(dug_node.name, tool:get_name(), digger) then
-			return
-		end
 	end
 
 	local nodedef = core.registered_nodes[dug_node.name]
