@@ -3,87 +3,85 @@ if not core.features.object_step_has_moveresult then return end
 
 local S = core.get_translator("terraform")
 
-if not core.global_exists("utf8") then -- Prevents Luanti to not crash
-	local utf8 = {}
+local utf8 = {}
 
-	function utf8.sub(str, start, finish)
-		local len = #str
-		local start_idx = 1
-		local finish_idx = len
+function utf8.sub(str, start, finish)
+	local len = #str
+	local start_idx = 1
+	local finish_idx = len
 
-		local function utf8_len(s)
-			local count = 0
-			for i = 1, #s do
-				if string.byte(s, i) >= 0x80 then
-					while i <= #s and string.byte(s, i) >= 0x80 do
-						i = i + 1
-					end
-				end
-				count = count + 1
-			end
-			return count
-		end
-
-		local function utf8_char(s, index)
-			local count = 0
-			for i = 1, #s do
-				count = count + 1
-				if count == index then
-					return s:sub(i, i)
-				end
-				if string.byte(s, i) >= 0x80 then
-					while i <= #s and string.byte(s, i) >= 0x80 do
-						i = i + 1
-					end
+	local function utf8_len(s)
+		local count = 0
+		for i = 1, #s do
+			if string.byte(s, i) >= 0x80 then
+				while i <= #s and string.byte(s, i) >= 0x80 do
+					i = i + 1
 				end
 			end
-			return nil
+			count = count + 1
 		end
-
-		local total_chars = utf8_len(str)
-
-		if start < 1 then start = 1 end
-		if finish > total_chars then finish = total_chars end
-		if start > total_chars or finish < 1 or start > finish then return "" end
-
-		local result = ""
-		for i = start, finish do
-			result = result .. utf8_char(str, i)
-		end
-
-		return result
+		return count
 	end
 
-	function utf8.lower(str)
-		local result = {}
-		local i = 1
-		while i <= #str do
-			local byte = str:byte(i)
-			if byte <= 0x7F then
-				result[#result + 1] = string.char(byte:lower())
-				i = i + 1
-			elseif byte >= 0xC2 and byte <= 0xDF then
-				local nextByte = str:byte(i + 1)
-				result[#result + 1] = string.char(byte, nextByte):lower()
-				i = i + 2
-			elseif byte >= 0xE0 and byte <= 0xEF then
-				local nextByte1 = str:byte(i + 1)
-				local nextByte2 = str:byte(i + 2)
-				result[#result + 1] = string.char(byte, nextByte1, nextByte2):lower()
-				i = i + 3
-			elseif byte >= 0xF0 and byte <= 0xF4 then
-				local nextByte1 = str:byte(i + 1)
-				local nextByte2 = str:byte(i + 2)
-				local nextByte3 = str:byte(i + 3)
-				result[#result + 1] = string.char(byte, nextByte1, nextByte2, nextByte3):lower()
-				i = i + 4
-			else
-				result[#result + 1] = string.char(byte)
-				i = i + 1
+	local function utf8_char(s, index)
+		local count = 0
+		for i = 1, #s do
+			count = count + 1
+			if count == index then
+				return s:sub(i, i)
+			end
+			if string.byte(s, i) >= 0x80 then
+				while i <= #s and string.byte(s, i) >= 0x80 do
+					i = i + 1
+				end
 			end
 		end
-		return table.concat(result)
+		return nil
 	end
+
+	local total_chars = utf8_len(str)
+
+	if start < 1 then start = 1 end
+	if finish > total_chars then finish = total_chars end
+	if start > total_chars or finish < 1 or start > finish then return "" end
+
+	local result = ""
+	for i = start, finish do
+		result = result .. utf8_char(str, i)
+	end
+
+	return result
+end
+
+function utf8.lower(str)
+	local result = {}
+	local i = 1
+	while i <= #str do
+		local byte = str:byte(i)
+		if byte <= 0x7F then
+			result[#result + 1] = string.char(byte:lower())
+			i = i + 1
+		elseif byte >= 0xC2 and byte <= 0xDF then
+			local nextByte = str:byte(i + 1)
+			result[#result + 1] = string.char(byte, nextByte):lower()
+			i = i + 2
+		elseif byte >= 0xE0 and byte <= 0xEF then
+			local nextByte1 = str:byte(i + 1)
+			local nextByte2 = str:byte(i + 2)
+			result[#result + 1] = string.char(byte, nextByte1, nextByte2):lower()
+			i = i + 3
+		elseif byte >= 0xF0 and byte <= 0xF4 then
+			local nextByte1 = str:byte(i + 1)
+			local nextByte2 = str:byte(i + 2)
+			local nextByte3 = str:byte(i + 3)
+			result[#result + 1] = string.char(byte, nextByte1, nextByte2, nextByte3):lower()
+			i = i + 4
+		else
+			result[#result + 1] = string.char(byte)
+			i = i + 1
+		end
+	end
+	return table.concat(result)
 end
 
 local slower = utf8 and utf8.lower or string.lower
