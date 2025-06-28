@@ -25,7 +25,7 @@ core.register_privilege("creative", {
 	on_grant = function(name)
 		local player = core.get_player_by_name(name)
 		if creative.is_enabled_for(name) then
-			sfinv.set_player_inventory_formspec(player)
+			sfinv.set_page(player, sfinv.get_homepage_name(player))
 		end
 	end
 })

@@ -2,6 +2,10 @@ core.register_alias("bucket", "bucket:bucket_empty")
 core.register_alias("bucket_water", "bucket:bucket_water")
 core.register_alias("bucket_lava", "bucket:bucket_lava")
 
+core.register_privilege("bucket", {
+	description = "Can free the liquids at any place at any time"
+})
+
 core.register_craft({
 	output = 'bucket:bucket_empty 1',
 	recipe = {
@@ -96,7 +100,7 @@ function bucket.register_liquid(source, flowing, itemname, inventory_image, name
 
 				local player_name = user:get_player_name()
 
-				if core.is_singleplayer() ~= true then
+				if core.is_singleplayer() ~= true and core.check_player_privs(player_name, "bucket") then
 					if pointed_thing.under.y > 8 then
 						core.chat_send_player(player_name, "Too much liquid is bad, right?", true)
 					return itemstack
