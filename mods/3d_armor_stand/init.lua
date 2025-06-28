@@ -10,7 +10,6 @@ local armor_stand_formspec = "size[9.45,9.5]" ..
 	"list[current_name;armor_feet;1.3,2.675;1,1;]" ..
     "list[current_player;main;0.245,4.8;9,3;9]" ..
 	"list[current_player;main;0.245,8;9,1;]" ..
-	"image[-0.3,0.15;3,4.3;inventory_armor.png]" ..
 	"background[0,0;9.45,9.5;formspec_inventory_no.png;false]"
 
 local elements = {"head", "torso", "legs", "feet"}
