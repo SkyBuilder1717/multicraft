@@ -1,6 +1,7 @@
 mobs:register_mob("mobs_animal:pig", {
 	type = "animal",
-	group_attack = true,
+	passive = false,
+	attack_type = "dogfight",
 	damage = 2,
 	hp_min = 5,
 	hp_max = 15,

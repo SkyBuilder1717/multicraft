@@ -219,8 +219,13 @@ core.register_tool("mobs:shears", {
 			local pos = core.get_pointed_thing_position(pointed_thing)
 			local node = core.get_node(pos)
 			if node.name == "mobs:cobweb" then
-				core.sound_play("mobs_clip", {to_player = player:get_player_name()})
+				local player_name = player:get_player_name()
+				core.sound_play("mobs_clip", {to_player = player_name})
 				core.dig_node(pos, player)
+				if not creative.is_enabled_for(player_name) then
+					stack:set_wear(stack:get_wear() + 300)
+					return stack
+				end
 			end
 		end
 	end

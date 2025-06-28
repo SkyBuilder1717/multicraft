@@ -4444,11 +4444,7 @@ function mobs:feed_tame(self, clicker, feed_count, breed, tame)
 			if type(self.follow) == "string" then
 				self.follow = {self.follow}
 			end
-
-			core.chat_send_player(clicker:get_player_name(),
-					S("@1 follows:",
-					self.name:split(":")[2]) .. "\n- " ..
-					table.concat(self.follow, "\n- "))
+			
 		end
 	end
 

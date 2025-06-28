@@ -12,6 +12,8 @@ mobs:register_mob("mobs_animal:cow", {
 		{"mobs_cow3.png"},
 	},
 	makes_footstep_sound = true,
+	attack_type = "dogfight",
+	passive = false,
 	sounds = {
 		random = "mobs_cow",
 		attack = "mobs_cow",

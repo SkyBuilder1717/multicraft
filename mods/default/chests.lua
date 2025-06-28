@@ -88,6 +88,7 @@ function default.chest.chest_lid_obstructed(pos)
     local def = core.registered_nodes[core.get_node(above).name]
     -- allow ladders, signs, wallmounted things and torches to not obstruct
     if def and
+            def.walkable or
             (def.drawtype == "airlike" or
             def.drawtype == "signlike" or
             def.drawtype == "torchlike" or
@@ -115,6 +116,7 @@ function default.chest.chest_lid_close(pn)
     local node = core.get_node(pos)
     core.after(0.2, function()
         local current_node = core.get_node(pos)
+        core.sound_play(sound, {gain = 0.3, pos = pos, max_hear_distance = 10}, true)
         if current_node.name ~= swap .. "_open" then
             -- the chest has already been replaced, don't try to replace what's there.
             return
@@ -128,7 +130,6 @@ function default.chest.chest_lid_close(pn)
 			core.swap_node(right_neighbor, {name = "default:chest_left", param2 = param2})
 		end
         core.swap_node(pos, {name = swap, param2 = param2})
-        core.sound_play(sound, {gain = 0.3, pos = pos, max_hear_distance = 10}, true)
     end)
 end
 
@@ -248,7 +249,6 @@ function default.chest.register_chest(prefixed_name, d)
     end
     def.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
         local player_name = clicker:get_player_name()
-        if minetest.is_protected(pos, player_name) then return end
         if minetest.is_protected(pos, player_name) and
 			    not core.check_player_privs(player_name, "protection_bypass") then
             core.record_protection_violation(pos, player_name)
@@ -267,7 +267,7 @@ function default.chest.register_chest(prefixed_name, d)
         local param2 = node.param2
         local left_neighbor = get_chest_neighborpos(pos, param2, "left")
         local right_neighbor = get_chest_neighborpos(pos, param2, "right")
-        if not default.chest.chest_lid_obstructed(pos) and core.registered_nodes[new_name] then
+        if not default.chest.chest_lid_obstructed(pos) and (not default.chest.chest_lid_obstructed(left_neighbor) or not default.chest.chest_lid_obstructed(right_neighbor)) and core.registered_nodes[new_name] then
             if node.name ~= prefixed_name then
                 if core.get_node(left_neighbor).name == "default:chest_right" then
                     core.swap_node(left_neighbor, {name = "default:chest_right_open", param2 = param2})
@@ -276,13 +276,13 @@ function default.chest.register_chest(prefixed_name, d)
                 end
             end
             core.swap_node(pos, {name = new_name, param2 = param2})
-            if node.name == prefixed_name .. "_left" then
-                core.after(0.2, core.show_formspec, player_name, "default:chest_left", default.chest.get_chest_formspec(pos, "left"))
-            elseif node.name == prefixed_name .. "_right" then
-                core.after(0.2, core.show_formspec, player_name, "default:chest_right", default.chest.get_chest_formspec(pos, "right"))
-            else
-                core.after(0.2, core.show_formspec, player_name, "default:chest", default.chest.get_chest_formspec(pos))
-            end
+        end
+        if node.name == prefixed_name .. "_left" then
+            core.after(0.2, core.show_formspec, player_name, "default:chest_left", default.chest.get_chest_formspec(pos, "left"))
+        elseif node.name == prefixed_name .. "_right" then
+            core.after(0.2, core.show_formspec, player_name, "default:chest_right", default.chest.get_chest_formspec(pos, "right"))
+        else
+            core.after(0.2, core.show_formspec, player_name, "default:chest", default.chest.get_chest_formspec(pos))
         end
     end
     def.on_blast = function() end

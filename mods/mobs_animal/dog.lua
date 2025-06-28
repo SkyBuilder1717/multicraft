@@ -37,7 +37,7 @@ mobs:register_mob("mobs_animal:wolf", {
 	on_rightclick = function(self, clicker)
 		if mobs:feed_tame(self, clicker, 2, false, true) then
 			if self.food == 0 then
-				local mob = minetest.add_entity(self.object:getpos(), "mobs_animal:dog")
+				local mob = core.add_entity(self.object:get_pos(), "mobs_animal:dog")
 				local ent = mob:get_luaentity()
 				ent.owner = clicker:get_player_name()
 				ent.following = clicker
@@ -102,23 +102,27 @@ mobs:register_mob("mobs_animal:dog", {
 		if mobs:feed_tame(self, clicker, 6, true, true) then
 			return
 		end
-		if clicker:get_wielded_item():is_empty() and clicker:get_player_name() == self.owner then
+		local player_name = clicker:get_player_name()
+		if clicker:get_wielded_item():is_empty() and player_name == self.owner then
 			if clicker:get_player_control().sneak then
 				self.order = ""
 				self.state = "walk"
 				self.walk_velocity = 2
 				self.stepheight = 0.6
+				core.chat_send_player(player_name, "Dog is Walking around")
 			else
 				if self.order == "follow" then
 					self.order = "stand"
 					self.state = "stand"
 					self.walk_velocity = 2
 					self.stepheight = 0.6
+					core.chat_send_player(player_name, "Dog is standing")
 				else
 					self.order = "follow"
 					self.state = "walk"
 					self.walk_velocity = 3
 					self.stepheight = 1.1
+					core.chat_send_player(player_name, "Dog is follows")
 				end
 			end
 			return
