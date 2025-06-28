@@ -51,6 +51,7 @@ mobs:register_mob("mobs_animal:bear", {
 		"farming:blueberry_4", "farming:raspberry_4"
 	},
 	replace_with = "air",
+	floats = 1,
 	replace_rate = 20,
 	on_rightclick = function(self, clicker)
 		if mobs:feed_tame(self, clicker, 10, true, true) then

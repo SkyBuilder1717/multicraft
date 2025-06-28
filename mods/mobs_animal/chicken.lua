@@ -32,8 +32,8 @@ mobs:register_mob("mobs_animal:chicken", {
 		run_start = 60,
 		run_end = 80,
 	},
-	follow = {"farming:seed_wheat"},
-	floats = 0,
+	water_damage = 1,
+	floats = 1,
 	on_rightclick = function(self, clicker)
 		if mobs:feed_tame(self, clicker, 8, true, true) then return end
 		if mobs:protect(self, clicker) then return end

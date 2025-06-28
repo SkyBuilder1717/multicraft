@@ -26,7 +26,6 @@ mobs:register_mob("mobs_animal:bunny", {
 			{name = "mobs:rabbit_hide", min = 0, max = 1}
 		}
 	end,
-	water_damage = 1,
 	fear_height = 2,
 	animation = {
 		speed_normal = 15,
@@ -39,7 +38,8 @@ mobs:register_mob("mobs_animal:bunny", {
 	},
 	follow = {"farming:carrot", "farming_plus:carrot_item", "default:grass"},
 	replace_rate = 10,
-	floats = 0,
+	water_damage = 1,
+	floats = 1,
 	replace_what = {"farming:carrot_7", "farming:carrot_8", "farming_plus:carrot"},
 	replace_with = "air",
 	on_rightclick = function(self, clicker)

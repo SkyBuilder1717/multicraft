@@ -21,6 +21,7 @@ for i = 1, #dyes do
 			damage = "mobs_sheep_angry",
 		},
 		runaway = true,
+		run_velocity = 2,
 		jump_height = 3,
 		drops = function(pos)
 			if rawget(_G, "experience") then
@@ -47,7 +48,8 @@ for i = 1, #dyes do
 			{"default:dirt_with_grass", "default:dirt", -2}
 		},
 		fear_height = 3,
-		floats = 0,
+		floats = 1,
+		water_damage = 1,
 		on_replace = function(self, pos, oldnode, newnode)
 			self.food = (self.food or 0) + 1
 

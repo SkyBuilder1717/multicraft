@@ -51,7 +51,7 @@ mobs:register_mob("mobs_animal:cow", {
 		{"default:dirt_with_grass", "default:dirt", -1}
 	},
 	fear_height = 2,
-	floats = 0,
+	floats = 1,
 	on_rightclick = function(self, clicker)
 		-- feed or tame
 		if mobs:feed_tame(self, clicker, 8, true, true) then

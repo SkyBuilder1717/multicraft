@@ -39,7 +39,8 @@ mobs:register_mob("mobs_animal:pig", {
 		punch_start = 90,
 		punch_end = 110
 	},
-	floats = 0,
+	floats = 1,
+	water_damage = 1,
 	on_rightclick = function (self, clicker)
 		mobs:feed_tame(self, clicker, 8, true, true)
 	end
