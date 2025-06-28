@@ -2736,6 +2736,10 @@ function mob_class:on_punch(hitter, tflp, tool_capabilities, dir, damage)
 		end
 
 		self.object:set_velocity({x = dir.x * kb, y = up, z = dir.z * kb})
+		core.after(0.5, function()
+			self.object:set_velocity({x = 0, y = 0, z = 0})
+			self:set_animation("stand")
+		end)
 
 		-- turn mob on knockback and play run/walk animation
 		self:set_yaw((random(0, 360) - 180) / 180 * pi, 12)

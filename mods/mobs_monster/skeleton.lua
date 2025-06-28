@@ -1,5 +1,8 @@
 mobs:register_mob("mobs_monster:skeleton", {
 	type = "monster",
+	passive = false,
+	attack_type = "dogfight",
+	pathfinding = true,
 	visual = "mesh",
 	mesh = "mobs_zombie.b3d",
 	textures = {"mobs_skeleton.png"},
@@ -27,27 +30,13 @@ mobs:register_mob("mobs_monster:skeleton", {
 	attack_npcs = true,
 	view_range = 15,
 	walk_chance = 75,
-	walk_velocity = 0.5,
-	run_velocity = 0.5,
-	jump = false,
-	drops = function(pos)
-		if rawget(_G, "experience") then
-			experience.add_orb(math.random(2, 4), pos)
-		end
-		return {
-			{name = "default:bone", chance = 2},
-			{name = "default:bone", chance = 2}
-		}
-	end,
-	after_activate = function(self, staticdata, def, dtime)
-		if self.mesh == "mobs_zombie.x" then
-			local pos = self.object:get_pos()
-			if pos then
-				core.add_entity(pos, self.name)
-				self.object:remove()
-			end
-		end
-	end,
+	walk_velocity = 1,
+	run_velocity = 2,
+	jump_height = 4,
+	stepheight = 0.6,
+	reach = 2,
+	floats = 0,
+	jump = true
 })
 
 mobs:spawn({
