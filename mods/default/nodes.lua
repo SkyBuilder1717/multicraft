@@ -406,25 +406,6 @@ core.register_node("default:leaves", {
 	after_place_node = after_place_leaves
 })
 
-core.register_node("default:apple", {
-	description = S("Red Apple"),
-	drawtype = "plantlike",
-	visual_scale = 0.75,
-	tiles = {"default_apple.png"},
-	inventory_image = "default_apple.png",
-	paramtype = "light",
-	sunlight_propagates = true,
-	walkable = false,
-	is_ground_content = false,
-	selection_box = {
-		type = "fixed",
-		fixed = {-3/16, -0.5, -3/16, 3/16, 1/4, 3/16}
-	},
-	groups = {fleshy = 3, dig_immediate = 3, flammable = 2,
-		leafdecay = 3, leafdecay_drop = 1, apple = 1, food = 1},
-	on_use = core.item_eat(3),
-	sounds = default.node_sound_leaves_defaults()
-})
 
 core.register_node("default:apple", {
 	description = "Apple",
@@ -442,10 +423,9 @@ core.register_node("default:apple", {
 	},
 	groups = {fleshy = 3, dig_immediate = 3, flammable = 2,
 		leafdecay = 3, leafdecay_drop = 1, food_apple = 1, food = 1},
-	on_use = core.item_eat(2),
+	on_use = core.item_eat(3),
 	sounds = default.node_sound_leaves_defaults(),
-
-	after_place_node = function(pos, placer, itemstack)
+	after_place_node = function(pos)
 		core.set_node(pos, {name = "default:apple", param2 = 1})
 	end,
 })
