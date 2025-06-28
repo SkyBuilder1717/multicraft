@@ -52,6 +52,7 @@ mobs:register_mob("mobs_animal:bear", {
 	},
 	replace_with = "air",
 	replace_rate = 20,
+	floats = 0,
 	on_rightclick = function(self, clicker)
 		if mobs:feed_tame(self, clicker, 10, true, true) then
 			return

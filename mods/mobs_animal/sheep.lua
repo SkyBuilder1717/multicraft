@@ -47,6 +47,7 @@ for i = 1, #dyes do
 			{"default:dirt_with_grass", "default:dirt", -2}
 		},
 		fear_height = 3,
+		floats = 0,
 		on_replace = function(self, pos, oldnode, newnode)
 			self.food = (self.food or 0) + 1
 

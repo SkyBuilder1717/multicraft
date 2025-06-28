@@ -308,7 +308,7 @@ core.register_node("default:ice", {
 	tiles = {"default_ice.png"},
 	is_ground_content = false,
 	paramtype = "light",
-	use_texture_alpha = "clip",
+	use_texture_alpha = "blend",
 	groups = {cracky = 3, cools_lava = 1, slippery = 3},
 	sounds = default.node_sound_glass_defaults(),
 })
@@ -318,7 +318,7 @@ core.register_node("default:packedice", {
 	drawtype = "glasslike",
 	tiles = {"default_ice_packed.png"},
 	paramtype = "light",
-	use_texture_alpha = "clip",
+	use_texture_alpha = "blend",
 	groups = {cracky = 3, cools_lava = 1, slippery = 3},
 	sounds = default.node_sound_glass_defaults(),
 })

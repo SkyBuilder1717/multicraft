@@ -34,6 +34,7 @@ mobs:register_mob("mobs_animal:wolf", {
 		war_cry = "mobs_wolf_attack",
 		death = "mobs_wolf_attack"
 	},
+	floats = 0,
 	on_rightclick = function(self, clicker)
 		if mobs:feed_tame(self, clicker, 2, false, true) then
 			if self.food == 0 then
@@ -98,6 +99,7 @@ mobs:register_mob("mobs_animal:dog", {
 		war_cry = "mobs_wolf_attack",
 		death = "mobs_wolf_attack"
 	},
+	floats = 0,
 	on_rightclick = function(self, clicker)
 		if mobs:feed_tame(self, clicker, 6, true, true) then
 			return

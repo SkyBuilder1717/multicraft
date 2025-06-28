@@ -44,6 +44,7 @@ mobs:register_mob("mobs_animal:kitten", {
 	},
 	follow = {"mobs_animal:rat", "default:fish_raw"},
 	view_range = 8,
+	floats = 0,
 	on_rightclick = function(self, clicker)
 		if mobs:feed_tame(self, clicker, 4, true, true) then return end
 		if mobs:protect(self, clicker) then return end
