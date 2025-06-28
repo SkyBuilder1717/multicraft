@@ -101,8 +101,9 @@ local function has_owned_armor_stand(pos, meta, player)
 	local player_name = player:get_player_name()
 	local name = ""
 	if player then
-		if minetest.is_protected(pos, player_name) or core.check_player_privs(player, "protection_bypass") then
-			return true
+		if minetest.is_protected(pos, player_name) and not core.check_player_privs(player, "protection_bypass") then
+			core.record_protection_violation(pos, player_name)
+			return false
 		end
 		name = player:get_player_name()
 	end
