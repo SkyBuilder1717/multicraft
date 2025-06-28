@@ -98,16 +98,16 @@ local function update_entity(pos)
 end
 
 local function has_owned_armor_stand(pos, meta, player)
-	local player_name = player:get_player_name()
-	local name = ""
 	if player then
+		local player_name = player:get_player_name()
 		if minetest.is_protected(pos, player_name) and not core.check_player_privs(player, "protection_bypass") then
 			core.record_protection_violation(pos, player_name)
 			return false
+		else
+			return true
 		end
-		name = player:get_player_name()
 	end
-	return true
+	return false
 end
 
 local function add_hidden_node(pos, player)
