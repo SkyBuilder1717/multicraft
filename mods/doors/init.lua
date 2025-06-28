@@ -536,6 +536,7 @@ function doors.register_trapdoor(name, def)
 	def.drawtype = "nodebox"
 	def.paramtype = "light"
 	def.paramtype2 = "facedir"
+	def.use_texture_alpha = "blend"
 	def.is_ground_content = false
 
 	if def.protected then
