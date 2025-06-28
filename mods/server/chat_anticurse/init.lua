@@ -78,16 +78,20 @@ local curse_words = {
 	"k" .. v1 .. "ll y" .. v5 .. "" .. v3 .. "rs" .. v4 .. "lf",
 
 	-- Russian
+	" шлюх",
+	" д" .. v8 .. v10 .."н",
 	" " .. v7 .. "б" .. v8 .. " ",
 	" бл" .. v12 .. " ",
-	" ж" .. v6 .. "п ",
-	" х" .. v10 .. "й ",
+	" ж" .. v6 .. "п",
+	" х" .. v10 .. v12,
+	" " .. v8 .. "x" .. v10 .. v7,
+	" " .. v8 .. "н" .. v10 .. "с ",
 	" чл" .. v7 .. "н ",
 	" п" .. v11 .. "" .. v9 .. "д ",
 	" в" .. v6 .. "" .. v9 .. "б" .. v10 .. "д ",
 	" в" .. v6 .. "" .. v9 .. "бyж ",
-	" сп" .. v7 .. "рм ",
-	" бл" .. v12 .. "д ",
+	" сп" .. v7 .. "рм",
+	" бл" .. v12 .. "д",
 	" бл" .. v12 .. "ть ",
 	" с" .. v6 .. "кс ",
 	" с" .. v10 .. "к" .. v8 .. " ",
@@ -106,6 +110,9 @@ local curse_words = {
 	" " .. v9 .. "" .. v8 .. "ткн" .. v11 .. "сь ",
 	" м" .. v10 .. "д" .. v8 .. "к ",
 	" х" .. v10 .. "й ",
+	" н" .. v8 .. "х" .. v10 .. "й ",
+	" н" .. v8 .. "х" .. v10 .. v12,
+	" п" .. v6 .. "х" .. v10 .. "й ",
 	" " .. v6 .. "х" .. v10 .. "" .. v7 .. "л? ",
 	" эт" .. v6 .. " п" .. v11 .. "" .. v9 .. "д" .. v7 .. "ц ",
 	" п" .. v11 .. "" .. v9 .. "д" .. v8 .. " ",
@@ -226,7 +233,7 @@ function chat_anticurse.replace_curse(message)
 		if string.find(message, curse_words[i],
 					   1, true) ~= nil then
 			local word = (curse_words[i]):gsub(" ", "")
-			local replacement = string.rep('*', #word) 
+			local replacement = string.rep('*', string.len(word) / 2) 
 			message = string.gsub(message, word, replacement)
 		end
 	end
@@ -256,7 +263,7 @@ end
 -- Kicks player
 function chat_anticurse.kick(name)
 	core.kick_player(name, "\n"..
-			"Cursing or words, inappropriate to game server." ..
+			"Cursing or words, inappropriate to this game server." ..
 			"\nKids may be playing here!")
 	core.chat_send_all("Player "..name.." have been kicked for cursing!")
 	core.log("action", name.." kicked for cursing.")
@@ -265,7 +272,7 @@ end
 -- Bans player
 function chat_anticurse.ban(name)
 	if xban2_mod then
-		xban.ban_player(name, "", os.time() + 1800, "Cursing or words, inappropriate to game server." ..
+		xban.ban_player(name, "", os.time() + 1800, "Cursing or words, inappropriate to this game server." ..
 				"\nKids may be playing here!")
 		core.chat_send_all("Player "..name.." have been banned for cursing! (unban in 0:30 minutes)")
 		core.log("action", name.." banned for cursing")
