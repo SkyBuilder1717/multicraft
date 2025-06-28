@@ -100,7 +100,7 @@ function bucket.register_liquid(source, flowing, itemname, inventory_image, name
 
 				local player_name = user:get_player_name()
 
-				if core.is_singleplayer() ~= true and core.check_player_privs(player_name, "bucket") then
+				if core.is_singleplayer() ~= true and not core.check_player_privs(player_name, "bucket") then
 					if pointed_thing.under.y > 8 then
 						core.chat_send_player(player_name, "Too much liquid is bad, right?", true)
 					return itemstack
