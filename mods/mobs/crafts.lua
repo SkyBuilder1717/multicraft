@@ -211,9 +211,19 @@ core.register_craftitem("mobs:rotten_flesh", {
 -- shears (right click to shear animal)
 
 core.register_tool("mobs:shears", {
-	description = S("Steel Shears (right-click to shear)"),
+	description = S("Shears"),
 	inventory_image = "mobs_shears.png",
-	groups = {flammable = 2}
+	groups = {flammable = 2},
+	on_use = function(stack, player, pointed_thing)
+		if  pointed_thing.type == "node" then
+			local pos = core.get_pointed_thing_position(pointed_thing)
+			local node = core.get_node(pos)
+			if node.name == "mobs:cobweb" then
+				core.sound_play("mobs_clip", {to_player = player:get_player_name()})
+				core.dig_node(pos, player)
+			end
+		end
+	end
 })
 
 core.register_craft({

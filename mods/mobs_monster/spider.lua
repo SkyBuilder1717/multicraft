@@ -144,9 +144,10 @@ core.register_node(":mobs:cobweb", {
 	liquid_alternative_flowing = "mobs:cobweb",
 	liquid_alternative_source = "mobs:cobweb",
 	liquid_renewable = false,
+	liquids_pointable = true,
 	liquid_range = 0,
 	walkable = false,
-	groups = {snappy = 1, disable_jump = 1},
+	groups = {snappy = 2, flammable = 2, disable_jump = 1},
 	is_ground_content = false,
 	drop = "farming:string",
 	sounds = mobs.node_sound_leaves_defaults()
