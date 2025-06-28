@@ -1,11 +1,5 @@
 fire = {}
 
-local fire_enabled = core.settings:get_bool("enable_fire")
-if fire_enabled == nil then
-	-- Neither setting specified, check whether singleplayer
-	fire_enabled = core.is_singleplayer()
-end
-
 --
 -- Items
 --
@@ -100,55 +94,53 @@ core.register_node("fire:permanent_flame", {
 
 -- Flint and steel
 
-if fire_enabled then
-	core.register_tool("fire:flint_and_steel", {
-		description = "Flint and Steel",
-		inventory_image = "fire_flint_steel.png",
-		sound = {breaks = "default_tool_breaks"},
+core.register_tool("fire:flint_and_steel", {
+	description = "Flint and Steel",
+	inventory_image = "fire_flint_steel.png",
+	sound = {breaks = "default_tool_breaks"},
 
-		on_use = function(itemstack, user, pointed_thing)
-			local sound_pos = pointed_thing.above or user:get_pos()
-			core.sound_play("fire_flint_and_steel",
-				{pos = sound_pos, gain = 0.5, max_hear_distance = 8})
-			local player_name = user:get_player_name()
-			if pointed_thing.type == "node" then
-				local node_under = core.get_node(pointed_thing.under).name
-				local nodedef = core.registered_nodes[node_under]
-				if not nodedef then
-					return
-				end
-				if minetest.is_protected(pointed_thing.under, player_name) then
-					core.chat_send_player(player_name, "This area is protected")
-					return
-				end
-				if nodedef.on_ignite then
-					nodedef.on_ignite(pointed_thing.under, user)
-				elseif core.get_item_group(node_under, "flammable") >= 1
-						and core.get_node(pointed_thing.above).name == "air" then
-					core.set_node(pointed_thing.above, {name = "fire:basic_flame"})
-				end
+	on_use = function(itemstack, user, pointed_thing)
+		local sound_pos = pointed_thing.above or user:get_pos()
+		core.sound_play("fire_flint_and_steel",
+			{pos = sound_pos, gain = 0.5, max_hear_distance = 8})
+		local player_name = user:get_player_name()
+		if pointed_thing.type == "node" then
+			local node_under = core.get_node(pointed_thing.under).name
+			local nodedef = core.registered_nodes[node_under]
+			if not nodedef then
+				return
 			end
-			if not (creative and creative.is_enabled_for
-					and creative.is_enabled_for(player_name)) then
-				-- Wear tool
-				local wdef = itemstack:get_definition()
-				itemstack:add_wear(1000)
-				-- Tool break sound
-				if itemstack:get_count() == 0 and wdef.sound and wdef.sound.breaks then
-					core.sound_play(wdef.sound.breaks, {pos = sound_pos, gain = 0.5})
-				end
-				return itemstack
+			if minetest.is_protected(pointed_thing.under, player_name) then
+				core.chat_send_player(player_name, "This area is protected")
+				return
+			end
+			if nodedef.on_ignite then
+				nodedef.on_ignite(pointed_thing.under, user)
+			elseif core.get_item_group(node_under, "flammable") >= 1
+					and core.get_node(pointed_thing.above).name == "air" then
+				core.set_node(pointed_thing.above, {name = "fire:basic_flame"})
 			end
 		end
-	})
+		if not (creative and creative.is_enabled_for
+				and creative.is_enabled_for(player_name)) then
+			-- Wear tool
+			local wdef = itemstack:get_definition()
+			itemstack:add_wear(1000)
+			-- Tool break sound
+			if itemstack:get_count() == 0 and wdef.sound and wdef.sound.breaks then
+				core.sound_play(wdef.sound.breaks, {pos = sound_pos, gain = 0.5})
+			end
+			return itemstack
+		end
+	end
+})
 
-	core.register_craft({
-		output = "fire:flint_and_steel",
-		recipe = {
-			{"default:flint", "default:steel_ingot"}
-		}
-	})
-end
+core.register_craft({
+	output = "fire:flint_and_steel",
+	recipe = {
+		{"default:flint", "default:steel_ingot"}
+	}
+})
 
 -- Override coalblock to enable permanent flame above
 -- Coalblock is non-flammable to avoid unwanted basic_flame nodes
