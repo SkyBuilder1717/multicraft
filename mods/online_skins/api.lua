@@ -42,9 +42,6 @@ function online_skins.set_texture(player, def)
         local modifier = "([combine:" .. width .. "x" .. height .. ":0,0=" .. escape_argument(png) .. ")^"
         modifier = modifier .. "([combine:" .. width .. "x" .. height .. ":0,-16=" .. escape_argument(png) .. "^[mask:online_skins_overlay_mask.png)"
         texture = "[combine:" .. width .. "x" .. height .. ":0,0=(" .. escape_argument(modifier) .. ")"
-    else
-        local size = math.min(width, height)
-        texture = "[combine:" .. size .. "x" .. size .. ":0,0=" .. escape_argument(png) .. ")"
     end
 
     local name = player:get_player_name()
