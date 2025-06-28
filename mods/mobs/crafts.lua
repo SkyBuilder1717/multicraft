@@ -223,7 +223,7 @@ core.register_tool("mobs:shears", {
 				core.sound_play("mobs_clip", {to_player = player_name})
 				core.dig_node(pos, player)
 				if not creative.is_enabled_for(player_name) then
-					stack:set_wear(stack:get_wear() + 300)
+					stack:add_wear(1000)
 					return stack
 				end
 			end

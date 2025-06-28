@@ -1244,11 +1244,11 @@ function default.register_mgv6_decorations()
 		num_spawn_by = 1,
 	})
 
-	-- Cacti
+	-- Cactus
 
 	core.register_decoration({
 		deco_type = "simple",
-		place_on = {"default:redsand", "default:sand"},
+		place_on = {"default:sand"},
 		sidelen = 16,
 		noise_params = {
 			offset = -0.012,
@@ -1571,7 +1571,7 @@ function default.register_decorations()
 
 	core.register_decoration({
 		deco_type = "schematic",
-		place_on = {"default:redsand", "default:sand"},
+		place_on = {"default:redsand"},
 		sidelen = 16,
 		noise_params = {
 			offset = -0.0003,
@@ -1593,7 +1593,7 @@ function default.register_decorations()
 
 	core.register_decoration({
 		deco_type = "simple",
-		place_on = {"default:redsand", "default:sand"},
+		place_on = {"default:sand"},
 		sidelen = 16,
 		noise_params = {
 			offset = -0.0003,

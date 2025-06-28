@@ -1,5 +1,7 @@
 fire = {}
 
+local fire_enabled = true
+
 --
 -- Items
 --
@@ -108,6 +110,7 @@ core.register_tool("fire:flint_and_steel", {
 			local node_under = core.get_node(pointed_thing.under).name
 			local nodedef = core.registered_nodes[node_under]
 			if not nodedef then
+				core.log("nah.")
 				return
 			end
 			if minetest.is_protected(pointed_thing.under, player_name) then
