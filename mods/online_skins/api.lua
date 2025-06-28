@@ -31,17 +31,25 @@ function online_skins.get_user(username)
 end
 
 function online_skins.set_texture(player, def)
-    local png = "([png:"..def.base64..")"
+    local png = "([png:" .. def.base64 .. ")"
     local width = def.size.x
     local height = def.size.y
     
     local texture = png
+
     if width == height then
         height = math.floor(height / 2)
-        texture = escape_argument("[combine:" .. width .. "x" .. height .. ":0,0=" .. png)
+        local modifier = "([combine:" .. width .. "x" .. height .. ":0,0=" .. escape_argument(png) .. ")^"
+        modifier = modifier .. "([combine:" .. width .. "x" .. height .. ":0,-16=" .. escape_argument(png) .. "^[mask:online_skins_overlay_mask.png)"
+        texture = "[combine:" .. width .. "x" .. height .. ":0,0=(" .. escape_argument(modifier) .. ")"
+    else
+        local size = math.min(width, height)
+        texture = "[combine:" .. size .. "x" .. size .. ":0,0=" .. escape_argument(png) .. ")"
     end
+
     local name = player:get_player_name()
     online_skins.players[name] = def
+    
     if core.get_modpath("3d_armor") then
         player_api.set_model(player, "3d_armor_character.b3d")
         armor.textures[name].skin = texture
@@ -50,6 +58,7 @@ function online_skins.set_texture(player, def)
         player_api.set_model(player, "character.b3d")
         player_api.set_texture(player, 1, texture, true)
     end
+    
     local meta = player:get_meta()
     meta:set_int("online_skins_id", def.id)
 end

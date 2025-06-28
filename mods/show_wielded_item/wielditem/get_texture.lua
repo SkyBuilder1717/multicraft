@@ -1,11 +1,5 @@
 local f = string.format
 
-local node_tiles = core.settings:get_bool("wieldview_node_tiles")
-if not node_tiles then
-	node_tiles = false
-	core.settings:set("wieldview_node_tiles", "false")
-end
-
 -- https://github.com/minetest/minetest/blob/9fc018ded10225589d2559d24a5db739e891fb31/doc/lua_api.txt#L453-L462
 local function escape_texture(str) return str:gsub("%^", "\\^"):gsub(":", "\\:") end
 
@@ -197,7 +191,7 @@ armor.get_wield_image = memoize(function(item)
 				image = get_image_from_tile(tiles)
 
 			elseif type(tiles) == "table" then
-				if is_normal_node(def.drawtype) and node_tiles then
+				if is_normal_node(def.drawtype) then
 					image = get_image_cube(tiles)
 
 				else
