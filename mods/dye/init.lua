@@ -28,11 +28,29 @@ for _, row in ipairs(dye.dyes) do
 	local groups = {dye = 1}
 	groups["color_" .. name] = 1
 
-	core.register_craftitem("dye:" .. name, {
+	local def = {
 		inventory_image = "dye_" .. name .. ".png",
 		description = description .. " Dye",
 		groups = groups
-	})
+	}
+
+	if name == "white" then
+		def.on_use = function(stack, player, pointed_thing)
+			if pointed_thing.type ~= "node" then return end
+			local pos = core.get_pointed_thing_position(pointed_thing)
+			local upos = table.copy(pos)
+			upos.y = upos.y - 1
+			if not string.find(core.get_node(pos).name, "farming:") or not string.find(core.get_node(upos).name, "soil_wet") then return end
+			farming.grow_plant(pos, 360)
+			local player_name = player:get_player_name()
+			if not creative.is_enabled_for(player_name) then
+				stack:take_item(1)
+				return stack
+			end
+		end
+	end
+
+	core.register_craftitem("dye:" .. name, def)
 
 	core.register_craft({
 		output = "dye:" .. name .. " 4",

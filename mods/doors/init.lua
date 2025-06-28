@@ -359,7 +359,7 @@ function doors.register(name, def)
 	def.drawtype = "mesh"
 	def.paramtype = "light"
 	def.paramtype2 = "facedir"
-	def.use_texture_alpha = "clip"
+	def.use_texture_alpha = "blend"
 	def.sunlight_propagates = true
 	def.walkable = true
 	def.is_ground_content = false

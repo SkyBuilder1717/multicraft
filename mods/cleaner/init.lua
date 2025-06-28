@@ -54,7 +54,9 @@ local function clean()
 							local obj = objs[j]
 							if not obj:is_player() then
 								local pnam = player:get_player_name()
-								core.chat_send_player(pnam, dump(obj))
+								if obj:get_luaentity() and not core.registered_entities[obj:get_luaentity().name] then
+									obj:remove()
+								end
 							end
 						end
 					end
