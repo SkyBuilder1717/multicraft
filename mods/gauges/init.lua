@@ -45,13 +45,15 @@ local function scaleToDefault(player, field)
 end
 
 minetest.register_entity("gauges:hp_bar", {
-	visual = "sprite",
-	visual_size = {x=1, y=1/16, z=1},
-	textures = {"blank.png"},
-	collisionbox = {0},
-	physical = false,
-	static_save = false,
-
+	initial_properties = {
+		visual = "sprite",
+		visual_size = {x=1, y=1/16, z=1},
+		textures = {"blank.png"},
+		collisionbox = {0},
+		pointable = false,
+		physical = false,
+		static_save = false
+	},
 	on_step = function(self)
 		local player = self.wielder
 		local gauge = self.object
