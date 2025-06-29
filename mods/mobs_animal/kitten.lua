@@ -23,9 +23,6 @@ mobs:register_mob("mobs_animal:kitten", {
 	runaway = true,
 	jump_height = 5,
 	drops = function(pos)
-		if rawget(_G, "experience") then
-			experience.add_orb(math.random(1, 2), pos)
-		end
 		return {
 			{name = "farming:string"}
 		}

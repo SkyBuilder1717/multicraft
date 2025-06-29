@@ -43,14 +43,10 @@ mobs:register_mob("mobs_animal:bunny", {
 	replace_what = {"farming:carrot_7", "farming:carrot_8", "farming_plus:carrot"},
 	replace_with = "air",
 	on_rightclick = function(self, clicker)
-		-- feed or tame
-
-		if mobs:feed_tame(self, clicker, 4, true, true) then return end
 		if mobs:protect(self, clicker) then return end
-
-		-- Monty Python tribute
+		if mobs:feed_tame(self, clicker, 4, true, true) then return end
 		local item = clicker:get_wielded_item()
-		if item:get_name() == "mobs:lava_orb" then
+		if item:get_name() == "default:sword_steel" then
 			if not mobs.is_creative(clicker:get_player_name()) then
 				item:take_item()
 				clicker:set_wielded_item(item)
@@ -68,25 +64,20 @@ mobs:register_mob("mobs_animal:bunny", {
 	end,
 	on_spawn = function(self)
 		local pos = self.object:get_pos() ; pos.y = pos.y - 1
-
-		-- white snowy bunny
 		if core.find_node_near(pos, 1,
 				{"default:snow", "default:snowblock", "default:dirt_with_snow"}) then
 			self.base_texture = {"mobs_bunny_white.png"}
 			self.object:set_properties({textures = self.base_texture})
-		-- brown desert bunny
 		elseif core.find_node_near(pos, 1,
 				{"default:desert_sand", "default:desert_stone"}) then
 			self.base_texture = {"mobs_bunny_brown.png"}
 			self.object:set_properties({textures = self.base_texture})
-		-- grey stone bunny
 		elseif core.find_node_near(pos, 1,
 				{"default:stone", "default:gravel"}) then
 			self.base_texture = {"mobs_bunny_grey.png"}
 			self.object:set_properties({textures = self.base_texture})
 		end
-
-		return true -- run only once, false/nil runs every activation
+		return true
 	end,
 	damage = 5,
 })

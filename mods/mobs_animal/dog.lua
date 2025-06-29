@@ -47,7 +47,6 @@ mobs:register_mob("mobs_animal:wolf", {
 			end
 			return
 		end
-		--mobs:capture_mob(self, clicker, 0, 0, 80, true, nil)
 	end
 })
 
@@ -62,7 +61,6 @@ mobs:spawn({
 
 mobs:register_egg("mobs_animal:wolf", "Wolf's egg", "wool_grey.png", 1)
 
--- Dog
 mobs:register_mob("mobs_animal:dog", {
 	type = "npc",
 	visual = "mesh",
@@ -129,7 +127,6 @@ mobs:register_mob("mobs_animal:dog", {
 			end
 			return
 		end
-		--mobs:capture_mob(self, clicker, 0, 0, 80, false, nil)
 	end
 })
 

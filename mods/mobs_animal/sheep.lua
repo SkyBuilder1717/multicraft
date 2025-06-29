@@ -24,9 +24,6 @@ for i = 1, #dyes do
 		run_velocity = 2,
 		jump_height = 3,
 		drops = function(pos)
-			if rawget(_G, "experience") then
-				experience.add_orb(math.random(2, 4), pos)
-			end
 			return {
 				{name = "mobs:meat_raw"},
 				{name = "mobs:meat_raw", chance = 2},
@@ -52,8 +49,6 @@ for i = 1, #dyes do
 		water_damage = 1,
 		on_replace = function(self, pos, oldnode, newnode)
 			self.food = (self.food or 0) + 1
-
-			-- if sheep replaces 8x grass then it regrows wool
 			if self.food >= 8 then
 				self.food = 0
 				self.gotten = false
@@ -64,9 +59,8 @@ for i = 1, #dyes do
 			end
 		end,
 		on_rightclick = function(self, clicker)
-			--are we feeding?
+			if mobs:protect(self, clicker) then return end
 			if mobs:feed_tame(self, clicker, 8, true, true) then
-				--if fed 7x grass or wheat then sheep regrows wool
 				if self.food and self.food > 6 then
 					self.gotten = false
 					self.object:set_properties({
@@ -80,8 +74,6 @@ for i = 1, #dyes do
 			local item = clicker:get_wielded_item()
 			local itemname = item:get_name()
 			local player = clicker:get_player_name()
-
-			--are we giving a haircut>
 			if itemname == "mobs:shears" then
 				if self.gotten or self.child
 				or player ~= self.owner
@@ -100,7 +92,7 @@ for i = 1, #dyes do
 						z = math.random(-1, 1)
 					})
 				end
-				item:add_wear(650) -- 100 uses
+				item:add_wear(650)
 				clicker:set_wielded_item(item)
 				self.object:set_properties({
 					textures = {"mobs_sheep_shaved.png"},
@@ -109,7 +101,6 @@ for i = 1, #dyes do
 				return
 			end
 
-			--are we coloring?
 			if itemname:find("dye:") then
 				if self.gotten == false
 				and self.child == false
@@ -118,7 +109,6 @@ for i = 1, #dyes do
 					local colr = string.split(itemname, ":")[2]
 					for i = 1, #dyes do
 						local name = unpack(dyes[i])
-
 						if name == colr then
 							local pos = self.object:get_pos()
 							self.object:remove()
@@ -127,7 +117,6 @@ for i = 1, #dyes do
 							ent.owner = player
 							ent.tamed = true
 
-							-- take item
 							if not mobs.is_creative(player) or
 							not core.is_singleplayer() then
 								item:take_item()
@@ -139,8 +128,6 @@ for i = 1, #dyes do
 				end
 				return
 			end
-
-			if mobs:protect(self, clicker) then return end
 		end
 	})
 

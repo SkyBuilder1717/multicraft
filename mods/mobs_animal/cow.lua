@@ -53,39 +53,29 @@ mobs:register_mob("mobs_animal:cow", {
 	fear_height = 2,
 	floats = 1,
 	on_rightclick = function(self, clicker)
-		-- feed or tame
+		if mobs:protect(self, clicker) then return end
 		if mobs:feed_tame(self, clicker, 8, true, true) then
-			-- if fed 7x wheat or grass then cow can be milked again
 			if self.food and self.food > 6 then
 				self.gotten = false
 			end
 			return
 		end
 
-		if mobs:protect(self, clicker) then return end
-		--if mobs:capture_mob(self, clicker, 0, 5, 60, false, nil) then return end
-
 		local tool = clicker:get_wielded_item()
 		local name = clicker:get_player_name()
 
-		-- milk cow with empty bucket
 		if tool:get_name() == "bucket:bucket_empty" then
-
-			--if self.gotten == true
 			if self.child == true then
 				return
 			end
-
 			if self.gotten == true then
 				core.chat_send_player(name,
 						"Cow already milked!")
 				return
 			end
-
 			local inv = clicker:get_inventory()
 			tool:take_item()
 			clicker:set_wielded_item(tool)
-
 			if inv:room_for_item("main", {name = "mobs:bucket_milk"}) then
 				clicker:get_inventory():add_item("main", "mobs:bucket_milk")
 			else
@@ -93,32 +83,17 @@ mobs:register_mob("mobs_animal:cow", {
 				pos.y = pos.y + 0.5
 				core.add_item(pos, {name = "mobs:bucket_milk"})
 			end
-			self.gotten = true -- milked
+			self.gotten = true
 			return
 		end
 	end,
-
 	on_replace = function(self, pos, oldnode, newnode)
-
 		self.food = (self.food or 0) + 1
-
-		-- if cow replaces 8x grass then it can be milked again
 		if self.food >= 8 then
 			self.food = 0
 			self.gotten = false
 		end
-	end,
-
-	after_activate = function(self, staticdata, def, dtime)
-		-- replace cow using the old directx model
-		if self.mesh == "mobs_cow.x" then
-			local pos = self.object:get_pos()
-			if pos then
-				core.add_entity(pos, self.name)
-				self.object:remove()
-			end
-		end
-	end,
+	end
 })
 
 mobs:spawn({

@@ -20,9 +20,6 @@ mobs:register_mob("mobs_animal:pig", {
 	run_velocity = 3,
 	follow = {"default:apple", "farming:potato"},
 	drops = function(pos)
-		if rawget(_G, "experience") then
-			experience.add_orb(math.random(1,3), pos) -- random amount between 1 and 3
-		end
 		return {
 			{name = "mobs:pork_raw"},
 			{name = "mobs:pork_raw", chance = 2},

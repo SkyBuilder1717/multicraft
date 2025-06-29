@@ -26,13 +26,11 @@ function cart_entity:on_rightclick(clicker)
 	if self.driver and player_name == self.driver then
 		self.driver = nil
 		carts:manage_attachment(clicker, nil)
+		player_api.set_animation(clicker, "stand")
 	elseif not self.driver then
 		self.driver = player_name
 		carts:manage_attachment(clicker, self.object)
-
-			-- player_api does not update the animation
-			-- when the player is attached, reset to default animation
-		player_api.set_animation(clicker, "stand")
+		player_api.set_animation(clicker, "sit")
 	end
 end
 
@@ -397,15 +395,14 @@ local function rail_on_step(self, dtime)
 	-- Change player model rotation, depending on the Y direction
 	if player and dir.y ~= old_y_dir then
 		local feet = {x=0, y=0, z=0}
-		local eye = {x=0, y=-4, z=0}
+		local eye = {x=0, y=0, z=0}
 		feet.y = 6
 		if dir.y ~= 0 then
-			-- TODO: Find a better way to calculate this
 			feet.y = feet.y + 2
 			feet.z = -dir.y * 6
 			eye.z = -dir.y * 8
 		end
-		player:set_attach(self.object, "", feet,
+		player:set_attach(self.object, "", {x = feet.x, y = feet.y - 7, z = feet.z - 2.5},
 			{x=dir.y * -30, y=0, z=0})
 		player:set_eye_offset(eye, eye)
 	end
@@ -436,7 +433,7 @@ end
 core.register_entity("carts:cart", cart_entity)
 
 core.register_craftitem("carts:cart", {
-	description = "Cart (Sneak+Click to pick up)",
+	description = "Cart\n(Sneak+Click to pick up)",
 	inventory_image = "carts_cart_inv.png",
 	stack_max = 1,
 	sounds = default.node_sound_metal_defaults(),

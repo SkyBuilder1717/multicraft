@@ -18,12 +18,12 @@ function carts:manage_attachment(player, obj)
 	player_api.player_attached[player_name] = status
 
 	if status then
-		local y_pos = 6
+		local y_pos = -1
 		if player:get_properties().visual == "upright_sprite" then
 			y_pos = -4
 		end
-		player:set_attach(obj, "", {x=0, y=y_pos, z=0}, {x=0, y=0, z=0})
-		player:set_eye_offset({x=0, y=-4, z=0},{x=0, y=-4, z=0})
+		player:set_attach(obj, "", {x=0, y=y_pos, z=-2.5}, {x=0, y=0, z=0})
+		player:set_eye_offset({x=0, y=0, z=0},{x=0, y=0, z=0})
 	else
 		player:set_detach()
 		player:set_eye_offset({x=0, y=0, z=0},{x=0, y=0, z=0})
