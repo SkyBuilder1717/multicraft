@@ -213,40 +213,19 @@ function player_api.globalstep()
 			local controls = player:get_player_control()
 			local animation_speed_mod = model.animation_speed or 30
 
-			-- Determine if the player is sneaking, and reduce animation speed if so
-			if controls.sneak then
-				animation_speed_mod = animation_speed_mod / 2
-			end
-
 			-- Apply animations based on what the player is doing
 			if player:get_hp() == 0 then
 				player_set_animation(player, "lay")
 			elseif controls.up or controls.down or controls.left or controls.right then
 				if controls.LMB or controls.RMB then
-					if controls.sneak then -- Shifting support
-						player_set_animation(player, "shift_walk_mine", animation_speed_mod)
-					else
-						player_set_animation(player, "walk_mine", animation_speed_mod)
-					end
+					player_set_animation(player, "walk_mine", animation_speed_mod)
 				else
-					if controls.sneak then -- Shifting support
-						player_set_animation(player, "shift_walk", animation_speed_mod)
-					else
-						player_set_animation(player, "walk", animation_speed_mod)
-					end
+					player_set_animation(player, "walk", animation_speed_mod)
 				end
 			elseif controls.LMB or controls.RMB then
-				if controls.sneak then -- Shifting support
-					player_set_animation(player, "shift_mine", animation_speed_mod)
-				else
-					player_set_animation(player, "mine", animation_speed_mod)
-				end
+				player_set_animation(player, "mine", animation_speed_mod)
 			else
-				if controls.sneak then -- Shifting support
-					player_set_animation(player, "shift", animation_speed_mod)
-				else
-					player_set_animation(player, "stand", animation_speed_mod)
-				end
+				player_set_animation(player, "stand", animation_speed_mod)
 			end
 		end
 	end

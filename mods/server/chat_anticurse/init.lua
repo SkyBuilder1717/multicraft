@@ -237,7 +237,7 @@ function chat_anticurse.replace_curse(message)
 			message = string.gsub(message, word, replacement)
 		end
 	end
-	return message
+	return message:trim()
 end
 
 -- Returns true if a curse word is found

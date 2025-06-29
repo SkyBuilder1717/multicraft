@@ -5,52 +5,62 @@ local S = core.get_translator("terraform")
 
 local utf8 = {}
 
-function utf8.sub(str, start, finish)
-	local len = #str
-	local start_idx = 1
-	local finish_idx = len
+function utf8.len(s)
+    local len = 0
+    local i = 1
+    while i <= #s do
+        local c = s:byte(i)
+        if c >= 240 then
+            i = i + 4
+        elseif c >= 224 then
+            i = i + 3
+        elseif c >= 192 then
+            i = i + 2
+        else
+            i = i + 1
+        end
+        len = len + 1
+    end
+    return len
+end
 
-	local function utf8_len(s)
-		local count = 0
-		for i = 1, #s do
-			if string.byte(s, i) >= 0x80 then
-				while i <= #s and string.byte(s, i) >= 0x80 do
-					i = i + 1
-				end
-			end
-			count = count + 1
-		end
-		return count
-	end
+function utf8.sub(s, start, finish)
+    local len = utf8.len(s)
 
-	local function utf8_char(s, index)
-		local count = 0
-		for i = 1, #s do
-			count = count + 1
-			if count == index then
-				return s:sub(i, i)
-			end
-			if string.byte(s, i) >= 0x80 then
-				while i <= #s and string.byte(s, i) >= 0x80 do
-					i = i + 1
-				end
-			end
-		end
-		return nil
-	end
+    if start < 1 or start > len then
+        return ""
+    end
+    if finish == nil or finish > len then
+        finish = len
+    end
+    if finish < start then
+        return ""
+    end
 
-	local total_chars = utf8_len(str)
+    local result = ""
+    local i = 1
+    local current_pos = 1
 
-	if start < 1 then start = 1 end
-	if finish > total_chars then finish = total_chars end
-	if start > total_chars or finish < 1 or start > finish then return "" end
+    while i <= #s do
+        local c = s:byte(i)
+        local char_length = 1
+        if c >= 240 then
+            char_length = 4
+        elseif c >= 224 then
+            char_length = 3
+        elseif c >= 192 then
+            char_length = 2
+        end
 
-	local result = ""
-	for i = start, finish do
-		result = result .. utf8_char(str, i)
-	end
+        if current_pos >= start and current_pos <= finish then
+            result = result .. s:sub(i, i + char_length - 1)
+        end
 
-	return result
+        i = i + char_length
+        current_pos = current_pos + 1
+    end
+
+    return result
 end
 
 function utf8.lower(str)

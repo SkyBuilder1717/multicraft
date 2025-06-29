@@ -7,9 +7,9 @@ local function round(v)
 	return math.floor(v + 0.5)
 end
 
-local enabled = minetest.settings:get_bool("health_bars") ~= false
+local enabled = core.settings:get_bool("health_bars") ~= false
 if enabled then
-	enabled = minetest.settings:get_bool("enable_damage")
+	enabled = core.settings:get_bool("enable_damage")
 end
 
 -- Localize this functions for better performance,
@@ -20,14 +20,14 @@ local max = {
 	hp = 20,
 }
 
-local mt_5 = minetest.features.object_independent_selectionbox
+local mt_5 = core.features.object_independent_selectionbox
 
 local function add_gauge(player)
 	if player and player:is_player() then
-		local entity = minetest.add_entity(player:get_pos(), "gauges:hp_bar")
+		local entity = core.add_entity(player:get_pos(), "gauges:hp_bar")
 
-		-- Check Minetest version and set required entity heigh
-		-- (The entity height offset was changed in Minetest 5.0.0)
+		-- Check Luanti version and set required entity height
+		-- (The entity height offset was changed in Luanti 5.0.0)
 		local height = mt_5 and 19 or 9
 
 		entity:set_attach(player, "", {x=0, y=height, z=0}, {x=0, y=0, z=0})
@@ -36,7 +36,7 @@ local function add_gauge(player)
 end
 
 -- credit:
--- https://github.com/minetest/minetest/blob/master/builtin/game/statbars.lua#L31-L37
+-- https://github.com/luanti/luanti/blob/master/builtin/game/statbars.lua#L31-L37
 local function scaleToDefault(player, field)
 	-- Scale "hp" or "breath" to supported amount
 	local current = player["get_" .. field](player)
@@ -44,7 +44,7 @@ local function scaleToDefault(player, field)
 	return round(current / max_display * max[field])
 end
 
-minetest.register_entity("gauges:hp_bar", {
+core.register_entity("gauges:hp_bar", {
 	initial_properties = {
 		visual = "sprite",
 		visual_size = {x=1, y=1/16, z=1},
@@ -86,6 +86,7 @@ minetest.register_entity("gauges:hp_bar", {
 			gauge:set_properties({
 				textures = {health_t.."^"..breath_t}
 			})
+
 			self.hp = hp
 			self.breath = breath
 		end
@@ -93,7 +94,7 @@ minetest.register_entity("gauges:hp_bar", {
 })
 
 if enabled then
-	minetest.register_on_joinplayer(function(player)
-		minetest.after(1, add_gauge, player)
+	core.register_on_joinplayer(function(player)
+		core.after(1, add_gauge, player)
 	end)
 end

@@ -1430,9 +1430,10 @@ core.register_node("default:tallgrass", {
 		fixed = {-6 / 16, -0.5, -6 / 16, 6 / 16, -5 / 16, 6 / 16}
 	},
 	drop = {  
+		max_items = 1,
         items = {
             {
-                rarity = 10,
+                rarity = 8,
                 items = {"farming:seed_wheat"},
             },
 			{

@@ -1,7 +1,8 @@
+local anticurse_exists = core.global_exists("chat_anticurse")
 local S = areas.S
 
+local utf8 = ...
 local sub8 = utf8.sub
-local anticurse_exists = core.global_exists("chat_anticurse")
 
 core.register_chatcommand("protect", {
 	params = S("<AreaName>"),
@@ -20,7 +21,7 @@ core.register_chatcommand("protect", {
 			param = chat_anticurse.replace_curse(param)
 		end
 
-		param = sub8(param, 2, areas.config.max_area_name_length)
+		param = sub8(param, 1, areas.config.max_area_name_length)
 
 		core.log("action", "/protect invoked, owner="..name..
 				" AreaName="..param..
@@ -109,7 +110,7 @@ core.register_chatcommand("add_owner", {
 			areaName = chat_anticurse.replace_curse(areaName)
 		end
 
-		areaName = sub8(areaName, 2, areas.config.max_area_name_length)
+		areaName = sub8(areaName, 1, areas.config.max_area_name_length)
 
 		core.log("action", name.." runs /add_owner. Owner = "..ownerName..
 				" AreaName = "..areaName.." ParentID = "..pid..
