@@ -1,4 +1,4 @@
---if core.is_singleplayer() then return end
+if core.is_singleplayer() then return end
 
 local per_page = 8
 

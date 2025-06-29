@@ -4,6 +4,8 @@ local S = areas.S
 
 areas.hud = {}
 
+local utf8 = ...
+
 local vround = vector.round
 local tconcat, tinsert = table.concat, table.insert
 local sub8 = utf8.sub

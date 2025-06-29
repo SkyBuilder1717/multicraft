@@ -76,7 +76,7 @@ if areas.enable_mod then
 	loadfile(areas.modpath.."/chatcommands.lua")(utf8)
 	dofile(areas.modpath.."/pos.lua")
 	dofile(areas.modpath.."/interact.lua")
-	dofile(areas.modpath.."/hud.lua")
+	loadfile(areas.modpath.."/hud.lua")(utf8)
 	dofile(areas.modpath.."/protector.lua")
 
 	areas:load()
