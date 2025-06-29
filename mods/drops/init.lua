@@ -339,7 +339,7 @@ local function can_harvest(nodename, toolname, player)
 end
 
 function core.handle_node_drops(pos, drops, digger)
-	if digger and digger:is_player() and cretive.is_enabled_for(digger:get_player_name()) then
+	if digger and digger:is_player() and creative.is_enabled_for(digger:get_player_name()) then
 		local inv = digger:get_inventory()
 		if inv then
 			for _, item in ipairs(drops) do
