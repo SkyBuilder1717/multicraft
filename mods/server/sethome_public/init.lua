@@ -235,6 +235,10 @@ core.register_on_player_receive_fields(function(player, formname, fields)
         if fields.quit then return end
         if fields.create then
             local pos = player:get_pos()
+            if minetest.is_protected(pos, name) and not core.check_player_privs(name, "protection_bypass") then
+                core.chat_send_player(name, core.colorize("red", S("This area is protected!")))
+                return
+            end
             if checkfordanger(pos, 8) then
                 core.chat_send_player(name, core.colorize("red", S("This is an unsafe place to make a public home!")))
                 return
