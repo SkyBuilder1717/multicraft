@@ -98,13 +98,13 @@ core.after(0, function(v_user, v_bow_name, v_time_load)
     for name, def in pairs(bows.registered_arrows) do
     if def and bow_def then
     local _tool_capabilities = def.tool_capabilities
-	if inv:contains_item("main", name) or player_api.is_enabled_for(player_name) then
+	if inv:contains_item("main", name) or creative.is_enabled_for(player_name) then
 	    local meta = wielded_item:get_meta()
 		meta:set_string('arrow', name)
 		meta:set_string('time_load', tostring(v_time_load))
 		wielded_item:set_name(v_bow_name .. '_charged')
 		v_user:set_wielded_item(wielded_item)
-		if not player_api.is_enabled_for(player_name) then
+		if not creative.is_enabled_for(player_name) then
 			inv:remove_item('main', name)
 		end
 		break
@@ -173,7 +173,7 @@ function bows.shoot(itemstack, user, pointed_thing)
 	obj:set_acceleration({x = dir.x * -3, y = -10, z = dir.z * -3})
 	obj:set_yaw(core.dir_to_yaw(dir))
 
-	if not player_api.is_enabled_for(user:get_player_name()) then
+	if not creative.is_enabled_for(user:get_player_name()) then
 		itemstack:add_wear(65535 / uses)
 	end
 

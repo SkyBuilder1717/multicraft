@@ -6,10 +6,6 @@ local modpath = core.get_modpath(modname)
 local S = core.get_translator(modname)
 dofile(modpath.."/api.lua")
 
-function player_api.is_enabled_for(name)
-	return creative_mode_cache or core.check_player_privs(name, {creative = true}) or core.is_creative_enabled(name)
-end
-
 -- Default player appearance (scrapped, use 3d_armor instead)
 player_api.register_model("character.b3d", {
 	animation_speed = 30,
@@ -94,7 +90,7 @@ local function setup_hand(name)
 	if player and player:is_player() then
 		local inv = player:get_inventory()
 		inv:set_size("hand", 1)
-		if player_api.is_enabled_for(name) then
+		if creative.is_enabled_for(name) then
 			inv:set_stack("hand", 1, "player_api:creative_hand")
 		else
 			inv:set_stack("hand", 1, "player_api:hand")
