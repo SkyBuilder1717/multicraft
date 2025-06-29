@@ -213,22 +213,7 @@ core.register_craftitem("mobs:rotten_flesh", {
 core.register_tool("mobs:shears", {
 	description = S("Shears"),
 	inventory_image = "mobs_shears.png",
-	groups = {flammable = 2},
-	on_use = function(stack, player, pointed_thing)
-		if  pointed_thing.type == "node" then
-			local pos = core.get_pointed_thing_position(pointed_thing)
-			local node = core.get_node(pos)
-			if node.name == "mobs:cobweb" then
-				local player_name = player:get_player_name()
-				core.sound_play("mobs_clip", {to_player = player_name})
-				core.dig_node(pos, player)
-				if not creative.is_enabled_for(player_name) then
-					stack:add_wear(1000)
-					return stack
-				end
-			end
-		end
-	end
+	groups = {flammable = 2}
 })
 
 core.register_craft({
