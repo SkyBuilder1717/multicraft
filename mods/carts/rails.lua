@@ -28,13 +28,13 @@ carts:register_rail("carts:powerrail", {
 	groups = carts:get_rail_groups(),
 	after_place_node = function(pos, placer, itemstack)
 		if not mesecon then
-			core.get_meta(pos):set_string("cart_acceleration", "0.5")
+			core.get_meta(pos):set_string("cart_acceleration", "2")
 		end
 	end,
 	mesecons = {
 		effector = {
 			action_on = function(pos, node)
-				carts:boost_rail(pos, 0.5)
+				carts:boost_rail(pos, 2)
 			end,
 			action_off = function(pos, node)
 				core.get_meta(pos):set_string("cart_acceleration", "0")

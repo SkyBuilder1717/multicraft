@@ -80,7 +80,7 @@ function cart_entity:on_punch(puncher, time_from_last_punch, tool_capabilities, 
 		if vector.equals(cart_dir, {x=0, y=0, z=0}) then
 			return
 		end
-		self.velocity = vector.multiply(cart_dir, 3)
+		self.velocity = vector.multiply(cart_dir, 10)
 		self.punched = true
 		return
 	end
