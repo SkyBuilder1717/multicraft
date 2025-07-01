@@ -1,0 +1,18 @@
+# If enabled, rotation of signs will snap to one of 16 positions
+ucsigns_limit_rotation (Normalize Rotation) bool false
+
+# If enabled UC-signs will register signs for all wood types (itemgroup: wood)
+ucsigns_register_wood_signs (Register Wood signs) bool true
+
+# If enabled crafting recipes for the wooden signs will automatically be loaded
+# (the node of the itemgroup wood and a node of the itemgroup stick)
+ucsigns_wood_signs_crafting (Enable crafting recipes for wood signs) bool true
+
+# Max line length for sign text
+ucsigns_max_line_length (Max Line length) int 15 1 50
+
+# Max number of lines for sign text
+ucsigns_max_lines (Max Lines) int 4 1 8
+
+# Fix Aspect Ratio of images - if false sign text can look stretched
+ucsigns_fixed_aspect_ratio (Fixed Aspect Ratio) bool true

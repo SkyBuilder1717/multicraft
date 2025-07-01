@@ -1152,7 +1152,6 @@ core.register_node("default:cherry_blossom_leaves", {
 		}
 	},
 	sounds = default.node_sound_leaves_defaults(),
-
 	after_place_node = after_place_leaves
 })
 
@@ -2112,5 +2111,11 @@ default.register_leafdecay({
 default.register_leafdecay({
 	trunks = {"default:birch_tree"},
 	leaves = {"default:birch_leaves"},
+	radius = 3,
+})
+
+default.register_leafdecay({
+	trunks = {"default:cherry_blossom_tree"},
+	leaves = {"default:cherry_blossom_leaves"},
 	radius = 3,
 })

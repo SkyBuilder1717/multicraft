@@ -36,9 +36,23 @@ core.register_craft({
 })
 
 core.register_craft({
+	output = "default:cherry_blossom_wood 4",
+	recipe = {
+		{"default:cherry_blossom_tree"},
+	}
+})
+
+core.register_craft({
 	output = "default:mossycobble",
 	recipe = {
 		{"default:cobble", "default:vine"},
+	}
+})
+
+core.register_craft({
+	output = "default:dirt_with_grass",
+	recipe = {
+		{"default:dirt", "default:vine"},
 	}
 })
 
@@ -504,7 +518,6 @@ core.register_craft({
 		{"default:quartz_block"},
 	}
 })
-
 
 --
 -- Cooking recipes

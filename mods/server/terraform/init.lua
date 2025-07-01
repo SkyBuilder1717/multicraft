@@ -69,7 +69,7 @@ function utf8.lower(str)
 	while i <= #str do
 		local byte = str:byte(i)
 		if byte <= 0x7F then
-			result[#result + 1] = string.char(byte:lower())
+			result[#result + 1] = string.char(byte):lower()
 			i = i + 1
 		elseif byte >= 0xC2 and byte <= 0xDF then
 			local nextByte = str:byte(i + 1)

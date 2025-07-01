@@ -50,6 +50,14 @@ function default.grow_sapling(pos)
 			else
 				default.grow_new_apple_tree(pos)
 			end
+		elseif node.name == "default:cherry_blossom_sapling" then
+			core.log("action", "A sapling grows into a tree at "..
+				core.pos_to_string(pos))
+			if mg_name == "v6" then
+				default.grow_cherry_tree(pos, random(1, 4) == 1)
+			else
+				default.grow_new_cherry_tree(pos)
+			end
 		elseif node.name == "default:junglesapling" then
 			core.log("action", "A jungle sapling grows into a tree at "..
 				core.pos_to_string(pos))
@@ -173,6 +181,36 @@ function default.grow_tree(pos, is_apple_tree, bad)
 	local height = random(4, 5)
 	local c_tree = core.get_content_id("default:tree")
 	local c_leaves = core.get_content_id("default:leaves")
+
+	local vm = core.get_voxel_manip()
+	local minp, maxp = vm:read_from_map(
+		{x = x - 2, y = y, z = z - 2},
+		{x = x + 2, y = y + height + 1, z = z + 2}
+	)
+	local a = VoxelArea:new({MinEdge = minp, MaxEdge = maxp})
+	local data = vm:get_data()
+
+	add_trunk_and_leaves(data, a, pos, c_tree, c_leaves, height, 2, 8, is_apple_tree)
+
+	vm:set_data(data)
+	vm:write_to_map()
+	vm:update_map()
+end
+
+function default.grow_cherry_tree(pos, is_apple_tree, bad)
+	--[[
+		NOTE: Tree-placing code is currently duplicated in the engine
+		and in games that have saplings; both are deprecated but not
+		replaced yet
+	--]]
+	if bad then
+		error("Deprecated use of default.grow_cherry_tree")
+	end
+
+	local x, y, z = pos.x, pos.y, pos.z
+	local height = random(4, 5)
+	local c_tree = core.get_content_id("default:cherry_blossom_tree")
+	local c_leaves = core.get_content_id("default:cherry_blossom_leaves")
 
 	local vm = core.get_voxel_manip()
 	local minp, maxp = vm:read_from_map(
@@ -374,6 +412,15 @@ end
 function default.grow_new_apple_tree(pos)
 	local path = core.get_modpath("default") ..
 		"/schematics/apple_tree_from_sapling.mts"
+	core.place_schematic({x = pos.x - 3, y = pos.y - 1, z = pos.z - 3},
+		path, "random", nil, false)
+end
+
+-- New cherry tree
+
+function default.grow_new_cherry_tree(pos)
+	local path = core.get_modpath("default") ..
+		"/schematics/cherry_tree_from_sapling.mts"
 	core.place_schematic({x = pos.x - 3, y = pos.y - 1, z = pos.z - 3},
 		path, "random", nil, false)
 end

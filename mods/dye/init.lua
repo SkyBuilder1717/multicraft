@@ -38,10 +38,17 @@ for _, row in ipairs(dye.dyes) do
 		def.on_use = function(stack, player, pointed_thing)
 			if pointed_thing.type ~= "node" then return end
 			local pos = core.get_pointed_thing_position(pointed_thing)
-			local upos = table.copy(pos)
-			upos.y = upos.y - 1
-			if not string.find(core.get_node(pos).name, "farming:") or not string.find(core.get_node(upos).name, "soil_wet") or core.get_node_light(pos) < 13 then return end
-			farming.grow_plant(pos, 360)
+			local nname = core.get_node(pos).name
+			if string.find(nname, "farming:") then
+				if not string.find(core.get_node(upos).name, "soil_wet") or not core.get_node_light(pos) < 13 then return end
+				local upos = table.copy(pos)
+				upos.y = upos.y - 1
+				farming.grow_plant(pos, 360)
+			elseif string.find(nname, "default:") and string.find(nname, "sapling") then
+				default.grow_sapling(pos)
+			else
+				return stack
+			end
 			local player_name = player:get_player_name()
 			if not creative.is_enabled_for(player_name) then
 				stack:take_item(1)

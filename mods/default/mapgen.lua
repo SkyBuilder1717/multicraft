@@ -1348,6 +1348,52 @@ function default.register_decorations()
 		num_spawn_by = 8,
 	})
 
+	-- Cherry tree and log
+
+	core.register_decoration({
+		name = "default:cherry_blossom_tree",
+		deco_type = "schematic",
+		place_on = {"default:dirt_with_grass"},
+		sidelen = 16,
+		noise_params = {
+			offset = 0.024,
+			scale = 0.015,
+			spread = {x = 250, y = 250, z = 250},
+			seed = 2,
+			octaves = 3,
+			persist = 0.66
+		},
+		biomes = {"deciduous_forest"},
+		y_max = 31000,
+		y_min = 1,
+		schematic = core.get_modpath("default") .. "/schematics/cherry_tree.mts",
+		flags = "place_center_x, place_center_z",
+		rotation = "random",
+	})
+
+	core.register_decoration({
+		name = "default:cherry_blossom_log",
+		deco_type = "schematic",
+		place_on = {"default:dirt_with_grass"},
+		sidelen = 16,
+		noise_params = {
+			offset = 0.0012,
+			scale = 0.0007,
+			spread = {x = 250, y = 250, z = 250},
+			seed = 2,
+			octaves = 3,
+			persist = 0.66
+		},
+		biomes = {"deciduous_forest"},
+		y_max = 31000,
+		y_min = 1,
+		schematic = core.get_modpath("default") .. "/schematics/cherry_log.mts",
+		flags = "place_center_x",
+		rotation = "random",
+		spawn_by = "default:dirt_with_grass",
+		num_spawn_by = 8,
+	})
+
 	-- Emergent jungle tree
 	-- Due to 32 node height, altitude is limited and prescence depends on chunksize
 

@@ -195,6 +195,7 @@ minetest.register_craft({
 for _, node in pairs({
 	-- default nodes
 	"default:acacia_bush_sapling",
+	"default:cherry_blossom_sapling",
 	"default:acacia_bush_stem",
 	"default:acacia_sapling",
 	"default:aspen_sapling",
