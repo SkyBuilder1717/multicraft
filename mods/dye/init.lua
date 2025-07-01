@@ -40,9 +40,9 @@ for _, row in ipairs(dye.dyes) do
 			local pos = core.get_pointed_thing_position(pointed_thing)
 			local nname = core.get_node(pos).name
 			if string.find(nname, "farming:") then
-				if not string.find(core.get_node(upos).name, "soil_wet") or not core.get_node_light(pos) < 13 then return end
 				local upos = table.copy(pos)
 				upos.y = upos.y - 1
+				if not string.find(core.get_node(upos).name, "soil_wet") or not core.get_node_light(pos) < 13 then return end
 				farming.grow_plant(pos, 360)
 			elseif string.find(nname, "default:") and string.find(nname, "sapling") then
 				default.grow_sapling(pos)
