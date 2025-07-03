@@ -11,12 +11,7 @@ default = {}
 
 default.LIGHT_MAX = 14
 default.get_translator = S
-default.gui_bg = "bgcolor[#08080880;true]"
-default.listcolors = "listcolors[#9990;#FFF7;#FFF0;#160816;#D4D2FF]"
-
-default = {}
-
-default.S = core.get_translator("default")
+default.S = S
 
 -- Definitions made by this mod that other mods can use too
 local Cesc = core.get_color_escape_sequence

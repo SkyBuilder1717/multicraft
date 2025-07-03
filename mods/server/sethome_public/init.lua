@@ -205,7 +205,7 @@ local function is_save(pos)
         return false, reason
     end
     if areas:canPvpAt(pos) then
-        return false, "PvP near"
+        return false, "PvP available here"
     end
     return true, nil
 end
