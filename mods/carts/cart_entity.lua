@@ -159,6 +159,7 @@ local function rail_sound(self, dtime)
 		core.after(0.2, core.sound_stop, handle)
 	end
 	local vel = self.object:get_velocity()
+	if not vel then return end
 	local speed = vector.length(vel)
 	if speed > 0 then
 		self.sound_handle = core.sound_play(
