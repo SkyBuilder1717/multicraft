@@ -197,7 +197,7 @@ local function checkfordanger(pos, radius)
 end
 
 local function is_save(pos)
-    if areas:can_pvp_at(pos) or checkfordanger(pos, 8) then
+    if areas:canPvpAt(pos) or checkfordanger(pos, 8) then
         return false
     end
     return true
@@ -228,6 +228,21 @@ core.register_on_player_receive_fields(function(player, formname, fields)
                     local pos = def.pos
                     if not is_save(pos) then
                         core.chat_send_player(name, core.colorize("red", S("This public home is unsafe to teleport!")))
+                        if core.check_player_privs(name, "server") then
+                            core.chat_send_player(name, core.colorize("red", S("Staff, get ready!")))
+                            core.close_formspec(name, "sethome_public")
+                            for i = 1, 4 do
+                                local countdown = 3 - (i - 1)
+                                core.after(i, function()
+                                    if countdown < 1 then
+                                        player:set_pos(pos)
+                                        core.chat_send_player(name, core.colorize("lime", S("Teleported to @1's home!", owner)))
+                                    else
+                                        core.chat_send_player(name, core.colorize("red", S("@1...", countdown)))
+                                    end
+                                end)
+                            end
+                        end
                         return
                     end
                     player:set_pos(pos)
