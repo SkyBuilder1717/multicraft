@@ -2120,3 +2120,14 @@ default.register_leafdecay({
 	leaves = {"default:cherry_blossom_leaves"},
 	radius = 3,
 })
+
+--
+-- custom
+--
+
+core.register_node("default:metro", {
+	description = "Metro Map",
+	inventory_image = "default_metro.png",
+	groups = {cracky = 1},
+	tiles = {{name = "default_metro.png", align_style="world", scale=2}}
+})

@@ -741,3 +741,13 @@ core.register_craft({
 		{"default:stone", "default:stone", "default:stone"},
 	}
 })
+
+core.register_craft({
+	output = "default:metro",
+	type = "shaped",
+	recipe = {
+		{"default:paper", "default:paper", "default:paper"},
+		{"default:paper", "default:paper", "default:paper"},
+		{"default:paper", "default:paper", "default:paper"}
+	}
+})
