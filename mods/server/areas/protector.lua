@@ -78,12 +78,14 @@ core.register_node("areas:protector", {
 })
 -- entities code below (and above) mostly copied-pasted from Zeg9's protector mod
 core.register_entity("areas:display", {
-	physical = false,
-	collisionbox = {0},
-	visual = "wielditem",
-	-- wielditem seems to be scaled to 1.5 times original node size
-	visual_size = {x = 1.0 / 1.5, y = 1.0 / 1.5},
-	textures = {"areas:display_node"},
+	initial_properties = {
+		physical = false,
+		collisionbox = {0},
+		visual = "wielditem",
+		-- wielditem seems to be scaled to 1.5 times original node size
+		visual_size = {x = 1.0 / 1.5, y = 1.0 / 1.5},
+		textures = {"areas:display_node"}
+	},
 	timer = 0,
 	on_step = function(self, dtime)
 		self.timer = self.timer + dtime

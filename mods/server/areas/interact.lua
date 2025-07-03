@@ -70,7 +70,7 @@ core.register_on_punchplayer(function(player, hitter, time_from_last_punch)
 	end
 
 	-- Allow PvP if both players are in a PvP area
-	if self:canPvpAt(hitter:get_pos()) and self:canPvpAt(player:get_pos()) then
+	if areas:canPvpAt(hitter:get_pos()) and areas:canPvpAt(player:get_pos()) then
 		return false
 	end
 
@@ -82,8 +82,8 @@ end)
 local old_calculate_knockback = core.calculate_knockback
 function core.calculate_knockback(player, hitter, time_from_last_punch, ...)
 	if player:is_player() and hitter and hitter:is_player() and
-			(time_from_last_punch < 0.25 or not self:canPvpAt(player:get_pos()) or
-			not self:canPvpAt(hitter:get_pos())) then
+			(time_from_last_punch < 0.25 or not areas:canPvpAt(player:get_pos()) or
+			not areas:canPvpAt(hitter:get_pos())) then
 		return 0
 	end
 	return old_calculate_knockback(player, hitter, time_from_last_punch, ...)

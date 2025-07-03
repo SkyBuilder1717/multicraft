@@ -1300,7 +1300,8 @@ core.register_node("default:cactus", {
 	drawtype = "nodebox",
 	tiles = {"default_cactus_top.png", "default_cactus_bottom.png", "default_cactus_side.png"},
 	paramtype2 = "facedir",
-	use_texture_alpha = "blend",
+	use_texture_alpha = "clip",
+	damage_per_second = 2,
 	groups = {choppy = 3, flammable = 2, attached_node = 1},
 	sounds = default.node_sound_wood_defaults(),
 	node_box = {
@@ -1321,20 +1322,20 @@ core.register_node("default:cactus", {
 	},
 })
 
-if not core.settings:get_bool("creative_mode") then
-	core.register_abm({
-		label = "Cactus damage",
-		nodenames = {"default:cactus"},
-		interval = 1,
-		chance = 1,
-		action = function(pos)
-			local players = core.get_objects_inside_radius(pos, 1)
-			for i, player in ipairs(players) do
+core.register_abm({
+	label = "Cactus damage",
+	nodenames = {"default:cactus"},
+	interval = 1,
+	chance = 1,
+	action = function(pos)
+		local players = core.get_objects_inside_radius(pos, 1)
+		for i, player in ipairs(players) do
+			if not creative.is_enabled_for(player:get_player_name()) then
 				player:set_hp(player:get_hp() - 2)
 			end
-		end,
-	})
-end
+		end
+	end,
+})
 
 core.register_node("default:sugarcane", {
 	description = "Sugarcane",

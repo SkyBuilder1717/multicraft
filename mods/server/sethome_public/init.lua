@@ -172,35 +172,42 @@ end
 local function danger(node)
     local node_def = core.registered_nodes[node]
     if node_def and ((node_def.damage_per_second and node_def.damage_per_second > 0) or string.find(node, "lava_")) then
-        return true
+        local reason = node
+        if node_def.description and node_def.description ~= "" then reason = node_def.description end
+        return true, reason
     end
-    return false
+    return false, nil
 end
 
 local function checkfordanger(pos, radius)
     local upos = table.copy(pos)
     upos.y = upos.y - 1
     local def = core.registered_nodes[core.get_node(upos).name]
-    if def and def.drawtype == "airlike" then return true end
+    if def and def.drawtype == "airlike" then return true, "Home in the air" end
     for x = -radius, radius do
         for y = -radius, radius do
             for z = -radius, radius do
                 local node_pos = {x = pos.x + x, y = pos.y + y, z = pos.z + z}
                 local node = core.get_node(node_pos)
-                if danger(node.name) then
-                    return true
+                local danger, reason = danger(node.name)
+                if danger then
+                    return true, reason
                 end
             end
         end
     end
-    return false
+    return false, nil
 end
 
 local function is_save(pos)
-    if areas:canPvpAt(pos) or checkfordanger(pos, 8) then
-        return false
+    local danger, reason = checkfordanger(pos, 8)
+    if danger then
+        return false, reason
     end
-    return true
+    if areas:canPvpAt(pos) then
+        return false, "PvP near"
+    end
+    return true, nil
 end
 
 core.register_on_player_receive_fields(function(player, formname, fields)
@@ -261,8 +268,9 @@ core.register_on_player_receive_fields(function(player, formname, fields)
                 core.chat_send_player(name, core.colorize("red", S("This area is protected!")))
                 return
             end
-            if not is_save(pos) then
-                core.chat_send_player(name, core.colorize("red", S("This is an unsafe place to make a public home!")))
+            local save, reason = is_save(pos)
+            if not save then
+                core.chat_send_player(name, core.colorize("red", S("This is an unsafe place to make a public home! (Reason: @1)", reason)))
                 return
             end
             sethome_public.homes[name] = {name = chat_anticurse.replace_curse(maxlen(fields.point, 24)), pos = pos}

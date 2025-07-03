@@ -21,6 +21,7 @@ end
 
 -- Flame nodes
 core.register_node("fire:basic_flame", {
+	description = "Flame",
 	drawtype = "firelike",
 	tiles = {
 		{
