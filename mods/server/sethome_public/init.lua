@@ -231,7 +231,7 @@ core.register_on_player_receive_fields(function(player, formname, fields)
             sethome_public.current_page[name] = sethome_public.current_page[name] + 1
         else
             for owner, def in pairs(sethome_public.homes) do
-                if fields[owner] then
+                if fields[owner] and player_api.player_attached[name] then
                     local pos = def.pos
                     if not is_save(pos) then
                         core.chat_send_player(name, core.colorize("red", S("This public home is unsafe to teleport!")))
