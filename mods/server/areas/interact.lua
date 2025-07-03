@@ -38,7 +38,7 @@ core.register_on_protection_violation(function(pos, name)
 	end
 end)
 
-local function can_pvp_at(pos)
+function areas:can_pvp_at(pos)
 	local default = areas.config.pvp_by_default
 	for id in pairs(areas:getAreasAtPos(pos)) do
 		-- This uses areas:canPvP instead of area.canPvP in case areas:canPvP
@@ -70,7 +70,7 @@ core.register_on_punchplayer(function(player, hitter, time_from_last_punch)
 	end
 
 	-- Allow PvP if both players are in a PvP area
-	if can_pvp_at(hitter:get_pos()) and can_pvp_at(player:get_pos()) then
+	if self:can_pvp_at(hitter:get_pos()) and self:can_pvp_at(player:get_pos()) then
 		return false
 	end
 
@@ -82,8 +82,8 @@ end)
 local old_calculate_knockback = core.calculate_knockback
 function core.calculate_knockback(player, hitter, time_from_last_punch, ...)
 	if player:is_player() and hitter and hitter:is_player() and
-			(time_from_last_punch < 0.25 or not can_pvp_at(player:get_pos()) or
-			not can_pvp_at(hitter:get_pos())) then
+			(time_from_last_punch < 0.25 or not self:can_pvp_at(player:get_pos()) or
+			not self:can_pvp_at(hitter:get_pos())) then
 		return 0
 	end
 	return old_calculate_knockback(player, hitter, time_from_last_punch, ...)
